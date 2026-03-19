@@ -1,14 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SvgUri } from 'react-native-svg';
+import styles from './styles';
 
 // Tipo das abas do footer
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil';
@@ -120,51 +114,3 @@ export default function App() {
     </View>
   );
 }
-
-const { width } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  screenTitle: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#1E4620',
-  },
-  subtitle: {
-    marginTop: 8,
-    fontSize: 16,
-    color: '#4F4F4F',
-  },
-  footer: {
-    width,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-  },
-  tabButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
-  tabLabel: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#707070',
-  },
-  tabLabelActive: {
-    color: '#1E8E40',
-    fontWeight: '700',
-  },
-});
