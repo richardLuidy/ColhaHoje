@@ -1,20 +1,8 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_136_439)">
-<g filter="url(#filter0_d_136_439)">
-<path d="M31.4723 40L16.587 35.5381L7.375 38.6177C6.824 38.8429 6.29042 38.8195 5.77425 38.5475C5.25808 38.2759 5 37.8681 5 37.3242V12.6871C5 12.3273 5.10272 11.9985 5.30816 11.7006C5.51359 11.4031 5.80829 11.1961 6.19225 11.0796L16.587 8L31.4723 12.4115L40.625 9.37069C41.176 9.15326 41.7096 9.15916 42.2258 9.38836C42.7419 9.61723 43 9.99066 43 10.5086V35.6158C43 35.9601 42.8743 36.2603 42.623 36.5165C42.372 36.7729 42.0593 36.9555 41.6848 37.0642L31.4723 40ZM30.4125 38.078V13.5923L17.5875 9.83264V34.3183L30.4125 38.078Z" fill="#2D6A4F"/>
-</g>
+<path d="M31.4723 40L16.587 35.5381L7.375 38.6177C6.824 38.8429 6.29042 38.8195 5.77425 38.5475C5.25808 38.2759 5 37.8681 5 37.3242V12.6871C5 12.3273 5.10272 11.9985 5.30816 11.7006C5.51359 11.4031 5.80829 11.1961 6.19225 11.0796L16.587 8L31.4723 12.4115L40.625 9.37069C41.176 9.15326 41.7096 9.15916 42.2257 9.38836C42.7419 9.61723 43 9.99066 43 10.5086V35.6158C43 35.9601 42.8743 36.2603 42.623 36.5165C42.372 36.7729 42.0593 36.9555 41.6848 37.0642L31.4723 40ZM30.4125 38.078V13.5923L17.5875 9.83264V34.3183L30.4125 38.078Z" fill="#2D6A4F"/>
 </g>
 <defs>
-<filter id="filter0_d_136_439" x="4" y="8" width="42" height="36" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dx="1" dy="2"/>
-<feGaussianBlur stdDeviation="1"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_136_439"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_136_439" result="shape"/>
-</filter>
 <clipPath id="clip0_136_439">
 <rect width="48" height="48" fill="white"/>
 </clipPath>
