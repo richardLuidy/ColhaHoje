@@ -54,19 +54,18 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('inicio');
 
   // Resolve recurso local SVG para URI no motor do React Native.
-  const resolvedIcons = useMemo(() => {
-    const result: Record<TabKey, { active: string; inactive: string }> = {
-      mapa: { active: '', inactive: '' },
-      ofertas: { active: '', inactive: '' },
-      inicio: { active: '', inactive: '' },
-      pedidos: { active: '', inactive: '' },
-      perfil: { active: '', inactive: '' },
-    };
+  const tabs: TabKey[] = ['mapa', 'ofertas', 'inicio', 'pedidos', 'perfil'];
 
-    (Object.keys(tabConfig) as TabKey[]).forEach((key) => {
+  const resolvedIcons = useMemo(() => {
+    const result = {} as Record<TabKey, { active: string; inactive: string }>;
+
+    tabs.forEach((key) => {
+      const activeSource = Image.resolveAssetSource(tabConfig[key].iconActive);
+      const inactiveSource = Image.resolveAssetSource(tabConfig[key].iconInactive);
+
       result[key] = {
-        active: Image.resolveAssetSource(tabConfig[key].iconActive).uri,
-        inactive: Image.resolveAssetSource(tabConfig[key].iconInactive).uri,
+        active: (activeSource.uri || '') as string,
+        inactive: (inactiveSource.uri || '') as string,
       };
     });
 
@@ -99,7 +98,7 @@ export default function App() {
       </View>
 
       <View style={styles.footer}>
-        {(Object.keys(tabConfig) as TabKey[]).map((key) => {
+        {tabs.map((key) => {
           const isActive = key === activeTab;
           const src = isActive ? resolvedIcons[key].active : resolvedIcons[key].inactive;
 
