@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import styles from './styles';
+import Header from './src/components/Header';
 
 // Tipo das abas do footer
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil';
@@ -86,6 +87,10 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      
+      {/* 🚀 O HEADER ENTRA AQUI! Fica no topo da tela, antes do conteúdo */}
+      <Header activeTab={activeTab} />
+
       <View style={styles.content}>
         {renderScreen()}
         <Text style={styles.subtitle}>A aba ativa é: {tabConfig[activeTab].label}</Text>
