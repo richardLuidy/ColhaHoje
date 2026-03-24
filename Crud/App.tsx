@@ -5,6 +5,13 @@ import { SvgUri } from 'react-native-svg';
 import styles from './styles';
 import Header from './src/components/Header';
 
+// 🚀 IMPORTAÇÃO DAS TELAS REAIS (Criadas na pasta pages)
+import Inicio from './src/pages/Inicio';
+import Mapa from './src/pages/Mapa';
+import Ofertas from './src/pages/Ofertas';
+import Pedidos from './src/pages/Pedidos';
+import Perfil from './src/pages/Perfil';
+
 // Tipo das abas do footer
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil';
 
@@ -45,7 +52,7 @@ const tabConfig: Record<
 };
 
 export default function App() {
-  // Inicialmente a tela "Início" está selecionada, como o seu requisito
+  // Inicialmente a tela "Início" está selecionada
   const [activeTab, setActiveTab] = useState<TabKey>('inicio');
 
   // Resolve recurso local SVG para URI no motor do React Native.
@@ -67,35 +74,22 @@ export default function App() {
     return result;
   }, []);
 
-  // Conteúdo simulando cada tela
-  const renderScreen = () => {
-    switch (activeTab) {
-      case 'mapa':
-        return <Text style={styles.screenTitle}>Tela Mapa</Text>;
-      case 'ofertas':
-        return <Text style={styles.screenTitle}>Tela Ofertas</Text>;
-      case 'inicio':
-        return <Text style={styles.screenTitle}>Tela Início</Text>;
-      case 'pedidos':
-        return <Text style={styles.screenTitle}>Tela Pedidos</Text>;
-      case 'perfil':
-        return <Text style={styles.screenTitle}>Tela Perfil</Text>;
-      default:
-        return <Text style={styles.screenTitle}>Tela Início</Text>;
-    }
-  };
-
   return (
     <View style={styles.container}>
       
-      {/* 🚀 O HEADER ENTRA AQUI! Fica no topo da tela, antes do conteúdo */}
+      {/* 🚀 O HEADER ENTRA AQUI! Fica no topo da tela */}
       <Header activeTab={activeTab} />
 
+      {/* 🚀 RENDERIZAÇÃO DINÂMICA DAS TELAS REAIS */}
       <View style={styles.content}>
-        {renderScreen()}
-        <Text style={styles.subtitle}>A aba ativa é: {tabConfig[activeTab].label}</Text>
+        {activeTab === 'mapa' && <Mapa />}
+        {activeTab === 'ofertas' && <Ofertas />}
+        {activeTab === 'inicio' && <Inicio />}
+        {activeTab === 'pedidos' && <Pedidos />}
+        {activeTab === 'perfil' && <Perfil />}
       </View>
 
+      {/* 🚀 O FOOTER */}
       <View style={styles.footer}>
         {tabs.map((key) => {
           const isActive = key === activeTab;
@@ -108,7 +102,8 @@ export default function App() {
               onPress={() => setActiveTab(key)}
               activeOpacity={0.75}
             >
-              <SvgUri width={24} height={24} uri={src} />
+             {/* Tamanho ideal de 31x31 para equilibrar perfeitamente o peso visual do ícone com o texto da legenda! */}
+              <SvgUri width={31} height={31} uri={src} />
               <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tabConfig[key].label}</Text>
             </TouchableOpacity>
           );

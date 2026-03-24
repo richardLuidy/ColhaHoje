@@ -53,12 +53,13 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 
-    // =======================================================
+   // =======================================================
     // 🟢 ESTILOS DO Header.tsx (Cabeçalho Verde)
     // =======================================================
     headerContainer: {
         width: '100%',
         height: 100, 
+        paddingTop: 50, // 👈 ADICIONADO: Espaço perfeito para a barra de status (Wi-Fi, Bateria)
         paddingBottom: 15,
         backgroundColor: colors.verdeColheita, 
         flexDirection: 'row',
@@ -88,12 +89,14 @@ const styles = StyleSheet.create({
         fontSize: 22, 
         fontWeight: 'bold',
         color: colors.branco,
+        includeFontPadding: false, // 👈 ADICIONADO: Remove a margem invisível do Android
+        textAlignVertical: 'center', // 👈 ADICIONADO: Crava o texto "ColhaHoje" na mesma linha das lupas
     },
     iconButton: {
         padding: 5, 
     },
 
-    //  (Barra de Pesquisa)
+    // 🔍 (Barra de Pesquisa)
     // Container que segura a Seta de Voltar e a Barra de Texto Lado a Lado
     searchContainer: {
         flex: 1,
@@ -119,6 +122,8 @@ const styles = StyleSheet.create({
         color: colors.cinzaTecnico, // Cor do texto quando o usuário digita
         fontSize: 16,
         padding: 0, // Importante para zerar os paddings padrão do Android
+        includeFontPadding: false, // 👈 ADICIONADO: Alinha o texto "Morangos" com a lupa preta
+        textAlignVertical: 'center', // 👈 ADICIONADO: Centraliza o texto verticalmente na barra
     }
 });
 
