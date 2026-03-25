@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  // ⚠️ Importante: Não coloque a linha 'url' aqui, 
+  // pois o Prisma 7 já está lendo ela do seu 'prisma.config.ts'
+}
+
+// 🚀 Nossa tabela de usuários do ColhaHoje
+model Usuario {
+  id               Int      @id @default(autoincrement())
+  nome             String
+  email            String   @unique
+  senha            String
+  tipo_usuario     String   @default("comprador") 
+  whatsapp         String?
+  url_foto         String?
+  data_criacao     DateTime @default(now())
+  data_atualizacao DateTime @updatedAt
+
+  @@map("usuarios") 
+}
