@@ -76,7 +76,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      
+
       {/* 🚀 O HEADER ENTRA AQUI! Fica no topo da tela */}
       <Header activeTab={activeTab} />
 
@@ -102,7 +102,7 @@ export default function App() {
               onPress={() => setActiveTab(key)}
               activeOpacity={0.75}
             >
-             {/* Tamanho ideal de 31x31 para equilibrar perfeitamente o peso visual do ícone com o texto da legenda! */}
+              {/* Tamanho ideal de 31x31 para equilibrar perfeitamente o peso visual do ícone com o texto da legenda! */}
               <SvgUri width={31} height={31} uri={src} />
               <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tabConfig[key].label}</Text>
             </TouchableOpacity>
@@ -110,7 +110,7 @@ export default function App() {
         })}
       </View>
 
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </View>
   );
 }
