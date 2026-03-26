@@ -1,31 +1,43 @@
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
+import { PrismaClient } from '@prisma/client'
+import express from 'express'
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const prisma = new PrismaClient()
+const app = express()
 
-// Configuração da conexão com o HeidiSQL
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      // Usuário padrão do Heidi
-    password: '1234',      // Sua senha do Heidi (se tiver)
-    database: 'db_colhahoje' 
-});
+app.use(express.json())
 
-db.connect((err) => {
-    if (err) {
-        console.error('Erro ao conectar ao banco:', err);
-        return;
+// ROTA PARA LISTAR USUÁRIOS (A que você já fez e deu certo!)
+app.get('/usuarios', async (req, res) => {
+    try {
+        const users = await prisma.usuarios.findMany()
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar usuários no banco" })
     }
-    console.log('✅ Conectado ao banco de dados HeidiSQL!');
-});
+})
 
-app.get('/', (req, res) => {
-    res.send('API ColhaHoje Rodando! 🚀');
-});
+// ROTA PARA CADASTRAR UM NOVO USUÁRIO (A novidade!)
+app.post('/usuarios', async (req, res) => {
+    try {
+        // Pegando as informações que chegam na requisição
+        const { nome, email, senha } = req.body
+
+        // Mandando o Prisma criar no banco de dados
+        const newUser = await prisma.usuarios.create({
+            data: {
+                nome: nome,
+                email: email,
+                senha: senha
+            }
+        })
+
+        // Respondendo que deu certo (Status 201 = Criado)
+        res.status(201).json(newUser)
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao criar usuário" })
+    }
+})
 
 app.listen(3000, () => {
-    console.log('🚀 Servidor rodando em http://localhost:3000');
-});
+    console.log('🚀 Servidor rodando na porta http://localhost:3000')
+})

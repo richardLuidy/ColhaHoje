@@ -4,21 +4,17 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  // ⚠️ Importante: Não coloque a linha 'url' aqui, 
-  // pois o Prisma 7 já está lendo ela do seu 'prisma.config.ts'
+  url      = env("DATABASE_URL")
 }
 
-// 🚀 Nossa tabela de usuários do ColhaHoje
-model Usuario {
+model usuarios {
   id               Int      @id @default(autoincrement())
-  nome             String
-  email            String   @unique
-  senha            String
-  tipo_usuario     String   @default("comprador") 
-  whatsapp         String?
-  url_foto         String?
-  data_criacao     DateTime @default(now())
-  data_atualizacao DateTime @updatedAt
-
-  @@map("usuarios") 
+  nome             String   @db.VarChar(100)
+  email            String   @unique(map: "email") @db.VarChar(100)
+  senha            String   @db.VarChar(255)
+  tipo_usuario     String   @db.VarChar(20)
+  whatsapp         String?  @db.VarChar(20)
+  url_foto         String?  @db.VarChar(255)
+  data_criacao     DateTime @default(now()) @db.Timestamp(0)
+  data_atualizacao DateTime @default(now()) @db.Timestamp(0)
 }
