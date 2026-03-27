@@ -1,33 +1,40 @@
 -- =======================================================
--- GUIA DE CONFIGURAÇÃO DO BANCO DE DADOS (VIA PRISMA ORM)
+-- 🟢 GUIA MASTER: CONFIGURAÇÃO COLHAHOJE (PRISMA + MYSQL)
 -- =======================================================
 
--- 1. INSTALAÇÃO DAS FERRAMENTAS:
--- No terminal do VS Code/cmd (dentro da pasta api_crud), rode os comandos:
--- npm install prisma dotenv --save-dev
--- npm install @prisma/client
+-- 1. 🛠️ INSTALAÇÃO DAS FERRAMENTAS (SÓ UMA VEZ):
+-- No terminal do VS Code (dentro da pasta Api_Crud), rode:
+-- 🟦 npm install prisma @prisma/client dotenv
 
--- 2. CONEXÃO COM O BANCO DE DADOS LOCAL:
--- Na raiz da pasta api_crud, crie ou abra o arquivo ".env".
--- Ele deve conter a URL exata do seu MySQL (ajuste a senha se tiver):
--- DATABASE_URL="mysql://root:1234@localhost:3306/db_colhahoje"
+-- 2. 🔌 CONEXÃO COM O BANCO (ARQUIVO .env):
+-- No VS Code, abra o arquivo ".env" e escolha qual banco quer usar:
 
--- 3. ONDE "DESENHAR" AS TABELAS (O NOSSO MAPA):
--- Nós NÃO usamos comandos "CREATE TABLE" manuais. 
--- Toda a estrutura do banco é desenhada no arquivo: prisma/schema.prisma
--- Para criar uma tabela nova, basta escrever um bloco "model NomeDaTabela { ... }" dentro dele.
+-- OPÇÃO A: BANCO LOCAL (XAMPP - Computador da Escola)
+-- DATABASE_URL="mysql://root:@localhost:3306/db_colhahoje"
+-- (Nota: Geralmente no XAMPP a senha é vazia após o "root:")
 
--- 4. COMO CRIAR AS TABELAS NO BANCO DE VERDADE (MIGRATION):
--- Depois de desenhar a tabela no "schema.prisma", abra o terminal e rode:
--- npx prisma migrate dev --name nome_da_sua_alteracao
--- O Prisma vai ler o arquivo, traduzir para SQL e criar a tabela no HeidiSQL automaticamente.
+-- ☁️ OPÇÃO B: BANCO NA NUVEM (AIVEN - Para o App funcionar na Rua)
+-- Copie e cole a linha abaixo exatamente como está:
+-- DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje.a.aivencloud.com:14406/defaultdb?ssl-mode=REQUIRED"
 
--- 5. COMO EXCLUIR UMA TABELA:
--- Passo 1: Abra o arquivo "prisma/schema.prisma" e APAGUE o bloco "model" da tabela.
--- Passo 2: Salve o arquivo e rode o comando de migration novamente no terminal:
--- npx prisma migrate dev --name excluiu_tabela_tal}
--- O Prisma vai notar que a tabela sumiu do mapa e vai apagá-la do banco de dados sozinho.
+-- 3. 🗺️ O MAPA DO TESOURO (schema.prisma):
+-- Toda a estrutura das tabelas fica no arquivo: 📄 prisma/schema.prisma
+-- Se mudar algo lá, o banco precisa ser avisado (veja o item 4).
 
--- 6. ESTRUTURA ATUAL DO NOSSO PROJETO COLHAHOJE:
--- Tabela já criada: usuarios
--- Campos: id, nome, email, senha, tipo_usuario (comprador/produtor), whatsapp, url_foto, data_criacao, data_atualizacao.
+-- 4. 🚀 COMO SINCRONIZAR O BANCO (MIGRATION / PUSH):
+-- 🟦{ npx prisma db push}
+-- (Sempre que você mudar de Banco Local para Nuvem no .env, rode esse comando!)
+
+-- 5. 🗑️ COMO EXCLUIR OU ALTERAR UMA TABELA:
+-- Passo 1: Apague o bloco "model" no "schema.prisma".
+-- Passo 2: Salve e rode no terminal:  npx prisma db push
+-- O Prisma limpa o banco sozinho, seja no PC ou no Aiven.
+
+-- 6. 📊 ESTRUTURA ATUAL DO PROJETO COLHAHOJE (TABELA USUARIOS):
+-- id (Autoincrement), nome, email (Único), senha, tipo_usuario, whatsapp, url_foto, data_criacao, data_atualizacao.
+
+-- 7. 🧪 COMO TESTAR SE O BACKEND ESTÁ VIVO:
+-- 1º Ligue o servidor: 🟦 node server.js (Mantenha o terminal aberto!)
+-- 2º Em outro terminal: 🟦 node teste.js
+-- Resposta esperada: Um JSON com o ID gerado pelo banco!
+-- =======================================================
