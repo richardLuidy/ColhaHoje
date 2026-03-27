@@ -1,12 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
+import cors from 'cors' // DICA: Adicionei isso para o celular conseguir conectar!
 
 const prisma = new PrismaClient()
 const app = express()
 
 app.use(express.json())
+app.use(cors()) // Permite que o App mobile acesse a API sem bloqueio
 
-// ROTA PARA LISTAR USUÁRIOS (A que você já fez e deu certo!)
+// 1. 📋 LISTAR TODOS OS USUÁRIOS (GET)
 app.get('/usuarios', async (req, res) => {
     try {
         const users = await prisma.usuarios.findMany()
@@ -16,29 +18,72 @@ app.get('/usuarios', async (req, res) => {
     }
 })
 
-// ROTA PARA CADASTRAR UM NOVO USUÁRIO (A novidade!)
-// ROTA PARA CADASTRAR UM NOVO USUÁRIO
+// 2. 📝 CADASTRAR NOVO USUÁRIO (POST) - Para a tela de Cadastro
 app.post('/usuarios', async (req, res) => {
     try {
-        // Pegando todas as informações que a sua tabela pede
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
 
         const newUser = await prisma.usuarios.create({
-            data: {
-                nome: nome,
-                email: email,
-                senha: senha,
-                tipo_usuario: tipo_usuario,
-                whatsapp: whatsapp,
-                url_foto: url_foto
-            }
+            data: { nome, email, senha, tipo_usuario, whatsapp, url_foto }
         })
 
         res.status(201).json(newUser)
     } catch (error) {
-        // Agora o servidor vai te contar o erro real no terminal!
         console.error(error) 
         res.status(500).json({ error: "Erro ao criar usuário" })
+    }
+})
+
+// 3. 🔄 ATUALIZAR DADOS (PUT) - Para a tela "Meus Dados Pessoais"
+app.put('/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
+
+        const updatedUser = await prisma.usuarios.update({
+            where: { id: parseInt(id) },
+            data: { nome, email, senha, tipo_usuario, whatsapp, url_foto }
+        })
+
+        res.status(200).json(updatedUser)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Erro ao atualizar usuário" })
+    }
+})
+
+// 4. 🗑️ DELETAR USUÁRIO (DELETE) - Para excluir conta
+app.delete('/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        await prisma.usuarios.delete({
+            where: { id: parseInt(id) }
+        })
+        res.status(204).send()
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Erro ao deletar usuário" })
+    }
+})
+
+// 5. 🔐 ROTA DE LOGIN (POST) - Para a tela de Login
+app.post('/login', async (req, res) => {
+    try {
+        const { email, senha } = req.body
+
+        const user = await prisma.usuarios.findUnique({
+            where: { email: email }
+        })
+
+        if (!user || user.senha !== senha) {
+            return res.status(401).json({ error: "E-mail ou senha incorretos" })
+        }
+
+        // Retorna o usuário logado para o App saber quem é (ex: Jubinilson)
+        res.status(200).json({ message: "Login realizado com sucesso!", user })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Erro ao realizar login" })
     }
 })
 
