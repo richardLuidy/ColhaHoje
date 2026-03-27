@@ -15,7 +15,7 @@
 
 -- ☁️ OPÇÃO B: BANCO NA NUVEM (AIVEN - Para o App funcionar na Rua)
 -- Copie e cole a linha abaixo exatamente como está:
--- DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje.a.aivencloud.com:14406/defaultdb?ssl-mode=REQUIRED"
+-- DATABASE_URL="mysql://avnadmin:SUA_SENHA_AQUI@mysql..."
 
 -- 3. 🗺️ O MAPA DO TESOURO (schema.prisma):
 -- Toda a estrutura das tabelas fica no arquivo: 📄 prisma/schema.prisma
