@@ -17,23 +17,27 @@ app.get('/usuarios', async (req, res) => {
 })
 
 // ROTA PARA CADASTRAR UM NOVO USUÁRIO (A novidade!)
+// ROTA PARA CADASTRAR UM NOVO USUÁRIO
 app.post('/usuarios', async (req, res) => {
     try {
-        // Pegando as informações que chegam na requisição
-        const { nome, email, senha } = req.body
+        // Pegando todas as informações que a sua tabela pede
+        const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
 
-        // Mandando o Prisma criar no banco de dados
         const newUser = await prisma.usuarios.create({
             data: {
                 nome: nome,
                 email: email,
-                senha: senha
+                senha: senha,
+                tipo_usuario: tipo_usuario,
+                whatsapp: whatsapp,
+                url_foto: url_foto
             }
         })
 
-        // Respondendo que deu certo (Status 201 = Criado)
         res.status(201).json(newUser)
     } catch (error) {
+        // Agora o servidor vai te contar o erro real no terminal!
+        console.error(error) 
         res.status(500).json({ error: "Erro ao criar usuário" })
     }
 })
