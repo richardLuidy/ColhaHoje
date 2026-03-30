@@ -17,7 +17,7 @@ Como o projeto já possui o arquivo `package.json`, não é necessário instalar
 2. Abra o terminal do VS Code (`Ctrl` + `'`) e rode este comando:
 ```bash
 npm install
-
+```
 ### Passo 3: O Cabo de Força (Arquivo .env)
 
 O projeto utiliza o Aiven, que é um banco de dados hospedado na nuvem.
@@ -27,8 +27,7 @@ O projeto utiliza o Aiven, que é um banco de dados hospedado na nuvem.
 
 ```text
 DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje.a.aivencloud.com:14406/defaultdb?ssl-mode=REQUIRED"
-
-(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)
+#(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)```
 
 ### Passo 4: O Mapa das Tabelas (schema.prisma)
 
@@ -46,7 +45,8 @@ A sincronização com a nuvem é feita através de comandos do Prisma.
 
 ```bash
 npx prisma db push
-O que acontece? O Prisma acessa a nuvem (Aiven) e cria a tabela automaticamente.
+#(O que acontece? O Prisma acessa a nuvem (Aiven) e cria a tabela automaticamente.)
+```
 🔴 **PARA EXCLUIR UMA TABELA:**
 
 1. Vá no arquivo `schema.prisma` (ex: `model Produtos { ... }`).
@@ -54,5 +54,6 @@ O que acontece? O Prisma acessa a nuvem (Aiven) e cria a tabela automaticamente.
 3. No terminal (CMD) do VS Code, rode:
 ```bash
 npx prisma db push
-O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
+#O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
+```
 
