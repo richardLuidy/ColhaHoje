@@ -27,7 +27,8 @@ O projeto utiliza o Aiven, que é um banco de dados hospedado na nuvem.
 
 ```text
 DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje.a.aivencloud.com:14406/defaultdb?ssl-mode=REQUIRED"
-#(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)```
+#(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)
+```
 
 ### Passo 4: O Mapa das Tabelas (schema.prisma)
 
