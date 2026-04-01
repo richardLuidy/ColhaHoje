@@ -18,7 +18,7 @@ app.get('/usuarios', async (req, res) => {
     }
 })
 
-// 2. 📝 CADASTRAR NOVO USUÁRIO (POST) - Com trava de e-mail único
+// 2. 📝 CADASTRAR NOVO USUÁRIO (POST)
 app.post('/usuarios', async (req, res) => {
     try {
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
@@ -31,16 +31,23 @@ app.post('/usuarios', async (req, res) => {
         if (userExists) {
             return res.status(400).json({ error: "Este e-mail já está cadastrado!" })
         }
-        // ------------------------------------------
 
+        // --- 🚀 CRIAÇÃO COM VALORES PADRÃO (Evita Erro 500) ---
         const newUser = await prisma.usuarios.create({
-            data: { nome, email, senha, tipo_usuario, whatsapp, url_foto }
+            data: {
+                nome: nome || email.split('@')[0], // Se não vier nome, usa o início do email
+                email: email,
+                senha: senha,
+                tipo_usuario: tipo_usuario || 'cliente',
+                whatsapp: whatsapp || '',
+                url_foto: url_foto || ''
+            }
         })
 
         res.status(201).json(newUser)
     } catch (error) {
-        console.error(error) 
-        res.status(500).json({ error: "Erro ao criar usuário" })
+        console.error("❌ Erro ao Criar:", error)
+        res.status(500).json({ error: "Erro interno ao criar usuário" })
     }
 })
 
@@ -57,7 +64,7 @@ app.put('/usuarios/:id', async (req, res) => {
 
         res.status(200).json(updatedUser)
     } catch (error) {
-        console.error(error)
+        console.error("❌ Erro ao Atualizar:", error)
         res.status(500).json({ error: "Erro ao atualizar usuário" })
     }
 })
@@ -71,7 +78,7 @@ app.delete('/usuarios/:id', async (req, res) => {
         })
         res.status(204).send()
     } catch (error) {
-        console.error(error)
+        console.error("❌ Erro ao Deletar:", error)
         res.status(500).json({ error: "Erro ao deletar usuário" })
     }
 })
@@ -91,11 +98,14 @@ app.post('/login', async (req, res) => {
 
         res.status(200).json({ message: "Login realizado com sucesso!", user })
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Erro ao realizar login" })
-    }
+    // MUDE ESSA LINHA PARA APARECER BEM GRANDE:
+    console.log("-----------------------------------------");
+    console.log("❌ ERRO DETALHADO:", error.message);
+    console.log("-----------------------------------------");
+    res.status(500).json({ error: error.message }); // Isso vai mostrar o erro no alerta do celular!
+}
 })
 
 app.listen(3000, () => {
-    console.log('🚀 Servidor rodando na porta http://localhost:3000')
+    console.log('🚀 Servidor pronto em http://localhost:3000')
 })

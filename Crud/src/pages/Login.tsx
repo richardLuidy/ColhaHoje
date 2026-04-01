@@ -29,7 +29,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         return;
       }
 
-      // Simulação do código de confirmação (O "Pulo do Gato")
       if (codigo !== '1234') {
         Alert.alert("Código Inválido", "O código enviado ao seu e-mail é 1234 (Simulação).");
         return;
@@ -41,27 +40,36 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       }
     }
 
-    // --- 🚀 COMUNICAÇÃO COM O SERVIDOR (NODE + AIVEN) ---
+    // --- 🚀 COMUNICAÇÃO COM O SERVIDOR ---
     try {
       const rota = modo === 'login' ? '/login' : '/usuarios';
       
-      // Montando os dados para enviar ao backend
       const dados = {
         email: email,
         senha: senha,
-        nome: email.split('@')[0], // Pega o nome antes do @ como nome de usuário
+        nome: email.split('@')[0],
         tipo_usuario: 'cliente'
       };
 
+      // DICA: Mantenha o IP 192.168.56.1 se for o que funciona no Senac
       const response = await axios.post(`http://192.168.56.1:3000${rota}`, dados);
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert("Sucesso!", modo === 'login' ? "Bem-vindo!" : "Conta criada com sucesso!");
-        onLoginSuccess(); // Libera para a tela de Início
+        onLoginSuccess();
       }
-    } catch (error) {
+    } catch (error: any) {
+      // 🕵️‍♂️ CAPTURA O ERRO REAL DO SERVIDOR
       console.error(error);
-      Alert.alert("Erro", "E-mail ou senha incorretos / Servidor offline.");
+      
+      // Se o servidor enviou uma mensagem de erro (ex: "Email já cadastrado"), mostramos ela
+      const mensagemServidor = error.response?.data?.error;
+      
+      if (mensagemServidor) {
+        Alert.alert("Erro no Servidor", mensagemServidor);
+      } else {
+        Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor. Verifique se o Node está rodando.");
+      }
     }
   }
 
@@ -85,10 +93,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         <Text style={styles.inputLabel}>Email:</Text>
         <TextInput 
             style={styles.inputField} 
-            placeholder="exemplo@email.com" 
+            placeholder="example@example.com" 
+            placeholderTextColor={colors.placeholder}
             value={email} 
             onChangeText={setEmail} 
             autoCapitalize="none" 
+            keyboardType="email-address"
         />
       </View>
 
@@ -99,7 +109,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <Text style={styles.inputLabel}>Código de Confirmação:</Text>
           <TextInput 
             style={styles.inputField} 
-            placeholder="Dica: 1234" 
+            placeholder="xxx" 
+            placeholderTextColor={colors.placeholder}
             value={codigo} 
             onChangeText={setCodigo} 
             keyboardType="numeric" 
@@ -113,7 +124,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         <Text style={styles.inputLabel}>Senha:</Text>
         <TextInput 
             style={styles.inputField} 
-            placeholder="********" 
+            placeholder="password#123456" 
+            placeholderTextColor={colors.placeholder}
             secureTextEntry 
             value={senha} 
             onChangeText={setSenha} 
@@ -124,10 +136,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       {modo === 'cadastro' && (
         <View style={styles.inputContainer}>
           <SvgUri width={24} height={24} uri={iconSenha} />
-          <Text style={styles.inputLabel}>Confirmar a Senha:</Text>
+          <Text style={styles.inputLabel}>Confirme a Senha:</Text>
           <TextInput 
             style={styles.inputField} 
             placeholder="********" 
+            placeholderTextColor={colors.placeholder}
             secureTextEntry 
             value={confirmarSenha} 
             onChangeText={setConfirmarSenha} 
@@ -139,11 +152,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         <Text style={styles.buttonText}>{modo === 'login' ? 'Login' : 'Cadastrar-se'}</Text>
       </TouchableOpacity>
 
-      {modo === 'login' && (
-        <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Esqueci a senha</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity>
+        <Text style={styles.forgotPasswordText}>Esqueci a senha</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
