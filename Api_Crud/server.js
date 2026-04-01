@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
-import cors from 'cors' // DICA: Adicionei isso para o celular conseguir conectar!
+import cors from 'cors'
 
 const prisma = new PrismaClient()
 const app = express()
 
 app.use(express.json())
-app.use(cors()) // Permite que o App mobile acesse a API sem bloqueio
+app.use(cors())
 
 // 1. 📋 LISTAR TODOS OS USUÁRIOS (GET)
 app.get('/usuarios', async (req, res) => {
@@ -18,10 +18,20 @@ app.get('/usuarios', async (req, res) => {
     }
 })
 
-// 2. 📝 CADASTRAR NOVO USUÁRIO (POST) - Para a tela de Cadastro
+// 2. 📝 CADASTRAR NOVO USUÁRIO (POST) - Com trava de e-mail único
 app.post('/usuarios', async (req, res) => {
     try {
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
+
+        // --- 🛡️ VERIFICAÇÃO DE E-MAIL DUPLICADO ---
+        const userExists = await prisma.usuarios.findUnique({
+            where: { email: email }
+        })
+
+        if (userExists) {
+            return res.status(400).json({ error: "Este e-mail já está cadastrado!" })
+        }
+        // ------------------------------------------
 
         const newUser = await prisma.usuarios.create({
             data: { nome, email, senha, tipo_usuario, whatsapp, url_foto }
@@ -34,7 +44,7 @@ app.post('/usuarios', async (req, res) => {
     }
 })
 
-// 3. 🔄 ATUALIZAR DADOS (PUT) - Para a tela "Meus Dados Pessoais"
+// 3. 🔄 ATUALIZAR DADOS (PUT)
 app.put('/usuarios/:id', async (req, res) => {
     try {
         const { id } = req.params
@@ -52,7 +62,7 @@ app.put('/usuarios/:id', async (req, res) => {
     }
 })
 
-// 4. 🗑️ DELETAR USUÁRIO (DELETE) - Para excluir conta
+// 4. 🗑️ DELETAR USUÁRIO (DELETE)
 app.delete('/usuarios/:id', async (req, res) => {
     try {
         const { id } = req.params
@@ -66,7 +76,7 @@ app.delete('/usuarios/:id', async (req, res) => {
     }
 })
 
-// 5. 🔐 ROTA DE LOGIN (POST) - Para a tela de Login
+// 5. 🔐 ROTA DE LOGIN (POST)
 app.post('/login', async (req, res) => {
     try {
         const { email, senha } = req.body
@@ -79,7 +89,6 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ error: "E-mail ou senha incorretos" })
         }
 
-        // Retorna o usuário logado para o App saber quem é (ex: Jubinilson)
         res.status(200).json({ message: "Login realizado com sucesso!", user })
     } catch (error) {
         console.error(error)
