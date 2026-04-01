@@ -5,23 +5,23 @@ import { SvgUri } from 'react-native-svg';
 import styles from './styles';
 import Header from './src/components/Header';
 
-// 🚀 IMPORTAÇÃO DAS TELAS REAIS (Criadas na pasta pages)
+// 🚀 IMPORTAÇÃO DAS TELAS REAIS
 import Inicio from './src/pages/Inicio';
 import Mapa from './src/pages/Mapa';
 import Ofertas from './src/pages/Ofertas';
 import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
+import Login from './src/pages/Login'; // 👈 Adicionado o Login
 
-// Tipo das abas do footer
-type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil';
+// Tipo das abas do footer (Adicionado 'login' para o TypeScript não reclamar)
+type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
-// Configuração das abas com label e ícones (cinza/inativo, verde/ativo)
 const tabConfig: Record<
-  TabKey,
+  Exclude<TabKey, 'login'>, // Remove o login da configuração do footer
   {
     label: string;
-    iconInactive: any; // require local
-    iconActive: any; // require local
+    iconInactive: any;
+    iconActive: any;
   }
 > = {
   mapa: {
@@ -52,14 +52,13 @@ const tabConfig: Record<
 };
 
 export default function App() {
-  // Inicialmente a tela "Início" está selecionada
-  const [activeTab, setActiveTab] = useState<TabKey>('inicio');
+  // 🔑 Começamos na tela de login
+  const [activeTab, setActiveTab] = useState<TabKey>('login');
 
-  // Resolve recurso local SVG para URI no motor do React Native.
-  const tabs: TabKey[] = ['mapa', 'ofertas', 'inicio', 'pedidos', 'perfil'];
+  const tabs: Exclude<TabKey, 'login'>[] = ['mapa', 'ofertas', 'inicio', 'pedidos', 'perfil'];
 
   const resolvedIcons = useMemo(() => {
-    const result = {} as Record<TabKey, { active: string; inactive: string }>;
+    const result = {} as Record<Exclude<TabKey, 'login'>, { active: string; inactive: string }>;
 
     tabs.forEach((key) => {
       const activeSource = Image.resolveAssetSource(tabConfig[key].iconActive);
@@ -74,13 +73,24 @@ export default function App() {
     return result;
   }, []);
 
+  // 🛡️ LÓGICA DE LOGIN: Se não estiver logado, mostra APENAS a tela de Login
+  if (activeTab === 'login') {
+    return (
+      <View style={styles.container}>
+        {/* Quando o login der certo, ele chama essa função e vai para o 'inicio' */}
+        <Login onLoginSuccess={() => setActiveTab('inicio')} />
+        <StatusBar style="dark" />
+      </View>
+    );
+  }
+
+  // 📱 APP LOGADO: Mostra Header, Conteúdo e Footer
   return (
     <View style={styles.container}>
 
-      {/* 🚀 O HEADER ENTRA AQUI! Fica no topo da tela */}
+      {/* Header (se o activeTab for 'login', ele retorna null dentro do componente) */}
       <Header activeTab={activeTab} />
 
-      {/* 🚀 RENDERIZAÇÃO DINÂMICA DAS TELAS REAIS */}
       <View style={styles.content}>
         {activeTab === 'mapa' && <Mapa />}
         {activeTab === 'ofertas' && <Ofertas />}
@@ -89,7 +99,6 @@ export default function App() {
         {activeTab === 'perfil' && <Perfil />}
       </View>
 
-      {/* 🚀 O FOOTER */}
       <View style={styles.footer}>
         {tabs.map((key) => {
           const isActive = key === activeTab;
@@ -102,9 +111,10 @@ export default function App() {
               onPress={() => setActiveTab(key)}
               activeOpacity={0.75}
             >
-              {/* Tamanho ideal de 31x31 para equilibrar perfeitamente o peso visual do ícone com o texto da legenda! */}
               <SvgUri width={31} height={31} uri={src} />
-              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tabConfig[key].label}</Text>
+              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                {tabConfig[key].label}
+              </Text>
             </TouchableOpacity>
           );
         })}
