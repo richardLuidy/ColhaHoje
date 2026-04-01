@@ -3,18 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model usuarios {
   id               Int      @id @default(autoincrement())
-  nome             String   @db.VarChar(100)
-  email            String   @unique(map: "email") @db.VarChar(100)
-  senha            String   @db.VarChar(255)
-  tipo_usuario     String   @db.VarChar(20)
-  whatsapp         String?  @db.VarChar(20)
-  url_foto         String?  @db.VarChar(255)
-  data_criacao     DateTime @default(now()) @db.Timestamp(0)
-  data_atualizacao DateTime @default(now()) @db.Timestamp(0)
+  nome             String
+  email            String   @unique
+  senha            String
+  tipo_usuario     String   @default("cliente")
+  whatsapp         String?
+  url_foto         String?
+  data_criacao     DateTime @default(now())
+  data_atualizacao DateTime @default(now())
 }
