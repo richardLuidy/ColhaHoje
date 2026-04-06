@@ -27,14 +27,21 @@ O projeto utiliza o Aiven, que é um banco de dados hospedado na nuvem.
 
 ```text
 DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje.a.aivencloud.com:14406/defaultdb?ssl-mode=REQUIRED"
+```
 #(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)
+
+
+### Passo 4: Sincronizar o Prisma (Gerar o Cliente)
+Sempre que mudar de computador ou alterar o banco, você PRECISA rodar este comando para o código entender as tabelas:
+```bash
+npx prisma generate
 ```
 
-### Passo 4: O Mapa das Tabelas (schema.prisma)
+### Passo 5: O Mapa das Tabelas (schema.prisma)
 
 Toda a estrutura do banco fica desenhada dentro do arquivo `prisma/schema.prisma`. A criação e modificação de tabelas **não** é feita manualmente em softwares gerenciadores (como HeidiSQL). O modelo deve ser escrito diretamente neste arquivo.
 
-### Passo 5: Como Criar e Excluir Tabelas
+### Passo 6: Como Criar e Excluir Tabelas
 
 A sincronização com a nuvem é feita através de comandos do Prisma.
 
@@ -57,4 +64,15 @@ npx prisma db push
 npx prisma db push
 #O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
 ```
+#O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
 
+🔍 **PARA VER OS DADOS (PRISMA STUDIO):**
+#Quer ver as tabelas e os dados cadastrados em uma interface visual no navegador? Rode:
+```bash
+npx prisma studio
+```
+### Passo 7: Rodar o Servidor
+Com tudo configurado e sincronizado, ligue a API:
+```bash
+npx prisma studio
+```

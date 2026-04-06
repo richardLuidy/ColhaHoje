@@ -153,16 +153,17 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
     },
 
-    // =======================================================
-    // 🔑 ESTILOS DA TELA DE LOGIN (Login.tsx)
+   // =======================================================
+    // 🔑 ESTILOS DA TELA DE LOGIN (Login.tsx) - LIMPO E CENTRALIZADO
     // =======================================================
 
     // Container principal da tela de Login
     containerLogin: {
-        flex: 1,
+        flexGrow: 1, // Permite centralizar o conteúdo no meio da tela
         backgroundColor: colors.backGroundPage,
         alignItems: 'center',
-        paddingTop: 80,
+        justifyContent: 'center', // Centraliza tudo na vertical
+        paddingVertical: 40,
     },
 
     // Container que segura o menu "Login / Cadastre-se"
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
 
-    // Container branco arredondado dos Inputs (Email e Senha)
+   // Container branco arredondado dos Inputs (Email e Senha)
     inputContainer: {
         width: width * 0.85,
         height: 60,
@@ -203,11 +204,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 20,
-        elevation: 4,
+
+        // 🟢 SOLUÇÃO DEFINITIVA DO SOMBREADO:
+        // Zeramos o elevation para sumir com o rastro quadrado do Android
+        elevation: 0, 
+        
+        // Usamos uma borda sutil para dar definição ao campo
+        borderWidth: 1,
+        borderColor: '#E0E0E0', 
+
+        // Sombra suave (funciona bem em iOS e versões novas de Android)
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
     },
 
     // Texto fixo dentro do input (ex: Email:)
@@ -251,7 +261,17 @@ const styles = StyleSheet.create({
         color: colors.cinzaTecnico,
         fontSize: 14,
         textDecorationLine: 'underline',
-    }
+    },
+
+    // Mensagem de erro embaixo do input
+    errorText: {
+        color: 'red',
+        fontSize: 13,
+        fontWeight: 'bold',
+        marginTop: -15, 
+        marginBottom: 10,
+        textAlign: 'center',
+    },
 });
 
 export default styles;
