@@ -5,58 +5,51 @@ import { SvgUri } from 'react-native-svg';
 import styles from './styles';
 import Header from './src/components/Header';
 
-// 🚀 IMPORTAÇÃO DAS TELAS REAIS
+// 🚀 TELAS
 import Inicio from './src/pages/Inicio';
 import Mapa from './src/pages/Mapa';
 import Ofertas from './src/pages/Ofertas';
 import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
-import Login from './src/pages/Login'; // 👈 Adicionado o Login
+import Login from './src/pages/Login';
 
-// Tipo das abas do footer (Adicionado 'login' para o TypeScript não reclamar)
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
-const tabConfig: Record<
-  Exclude<TabKey, 'login'>, // Remove o login da configuração do footer
-  {
-    label: string;
-    iconInactive: any;
-    iconActive: any;
-  }
-> = {
+const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
     label: 'Mapa',
-    iconInactive: require('./src/assets/mapa_cinza.svg') as any,
-    iconActive: require('./src/assets/mapa_verde.svg') as any,
+    iconInactive: require('./src/assets/mapa_cinza.svg'),
+    iconActive: require('./src/assets/mapa_verde.svg'),
   },
   ofertas: {
     label: 'Ofertas',
-    iconInactive: require('./src/assets/ofertas_cinza.svg') as any,
-    iconActive: require('./src/assets/ofertas_verde.svg') as any,
+    iconInactive: require('./src/assets/ofertas_cinza.svg'),
+    iconActive: require('./src/assets/ofertas_verde.svg'),
   },
   inicio: {
     label: 'Início',
-    iconInactive: require('./src/assets/home_cinza.svg') as any,
-    iconActive: require('./src/assets/home_verde.svg') as any,
+    iconInactive: require('./src/assets/home_cinza.svg'),
+    iconActive: require('./src/assets/home_verde.svg'),
   },
   pedidos: {
     label: 'Pedidos',
-    iconInactive: require('./src/assets/pedidos_cinza.svg') as any,
-    iconActive: require('./src/assets/pedidos_verde.svg') as any,
+    iconInactive: require('./src/assets/pedidos_cinza.svg'),
+    iconActive: require('./src/assets/pedidos_verde.svg'),
   },
   perfil: {
     label: 'Perfil',
-    iconInactive: require('./src/assets/perfil_cinza.svg') as any,
-    iconActive: require('./src/assets/perfil_verde.svg') as any,
+    iconInactive: require('./src/assets/perfil_cinza.svg'),
+    iconActive: require('./src/assets/perfil_verde.svg'),
   },
 };
 
 export default function App() {
-  // 🔑 Começamos na tela de login
   const [activeTab, setActiveTab] = useState<TabKey>('login');
+  
+  // 1. Definimos as abas do footer
+  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
 
-  const tabs: Exclude<TabKey, 'login'>[] = ['mapa', 'ofertas', 'inicio', 'pedidos', 'perfil'];
-
+  // 2. Criamos o resolvedIcons (O que estava faltando ou inacessível)
   const resolvedIcons = useMemo(() => {
     const result = {} as Record<Exclude<TabKey, 'login'>, { active: string; inactive: string }>;
 
@@ -73,22 +66,18 @@ export default function App() {
     return result;
   }, []);
 
-  // 🛡️ LÓGICA DE LOGIN: Se não estiver logado, mostra APENAS a tela de Login
+  // 🛡️ Lógica de Login
   if (activeTab === 'login') {
     return (
       <View style={styles.container}>
-        {/* Quando o login der certo, ele chama essa função e vai para o 'inicio' */}
         <Login onLoginSuccess={() => setActiveTab('inicio')} />
         <StatusBar style="dark" />
       </View>
     );
   }
 
-  // 📱 APP LOGADO: Mostra Header, Conteúdo e Footer
   return (
     <View style={styles.container}>
-
-      {/* Header (se o activeTab for 'login', ele retorna null dentro do componente) */}
       <Header activeTab={activeTab} />
 
       <View style={styles.content}>
@@ -96,13 +85,20 @@ export default function App() {
         {activeTab === 'ofertas' && <Ofertas />}
         {activeTab === 'inicio' && <Inicio />}
         {activeTab === 'pedidos' && <Pedidos />}
-        {activeTab === 'perfil' && <Perfil />}
+        {activeTab === 'perfil' && (
+          <Perfil onLogout={() => setActiveTab('login')} />
+        )}
       </View>
 
+      {/* 🟢 Footer Corrigido */}
       <View style={styles.footer}>
         {tabs.map((key) => {
           const isActive = key === activeTab;
-          const src = isActive ? resolvedIcons[key].active : resolvedIcons[key].inactive;
+          const tabData = tabConfig[key];
+          
+          // Acessando resolvedIcons com segurança
+          const icons = resolvedIcons[key];
+          const src = isActive ? icons?.active : icons?.inactive;
 
           return (
             <TouchableOpacity
@@ -111,9 +107,9 @@ export default function App() {
               onPress={() => setActiveTab(key)}
               activeOpacity={0.75}
             >
-              <SvgUri width={31} height={31} uri={src} />
+              <SvgUri width={31} height={31} uri={src || ''} />
               <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                {tabConfig[key].label}
+                {tabData.label}
               </Text>
             </TouchableOpacity>
           );

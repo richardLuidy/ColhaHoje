@@ -272,6 +272,54 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: 'center',
     },
+
+
+    // =======================================================
+    // ESTILOS DO PERFIL
+    // =======================================================
+
+
+    profileImageContainer: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        borderWidth: 4,
+        borderColor: colors.verdeColheita,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F0F0F0',
+        marginBottom: 10,
+    },
+    profileName: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: colors.cinzaTecnico,
+        marginBottom: 31,
+    },
+    buttonSeller: {
+        borderColor: colors.verdeColheita,
+        borderWidth: 1.5,
+        marginTop: 10,
+    },
+    inputLabelSeller: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+        marginLeft: 10,
+        flex: 1, // Garante que o texto ocupe o espaço e empurre a seta
+    },
+    iconChevron: {
+        marginLeft: 'auto',
+    },
+    logoutButton: {
+        marginTop: 30,
+        padding: 10,
+    },
+    logoutText: {
+        color: '#FF4444',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
 });
 
 export default styles;

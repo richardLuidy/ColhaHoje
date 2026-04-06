@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SvgUri } from 'react-native-svg';
-import { Ionicons } from '@expo/vector-icons'; // Ícones para o olho
+import { Ionicons } from '@expo/vector-icons'; 
 import styles from '../../styles';
 import { colors } from '../../colors';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 👈 Adicionado
 
 const iconLogo = Image.resolveAssetSource(require('../assets/logo.svg')).uri;
 const iconEmail = Image.resolveAssetSource(require('../assets/icon-email.svg')).uri;
@@ -22,11 +23,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
-  // 👁️ Estados separados para cada olho (Independência visual)
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [confirmarSenhaVisivel, setConfirmarSenhaVisivel] = useState(false);
 
-  // 🟢 Lógica inteligente de erro (só dispara se sair da sequência da senha principal)
   const temErroNaConfirmacao = modo === 'cadastro' && confirmarSenha.length > 0 && !senha.startsWith(confirmarSenha);
 
   async function handleAuth() {
@@ -57,6 +56,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       const response = await axios.post(`http://192.168.56.1:3000${rota}`, dados);
 
       if (response.status === 200 || response.status === 201) {
+        
+        // 🟢 SALVANDO O NOME REAL DO BANCO NO CELULAR
+        // O response.data.nome pega o valor que vimos no seu Prisma Studio
+        if (response.data && response.data.nome) {
+          await AsyncStorage.setItem('user_name', response.data.nome);
+        } else {
+          // Fallback caso o backend não envie o nome, usamos o prefixo do email
+          await AsyncStorage.setItem('user_name', email.split('@')[0]);
+        }
+
         Alert.alert("Sucesso!", modo === 'login' ? "Bem-vindo!" : "Conta criada com sucesso!");
         onLoginSuccess();
       }
@@ -89,7 +98,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </TouchableOpacity>
       </View>
 
-      {/* Input Email */}
       <View style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconEmail} />
         <Text style={styles.inputLabel}>Email:</Text>
@@ -104,7 +112,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         />
       </View>
 
-      {/* Input Código (Apenas no Cadastro) */}
       {modo === 'cadastro' && (
         <View style={styles.inputContainer}>
           <SvgUri width={24} height={24} uri={iconEmail} />
@@ -120,7 +127,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </View>
       )}
 
-      {/* Input Senha com Olho 1 */}
       <View style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconSenha} />
         <Text style={styles.inputLabel}>Senha:</Text>
@@ -141,7 +147,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </TouchableOpacity>
       </View>
 
-      {/* Input Confirmar Senha com Olho 2 e Borda de Erro que contorna tudo */}
       {modo === 'cadastro' && (
         <View style={[
           styles.inputContainer,
@@ -155,7 +160,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             style={styles.inputField}
             placeholder="********"
             placeholderTextColor={colors.placeholder}
-            secureTextEntry={!confirmarSenhaVisivel} // Usa o segundo estado visual
+            secureTextEntry={!confirmarSenhaVisivel}
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
           />
@@ -169,7 +174,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </View>
       )}
 
-      {/* Mensagem de Erro em Tempo Real */}
       {temErroNaConfirmacao && (
         <Text style={styles.errorText}>⚠️ As senhas não coincidem!</Text>
       )}

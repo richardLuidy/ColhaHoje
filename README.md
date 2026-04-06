@@ -64,15 +64,15 @@ npx prisma db push
 npx prisma db push
 #O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
 ```
-#O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
 
 🔍 **PARA VER OS DADOS (PRISMA STUDIO):**
 #Quer ver as tabelas e os dados cadastrados em uma interface visual no navegador? Rode:
 ```bash
 npx prisma studio
+#Dar esse comando dentro do cmd do Api_Crud
 ```
 ### Passo 7: Rodar o Servidor
 Com tudo configurado e sincronizado, ligue a API:
 ```bash
-npx prisma studio
+node server.js
 ```
