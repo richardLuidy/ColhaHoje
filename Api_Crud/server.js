@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client'
+import mysql from 'mysql2/promise'
 import express from 'express'
 import cors from 'cors'
 
+const connection = await mysql.createConnection(process.env.DATABASE_URL)
 const prisma = new PrismaClient()
 const app = express()
 
