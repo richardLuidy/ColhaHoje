@@ -311,9 +311,16 @@ const styles = StyleSheet.create({
     iconChevron: {
         marginLeft: 'auto',
     },
-    logoutButton: {
-        marginTop: 30,
-        padding: 10,
+   logoutButton: {
+        marginTop: 30, // Mantém a distância dos outros botões
+        height: 50, // Um pouco menor que os botões principais
+        borderWidth: 1.5,
+        borderColor: '#FF4444', // Borda vermelha
+        borderRadius: 25, // Bordas arredondadas para combinar com os outros
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '80%', // Não ocupa a tela toda, fica centralizado
+        alignSelf: 'center', // Centraliza o botão na tela
     },
     logoutText: {
         color: '#FF4444',

@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../styles';
 import { colors } from '../../colors';
+import DadosPessoais from './DadosPessoais';
+import Enderecos from './Enderecos';
 
 // 📂 Importação dos Ícones SVG
 const iconDados = Image.resolveAssetSource(require('../assets/icon-dados.svg')).uri;
@@ -14,14 +16,16 @@ const iconPagamento = Image.resolveAssetSource(require('../assets/icon-pagamento
 const iconConfig = Image.resolveAssetSource(require('../assets/icon-config.svg')).uri;
 const iconVender = Image.resolveAssetSource(require('../assets/icon-vender.svg')).uri;
 
-// Definição da Prop para o Logout
+// 🟢 2. Interface atualizada para aceitar 'enderecos'
 interface PerfilProps {
   onLogout: () => void;
+  telaAtual: 'menu' | 'dados' | 'enderecos';
+  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos') => void;
 }
 
-export default function Perfil({ onLogout }: PerfilProps) {
+export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProps) {
   const [nomeUsuario, setNomeUsuario] = useState('Carregando...');
-
+        
   useEffect(() => {
     const carregarDadosReais = async () => {
       try {
@@ -49,6 +53,15 @@ export default function Perfil({ onLogout }: PerfilProps) {
     }
   };
 
+  // 🟢 3. Lógica para mostrar as sub-telas
+  if (telaAtual === 'dados') {
+    return <DadosPessoais onVoltar={() => setTelaAtual('menu')} />;
+  }
+
+  if (telaAtual === 'enderecos') {
+    return <Enderecos onVoltar={() => setTelaAtual('menu')} />;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.containerLogin} showsVerticalScrollIndicator={false}>
       
@@ -60,31 +73,41 @@ export default function Perfil({ onLogout }: PerfilProps) {
         <Text style={styles.profileName}>Olá, {nomeUsuario}!</Text>
       </View>
 
-      {/* 🔘 Botões */}
-      <TouchableOpacity style={styles.inputContainer}>
+      {/* 🔘 1. Botão Meus Dados Pessoais */}
+      <TouchableOpacity 
+        style={styles.inputContainer} 
+        onPress={() => setTelaAtual('dados')}
+      >
         <SvgUri width={24} height={24} uri={iconDados} />
         <Text style={styles.inputLabel}>Meus Dados Pessoais</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.inputContainer}>
+      {/* 🔘 2. Endereços - 🟢 4. Agora com ação! */}
+      <TouchableOpacity 
+        style={styles.inputContainer}
+        onPress={() => setTelaAtual('enderecos')}
+      >
         <SvgUri width={24} height={24} uri={iconEndereco} />
         <Text style={styles.inputLabel}>Endereços</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
+      {/* 🔘 3. Histórico de Pedidos */}
       <TouchableOpacity style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconHistorico} />
         <Text style={styles.inputLabel}>Histórico de Pedidos</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
+      {/* 🔘 4. Métodos de Pagamento */}
       <TouchableOpacity style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconPagamento} />
         <Text style={styles.inputLabel}>Métodos de Pagamento</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
+      {/* 🔘 5. Configurações */}
       <TouchableOpacity style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconConfig} />
         <Text style={styles.inputLabel}>Configurações</Text>

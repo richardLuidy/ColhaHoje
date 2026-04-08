@@ -22,7 +22,7 @@ const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActi
     mapa: { title: 'ColhaHoje', showActions: true },
     ofertas: { title: 'ColhaHoje', showActions: true },
     pedidos: { title: 'ColhaHoje', showActions: true },
-    perfil: { title: 'ColhaHoje', showBack: true, showActions: false },
+    perfil: { title: 'ColhaHoje', showBack: false, showActions: false },
     login: { title: '' },
     cadastro: { title: '' },
 };
@@ -30,16 +30,17 @@ const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActi
 interface HeaderProps {
     activeTab: TabKey;
     onBackPress?: () => void;
+    forceShowBack?: boolean;
 }
 
 // =======================================================
 // 🚀 COMPONENTE HEADER
 // =======================================================
-export default function Header({ activeTab, onBackPress }: HeaderProps) {
+export default function Header({ activeTab, onBackPress, forceShowBack }: HeaderProps) {
     const [isSearching, setIsSearching] = useState(false);
 
     if (activeTab === 'login' || activeTab === 'cadastro') return null;
-
+    
     const currentHeader = headerConfig[activeTab];
 
     // ==========================================
@@ -79,6 +80,9 @@ export default function Header({ activeTab, onBackPress }: HeaderProps) {
             </View>
         );
     }
+    
+    // 🟢 AQUI ESTÁ A VARIÁVEL QUE VOCÊ CRIOU
+    const showBackButton = currentHeader.showBack || forceShowBack;
 
     // ==========================================
     // 🟢 MODO NORMAL (Logo e Ícones)
@@ -88,7 +92,8 @@ export default function Header({ activeTab, onBackPress }: HeaderProps) {
 
             {/* Lado Esquerdo (Seta no Perfil): Aumentada para 28 */}
             <View style={styles.headerSide}>
-                {currentHeader.showBack && (
+                {/* 🟢A MUDANÇA ESTÁ AQUI: Troquei 'currentHeader.showBack' por 'showBackButton' */}
+                {showBackButton && (
                     <TouchableOpacity onPress={onBackPress} style={styles.iconButton}>
                         <SvgUri width={28} height={28} uri={icons.voltar} />
                     </TouchableOpacity>

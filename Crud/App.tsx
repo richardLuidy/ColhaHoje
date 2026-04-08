@@ -49,7 +49,10 @@ export default function App() {
   // 1. Definimos as abas do footer
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
 
-  // 2. Criamos o resolvedIcons (O que estava faltando ou inacessível)
+  // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
+  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos'>('menu');
+
+  // 2. Criamos o resolvedIcons
   const resolvedIcons = useMemo(() => {
     const result = {} as Record<Exclude<TabKey, 'login'>, { active: string; inactive: string }>;
 
@@ -78,25 +81,38 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Header activeTab={activeTab} />
+      
+      {/* 🟢 HEADER ATUALIZADO: Mostra a seta se estiver em 'dados' ou 'enderecos' */}
+      <Header 
+        activeTab={activeTab} 
+        forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu'} 
+        onBackPress={() => {
+          if (activeTab === 'perfil') setSubTelaPerfil('menu');
+        }}
+      />
 
       <View style={styles.content}>
         {activeTab === 'mapa' && <Mapa />}
         {activeTab === 'ofertas' && <Ofertas />}
         {activeTab === 'inicio' && <Inicio />}
         {activeTab === 'pedidos' && <Pedidos />}
+        
+        {/* 🟢 PERFIL ATUALIZADO: Recebe as novas props de controle */}
         {activeTab === 'perfil' && (
-          <Perfil onLogout={() => setActiveTab('login')} />
+          <Perfil 
+            onLogout={() => setActiveTab('login')} 
+            telaAtual={subTelaPerfil}
+            setTelaAtual={setSubTelaPerfil}
+          />
         )}
       </View>
 
-      {/* 🟢 Footer Corrigido */}
+      {/* 🟢 FOOTER ATUALIZADO */}
       <View style={styles.footer}>
         {tabs.map((key) => {
           const isActive = key === activeTab;
           const tabData = tabConfig[key];
           
-          // Acessando resolvedIcons com segurança
           const icons = resolvedIcons[key];
           const src = isActive ? icons?.active : icons?.inactive;
 
@@ -104,7 +120,11 @@ export default function App() {
             <TouchableOpacity
               key={key}
               style={styles.tabButton}
-              onPress={() => setActiveTab(key)}
+              onPress={() => {
+                setActiveTab(key);
+                // Se mudar de aba, resetamos o Perfil para o menu principal
+                if (key !== 'perfil') setSubTelaPerfil('menu');
+              }}
               activeOpacity={0.75}
             >
               <SvgUri width={31} height={31} uri={src || ''} />

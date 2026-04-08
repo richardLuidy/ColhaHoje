@@ -58,13 +58,15 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       if (response.status === 200 || response.status === 201) {
         
         // 🟢 SALVANDO O NOME REAL DO BANCO NO CELULAR
-        // O response.data.nome pega o valor que vimos no seu Prisma Studio
         if (response.data && response.data.nome) {
           await AsyncStorage.setItem('user_name', response.data.nome);
         } else {
           // Fallback caso o backend não envie o nome, usamos o prefixo do email
           await AsyncStorage.setItem('user_name', email.split('@')[0]);
         }
+
+        // 🟢 MUDANÇA: ADICIONE ESTA LINHA AQUI PARA SALVAR O EMAIL TAMBÉM! 👇
+        await AsyncStorage.setItem('user_email', email);
 
         Alert.alert("Sucesso!", modo === 'login' ? "Bem-vindo!" : "Conta criada com sucesso!");
         onLoginSuccess();
