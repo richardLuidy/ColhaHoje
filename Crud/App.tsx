@@ -50,7 +50,7 @@ export default function App() {
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
 
   // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
-  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos'>('menu');
+  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
 
   // 2. Criamos o resolvedIcons
   const resolvedIcons = useMemo(() => {

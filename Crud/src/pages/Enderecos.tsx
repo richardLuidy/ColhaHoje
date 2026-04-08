@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../styles';
 import { colors } from '../../colors';
 
@@ -13,6 +14,26 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
   const [numero, setNumero] = useState('');
   const [bairro, setBairro] = useState('');
 
+  // ⚡ Puxa os dados da memória quando a tela abre
+  useEffect(() => {
+    const carregarEnderecos = async () => {
+      try {
+        const cepSalvo = await AsyncStorage.getItem('user_cep');
+        const ruaSalva = await AsyncStorage.getItem('user_rua');
+        const numeroSalvo = await AsyncStorage.getItem('user_numero');
+        const bairroSalvo = await AsyncStorage.getItem('user_bairro');
+
+        if (cepSalvo) setCep(cepSalvo);
+        if (ruaSalva) setRua(ruaSalva);
+        if (numeroSalvo) setNumero(numeroSalvo);
+        if (bairroSalvo) setBairro(bairroSalvo);
+      } catch (e) {
+        console.error("Erro ao carregar endereço", e);
+      }
+    };
+    carregarEnderecos();
+  }, []);
+
   // ⚡ Máscara de CEP (00000-000)
   const handleChangeCep = (texto: string) => {
     let value = texto.replace(/\D/g, '');
@@ -20,6 +41,25 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
       value = value.substring(0, 5) + '-' + value.substring(5, 8);
     }
     setCep(value);
+  };
+
+  // ⚡ Salva na memória e simula o envio para o Banco de Dados
+  const handleSalvar = async () => {
+    try {
+      await AsyncStorage.setItem('user_cep', cep);
+      await AsyncStorage.setItem('user_rua', rua);
+      await AsyncStorage.setItem('user_numero', numero);
+      await AsyncStorage.setItem('user_bairro', bairro);
+
+      // Aqui simula o envio para o banco (vai aparecer no seu CMD)
+      console.log("📍 Dados de endereço que iriam para o banco:", { cep, rua, numero, bairro });
+      
+      Alert.alert("Sucesso", "Endereço cadastrado!");
+      onVoltar(); // Volta para o menu do perfil
+    } catch (e) {
+      console.error("Erro ao salvar endereço", e);
+      Alert.alert("Erro", "Não foi possível salvar o endereço.");
+    }
   };
 
   return (
@@ -40,7 +80,7 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
           style={[styles.inputField, { paddingLeft: 10 }]} 
           value={cep} 
           onChangeText={handleChangeCep} 
-          placeholder="00000-000" 
+          placeholder="Ex: 00000-000" 
           keyboardType="numeric"
           maxLength={9}
           placeholderTextColor={colors.placeholder}
@@ -75,6 +115,7 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
                   style={[styles.inputField, { paddingLeft: 10 }]} 
                   value={numero} 
                   onChangeText={setNumero} 
+                  placeholder="02"
                   keyboardType="numeric" 
                   placeholderTextColor={colors.placeholder}
                 />
@@ -92,6 +133,7 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
                   style={[styles.inputField, { paddingLeft: 10 }]} 
                   value={bairro} 
                   onChangeText={setBairro} 
+                  placeholder="Ex: Jardim América"
                   placeholderTextColor={colors.placeholder}
                 />
             </View>
@@ -99,8 +141,8 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
 
       </View>
 
-      {/* 💾 Botão Salvar */}
-      <TouchableOpacity style={[styles.buttonPrimary, { marginTop: 30 }]} onPress={() => Alert.alert("Salvo", "Endereço cadastrado!")}>
+      {/* 💾 Botão Salvar (AGORA COM handleSalvar) */}
+      <TouchableOpacity style={[styles.buttonPrimary, { marginTop: 30 }]} onPress={handleSalvar}>
         <Text style={styles.buttonText}>Salvar Endereço</Text>
       </TouchableOpacity>
 

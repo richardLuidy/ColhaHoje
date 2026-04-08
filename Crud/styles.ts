@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     // Container principal do aplicativo
     container: {
         flex: 1,
-        backgroundColor: colors.backGroundPage,
+        backgroundColor: colors.branco,
     },
 
     // Área de conteúdo central das telas
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     // Container principal da tela de Login
     containerLogin: {
         flexGrow: 1, // Permite centralizar o conteúdo no meio da tela
-        backgroundColor: colors.backGroundPage,
+        backgroundColor: colors.branco,
         alignItems: 'center',
         justifyContent: 'center', // Centraliza tudo na vertical
         paddingVertical: 40,
@@ -274,10 +274,9 @@ const styles = StyleSheet.create({
     },
 
 
+   // =======================================================
+    // ESTILOS DO PERFIL (Perfil.tsx)
     // =======================================================
-    // ESTILOS DO PERFIL
-    // =======================================================
-
 
     profileImageContainer: {
         width: 120,
@@ -296,36 +295,305 @@ const styles = StyleSheet.create({
         color: colors.cinzaTecnico,
         marginBottom: 31,
     },
+
+    // 🟢 CLASSE NOVA: Base com sombreado para os botões do Perfil
+    profileMenuButton: {
+        width: '85%', // Mesma largura que os inputs usavam
+        height: 60,
+        backgroundColor: '#FFFFFF', // Fundo branco obrigatório para a sombra funcionar
+        borderRadius: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        // A MÁGICA DA SOMBRA:
+        elevation: 6, // Para o Android
+        shadowColor: '#000', // Para o iOS
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+    },
+
     buttonSeller: {
         borderColor: colors.verdeColheita,
         borderWidth: 1.5,
         marginTop: 10,
+        // 🟢 Sombra adicionada no Quero Vender também!
+        backgroundColor: '#FFFFFF',
+        elevation: 6, 
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
     },
     inputLabelSeller: {
         fontSize: 17,
         fontWeight: 'bold',
         color: colors.verdeColheita,
         marginLeft: 10,
-        flex: 1, // Garante que o texto ocupe o espaço e empurre a seta
+        flex: 1, 
     },
     iconChevron: {
         marginLeft: 'auto',
     },
-   logoutButton: {
-        marginTop: 30, // Mantém a distância dos outros botões
-        height: 50, // Um pouco menor que os botões principais
+    logoutButton: {
+        marginTop: 30, 
+        height: 50, 
         borderWidth: 1.5,
-        borderColor: '#FF4444', // Borda vermelha
-        borderRadius: 25, // Bordas arredondadas para combinar com os outros
+        borderColor: '#FF4444', 
+        borderRadius: 25, 
         justifyContent: 'center',
         alignItems: 'center',
-        width: '80%', // Não ocupa a tela toda, fica centralizado
-        alignSelf: 'center', // Centraliza o botão na tela
+        width: '80%', 
+        alignSelf: 'center', 
     },
     logoutText: {
         color: '#FF4444',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+
+// =======================================================
+    // 🏪 ESTILOS DA TELA QUERO VENDER (QueroVender.tsx)
+    // =======================================================
+
+    containerQueroVender: {
+        padding: 20,
+        backgroundColor: colors.branco,
+    },
+    tituloSessaoItalico: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        color: '#000',
+        marginBottom: 15,
+    },
+    tituloSessao: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+    },
+    rowCards: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    cardPequeno: {
+        backgroundColor: colors.branco,
+        width: '48%',
+        padding: 15,
+        borderRadius: 15,
+        elevation: 3,
+        alignItems: 'center',
+    },
+    cardLabel: {
+        fontSize: 14,
+        color: colors.cinzaTecnico,
+    },
+    cardValor: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 5,
+    },
+    areaInfoVendas: {
+        alignItems: 'center', 
+        marginTop: 10,
+    },
+    areaGreyDots: {
+        flexDirection: 'row', 
+        gap: 2, 
+        marginVertical: 5,
+    },
+    greyDot: {
+        width: 6, 
+        height: 6, 
+        borderRadius: 3, 
+        backgroundColor: '#ccc',
+    },
+    badgeVerde: {
+        backgroundColor: '#E8F5E9',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 10,
+        marginLeft: 5,
+    },
+    badgeTexto: {
+        color: colors.verdeColheita,
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    areaPlantIcons: {
+        flexDirection: 'row', 
+        marginTop: 10, 
+        gap: 4, 
+        justifyContent: 'center',
+    },
+    
+    // 🟢 OFERTA RELÂMPAGO (ESTRUTURA FIEL AO FIGMA: 2 CARDS)
+    
+    // 1º CARD (Brancão de fundo com sombra)
+    cardDestaqueBrancao: {
+        backgroundColor: colors.branco,
+        borderRadius: 20,
+        padding: 15,
+        elevation: 4, 
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        position: 'relative',
+        marginTop: 20,
+        marginBottom: 10,
+    },
+    headerDestaque: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 15,
+    },
+    
+    // 2º CARD (Laranjado por dentro)
+    cardMenorLaranjado: {
+        borderRadius: 15,
+        padding: 15,
+        borderWidth: 2,
+        borderColor: '#FFA000', // Borda Laranja
+        marginBottom: 15,
+    },
+    tituloOfertaLaranjaItalico: {
+        color: '#FF8F00',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        marginBottom: 10,
+    },
+    areaDestaqueConteudo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    areaDestaqueEsquerda: {
+        width: '55%',
+    },
+    areaImagemPlaceholderGrande: {
+        backgroundColor: '#EEEEEE',
+        height: 100,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    areaDestaqueDireita: {
+        width: '42%',
+        alignItems: 'flex-end',
+    },
+    textoPrecoNormalZeradoDetalhe: {
+        fontSize: 12,
+        color: '#999',
+        textDecorationLine: 'line-through',
+    },
+    textoPrecoDestaqueZeradoGrande: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+        marginTop: 2,
+        marginBottom: 10,
+    },
+    textoTimerLabelZerado: {
+        fontSize: 12,
+        color: '#333',
+    },
+    textoTimerZeradoGrande: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginTop: 2,
+    },
+    
+    // Textos que ficam no Card Brancão, abaixo do Laranjado
+    tituloProdutoOfertaGeral: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    descProdutoOfertaGeral: {
+        fontSize: 10,
+        color: colors.cinzaTecnico,
+        marginTop: 3,
+    },
+    btnVerPedidosOuter: {
+        backgroundColor: colors.verdeColheita,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        marginTop: 15,
+        marginBottom: 5,
+        alignSelf: 'flex-start',
+    },
+   btnRedondoFlutuante: {
+        backgroundColor: colors.verdeColheita,
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: -20,
+        right: 0,    
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+    },
+    textoIconeFlutuante: {
+        color: colors.branco, 
+        fontSize: 11, 
+        fontWeight: 'bold',
+        marginTop: 4,
+    },
+
+    // 🟢 ESTOQUE
+    cardEstoque: {
+        backgroundColor: colors.branco,
+        borderRadius: 20,
+        padding: 15,
+        flexDirection: 'row',
+        elevation: 3,
+        alignItems: 'center',
+    },
+    quadradoAdicionarCentral: {
+        backgroundColor: '#E0E0E0',
+        width: 80,
+        height: 80,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    infoEstoque: {
+        flex: 1,
+    },
+    tituloEstoque: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    descEstoque: {
+        fontSize: 11,
+        color: colors.cinzaTecnico,
+        marginTop: 3,
+        marginBottom: 10,
+    },
+    btnCadastrar: {
+        backgroundColor: colors.verdeColheita,
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+        borderRadius: 15,
+        alignSelf: 'flex-start',
+    },
+    textoBtnBranco: {
+        color: colors.branco, 
+        fontSize: 12, 
+        fontWeight: 'bold',
     },
 });
 

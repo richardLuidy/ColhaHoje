@@ -8,13 +8,28 @@ datasource db {
 }
 
 model usuarios {
-  id               Int      @id @default(autoincrement())
+  id               Int         @id @default(autoincrement())
   nome             String
-  email            String   @unique
+  email            String      @unique
   senha            String
-  tipo_usuario     String   @default("cliente")
+  tipo_usuario     String      @default("cliente")
   whatsapp         String?
   url_foto         String?
+  data_criacao     DateTime    @default(now())
+  data_atualizacao DateTime    @default(now())
+  
+  // 🟢 LINHA ADICIONADA: Diz ao Prisma que um usuário pode ter vários endereços
+  enderecos        enderecos[] 
+}
+
+model enderecos {
+  id               Int      @id @default(autoincrement())
+  cep              String
+  rua              String
+  numero           String
+  bairro           String
+  usuario_id       Int      // Chave estrangeira ligando ao usuário
+  usuario          usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   data_criacao     DateTime @default(now())
   data_atualizacao DateTime @default(now())
 }

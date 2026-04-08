@@ -14,6 +14,10 @@ app.use(cors())
 
 console.log('🔄 Configurando servidor...')
 
+// ==========================================
+// 👤 ROTAS DE USUÁRIOS
+// ==========================================
+
 // 1. 📋 LISTAR TODOS OS USUÁRIOS (GET)
 app.get('/usuarios', async (req, res) => {
     console.log('🔍 Recebida requisição GET /usuarios')
@@ -45,7 +49,7 @@ app.post('/usuarios', async (req, res) => {
         // --- 🚀 CRIAÇÃO COM VALORES PADRÃO (Evita Erro 500) ---
         const newUser = await prisma.usuarios.create({
             data: {
-                nome: nome || email.split('@')[0], // Se não vier nome, usa o início do email
+                nome: nome || email.split('@')[0],
                 email: email,
                 senha: senha,
                 tipo_usuario: tipo_usuario || 'cliente',
@@ -122,6 +126,79 @@ app.delete('/usuarios/:id', async (req, res) => {
     } catch (error) {
         console.error("❌ Erro ao deletar usuário:", error.message)
         res.status(500).json({ error: "Erro ao deletar usuário", details: error.message })
+    }
+})
+
+// ==========================================
+// 🟢 NOVO: ROTA DE LOGIN
+// ==========================================
+app.post('/login', async (req, res) => {
+    console.log('🔍 Recebida requisição POST /login')
+    try {
+        const { email, senha } = req.body
+
+        // 1. Procura o usuário pelo email
+        const user = await prisma.usuarios.findUnique({
+            where: { email: email }
+        })
+
+        // 2. Verifica se o usuário não existe ou se a senha está errada
+        if (!user || user.senha !== senha) {
+            console.log('❌ Login bloqueado: e-mail ou senha incorretos')
+            return res.status(401).json({ error: "E-mail ou senha incorretos!" })
+        }
+
+        // 3. Se deu tudo certo, libera o acesso e devolve os dados do usuário
+        console.log('✅ Login aprovado para:', user.nome)
+        res.status(200).json(user)
+
+    } catch (error) {
+        console.error("❌ Erro ao fazer login:", error.message)
+        res.status(500).json({ error: "Erro interno ao tentar logar" })
+    }
+})
+
+// ==========================================
+// 🟢 NOVO: ROTAS DE ENDEREÇOS
+// ==========================================
+
+// 📝 CADASTRAR NOVO ENDEREÇO (POST)
+app.post('/enderecos', async (req, res) => {
+    console.log('🔍 Recebida requisição POST /enderecos')
+    try {
+        const { cep, rua, numero, bairro, usuario_id } = req.body
+
+        const novoEndereco = await prisma.enderecos.create({
+            data: {
+                cep,
+                rua,
+                numero,
+                bairro,
+                usuario_id: parseInt(usuario_id)
+            }
+        })
+
+        res.status(201).json(novoEndereco)
+    } catch (error) {
+        console.error("❌ Erro ao salvar endereço:", error.message)
+        res.status(500).json({ error: "Erro interno ao salvar endereço", details: error.message })
+    }
+})
+
+// 🔍 BUSCAR ENDEREÇO DE UM USUÁRIO (GET)
+app.get('/enderecos/usuario/:usuario_id', async (req, res) => {
+    console.log('🔍 Recebida requisição GET /enderecos/usuario/:usuario_id')
+    try {
+        const { usuario_id } = req.params
+        
+        const enderecos = await prisma.enderecos.findMany({
+            where: { usuario_id: parseInt(usuario_id) }
+        })
+
+        res.status(200).json(enderecos)
+    } catch (error) {
+        console.error("❌ Erro ao buscar endereços:", error.message)
+        res.status(500).json({ error: "Erro ao buscar endereços", details: error.message })
     }
 })
 

@@ -7,6 +7,7 @@ import styles from '../../styles';
 import { colors } from '../../colors';
 import DadosPessoais from './DadosPessoais';
 import Enderecos from './Enderecos';
+import QueroVender from './QueroVender';
 
 // 📂 Importação dos Ícones SVG
 const iconDados = Image.resolveAssetSource(require('../assets/icon-dados.svg')).uri;
@@ -19,13 +20,13 @@ const iconVender = Image.resolveAssetSource(require('../assets/icon-vender.svg')
 // 🟢 2. Interface atualizada para aceitar 'enderecos'
 interface PerfilProps {
   onLogout: () => void;
-  telaAtual: 'menu' | 'dados' | 'enderecos';
-  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos') => void;
+  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender';
+  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender') => void;
 }
 
 export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProps) {
   const [nomeUsuario, setNomeUsuario] = useState('Carregando...');
-        
+
   useEffect(() => {
     const carregarDadosReais = async () => {
       try {
@@ -33,7 +34,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         if (nomeSalvo) {
           setNomeUsuario(nomeSalvo);
         } else {
-          setNomeUsuario("Usuário"); 
+          setNomeUsuario("Usuário");
         }
       } catch (e) {
         console.error("Erro ao ler AsyncStorage:", e);
@@ -46,7 +47,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
-      onLogout(); 
+      onLogout();
       console.log("Usuário deslogado");
     } catch (e) {
       console.error("Erro ao deslogar:", e);
@@ -62,9 +63,13 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
     return <Enderecos onVoltar={() => setTelaAtual('menu')} />;
   }
 
+  if (telaAtual === 'vender') {
+    return <QueroVender onVoltar={() => setTelaAtual('menu')} />;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.containerLogin} showsVerticalScrollIndicator={false}>
-      
+
       {/* 👤 Header */}
       <View style={{ alignItems: 'center', marginTop: 10 }}>
         <View style={styles.profileImageContainer}>
@@ -74,8 +79,8 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
       </View>
 
       {/* 🔘 1. Botão Meus Dados Pessoais */}
-      <TouchableOpacity 
-        style={styles.inputContainer} 
+      <TouchableOpacity
+        style={styles.inputContainer}
         onPress={() => setTelaAtual('dados')}
       >
         <SvgUri width={24} height={24} uri={iconDados} />
@@ -84,7 +89,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
       </TouchableOpacity>
 
       {/* 🔘 2. Endereços - 🟢 4. Agora com ação! */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.inputContainer}
         onPress={() => setTelaAtual('enderecos')}
       >
@@ -115,7 +120,10 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
       </TouchableOpacity>
 
       {/* 🟢 Quero Vender */}
-      <TouchableOpacity style={[styles.inputContainer, styles.buttonSeller]}>
+      <TouchableOpacity 
+        style={[styles.inputContainer, styles.buttonSeller]}
+        onPress={() => setTelaAtual('vender')} // 👈 A MÁGICA DA NAVEGAÇÃO AQUI!
+      >
         <SvgUri width={24} height={24} uri={iconVender} />
         <Text style={styles.inputLabelSeller}>Quero Vender</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.verdeColheita} style={styles.iconChevron} />
