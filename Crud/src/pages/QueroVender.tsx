@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react'; // 🟢 useState adicionado aqui!
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+// 🔴 REMOVIDO: import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles'; 
 import { colors } from '../../colors';
+
+// 🟢 NOVO: Importando a tela de Cadastrar Produto
+import CadastrarProduto from './CadastrarProduto'; 
 
 interface QueroVenderProps {
   onVoltar: () => void;
 }
 
 export default function QueroVender({ onVoltar }: QueroVenderProps) {
+  
+  // 🟢 NOVO: Criando a memória para saber se o usuário clicou no botão
+  const [abrindoCadastro, setAbrindoCadastro] = useState(false);
+
+  // 🟢 NOVO: Se ele clicou (true), esconde o Dashboard e renderiza o Cadastro
+  if (abrindoCadastro) {
+    // Passamos uma função para que o botão de voltar lá do Cadastro feche essa tela (mude pra false)
+    return <CadastrarProduto onVoltar={() => setAbrindoCadastro(false)} />;
+  }
+
+  // 🟢 Se for falso, mostra o seu Dashboard normalmente
   return (
     <ScrollView contentContainerStyle={styles.containerQueroVender} showsVerticalScrollIndicator={false}>
       
@@ -100,9 +115,15 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <View style={styles.infoEstoque}>
           <Text style={styles.tituloEstoque}>Adicionar Produto ao Catálogo</Text>
           <Text style={styles.descEstoque}>Cadastre sua colheita para venda regular sem prazo.</Text>
-          <TouchableOpacity style={styles.btnCadastrar}>
+          
+          <TouchableOpacity 
+            style={styles.btnCadastrar}
+            // 🟢 AQUI ESTÁ A MÁGICA: Muda o estado para abrir a tela de cadastro
+            onPress={() => setAbrindoCadastro(true)}
+          >
             <Text style={styles.textoBtnBranco}>Cadastrar Produto</Text>
           </TouchableOpacity>
+
         </View>
       </View>
 

@@ -17,19 +17,45 @@ model usuarios {
   url_foto         String?
   data_criacao     DateTime    @default(now())
   data_atualizacao DateTime    @default(now())
-  
-  // 🟢 LINHA ADICIONADA: Diz ao Prisma que um usuário pode ter vários endereços
   enderecos        enderecos[] 
+  // 🟢 NOVO: Diz ao Prisma que um usuário pode ser dono de vários produtos
+  produtos         produtos[]
 }
 
 model enderecos {
-  id               Int      @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   cep              String
   rua              String
-  numero           String
+  numero           String?
   bairro           String
-  usuario_id       Int      // Chave estrangeira ligando ao usuário
-  usuario          usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  data_criacao     DateTime @default(now())
-  data_atualizacao DateTime @default(now())
+  cidade           String 
+  estado           String 
+  usuario_id       Int      
+  usuario          usuarios   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  
+  produtos         produtos[] 
+
+  data_criacao     DateTime   @default(now())
+  data_atualizacao DateTime   @default(now())
+}
+
+model produtos {
+  id                Int       @id @default(autoincrement())
+  nome_produto      String
+  nome_produtor     String
+  // 🟢 ALTERADO: Coloquei o "?" para deixar opcional, pois a localização real e exata agora vem da tabela de endereços abaixo
+  localizacao       String?   
+  categoria         String
+  preco             Decimal   @db.Decimal(10, 2)
+  unidade           String
+  quantidade        Int       @default(1)
+  imagem_url        String?
+  produtor_id       Int
+  // 🟢 NOVO: A coluna que vai guardar o número de identificação (ID) do endereço exato
+  endereco_id       Int       
+  usuario           usuarios  @relation(fields: [produtor_id], references: [id]) 
+  // 🟢 NOVO: A ponte oficial que liga o produto à tabela de endereços
+  endereco          enderecos @relation(fields: [endereco_id], references: [id]) 
+  
+  data_criacao      DateTime  @default(now())
 }

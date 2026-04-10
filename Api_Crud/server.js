@@ -166,7 +166,13 @@ app.post('/login', async (req, res) => {
 app.post('/enderecos', async (req, res) => {
     console.log('🔍 Recebida requisição POST /enderecos')
     try {
-        const { cep, rua, numero, bairro, usuario_id } = req.body
+        const { cep, rua, numero, bairro, cidade, estado, usuario_id } = req.body;
+
+        // 🛡️ MELHORIA DE SEGURANÇA: Verifica se o ID do usuário chegou
+        if (!usuario_id) {
+            console.log('⚠️ Tentativa de cadastro de endereço sem usuario_id');
+            return res.status(400).json({ error: "ID do usuário é obrigatório para cadastrar um endereço!" });
+        }
 
         const novoEndereco = await prisma.enderecos.create({
             data: {
@@ -174,11 +180,15 @@ app.post('/enderecos', async (req, res) => {
                 rua,
                 numero,
                 bairro,
+                cidade,
+                estado,
                 usuario_id: parseInt(usuario_id)
             }
         })
 
+        console.log('✅ Endereço salvo com sucesso para o usuário:', usuario_id)
         res.status(201).json(novoEndereco)
+
     } catch (error) {
         console.error("❌ Erro ao salvar endereço:", error.message)
         res.status(500).json({ error: "Erro interno ao salvar endereço", details: error.message })
@@ -201,6 +211,37 @@ app.get('/enderecos/usuario/:usuario_id', async (req, res) => {
         res.status(500).json({ error: "Erro ao buscar endereços", details: error.message })
     }
 })
+
+
+// 🔍 BUSCAR DADOS DO PRODUTOR PARA O CADASTRO
+app.get('/produtor/dados/:id', async (req, res) => {
+    try {
+        const idProdutor = parseInt(req.params.id);
+        
+        // Busca o usuário e já traz o endereço dele junto
+        const usuario = await prisma.usuarios.findUnique({
+            where: { id: idProdutor },
+            include: { enderecos: true } // Puxa a tabela de endereço conectada a ele
+        });
+
+        if (!usuario) {
+            return res.status(404).json({ erro: "Usuário não encontrado" });
+        }
+
+        // Monta a resposta pegando o nome, o bairro e o ID do endereço
+        res.json({
+            nome: usuario.nome,
+            localizacao: usuario.enderecos.length > 0 ? usuario.enderecos[0].bairro : "Sem endereço cadastrado",
+            // 🟢 NOVO: Enviando o ID do endereço para o aplicativo usar no cadastro do produto!
+            endereco_id: usuario.enderecos.length > 0 ? usuario.enderecos[0].id : null
+        });
+
+    } catch (error) {
+        console.error("Erro na rota /produtor/dados:", error);
+        res.status(500).json({ error: "Erro ao buscar dados na nuvem" });
+    }
+});
+
 
 console.log('📝 Endpoints registrados')
 

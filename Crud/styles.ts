@@ -204,16 +204,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 20,
-
-        // 🟢 SOLUÇÃO DEFINITIVA DO SOMBREADO:
-        // Zeramos o elevation para sumir com o rastro quadrado do Android
-        elevation: 0, 
-        
-        // Usamos uma borda sutil para dar definição ao campo
         borderWidth: 1,
         borderColor: '#E0E0E0', 
-
-        // Sombra suave (funciona bem em iOS e versões novas de Android)
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -352,6 +344,74 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
+
+
+// =======================================================
+    // 🏠 ESTILOS DA TELA DE MEUS ENDEREÇOS (Enderecos.tsx)
+    // =======================================================
+
+    // Container principal que permite rolagem e define o fundo branco
+    containerEnderecoCentral: {
+        flexGrow: 1,
+        backgroundColor: colors.branco,
+        paddingHorizontal: 20,
+        paddingTop: 40,
+        paddingBottom: 30,
+    },
+
+    // Bloco que centraliza o título no topo da tela
+    headerEndereco: {
+        marginBottom: 30,
+        alignItems: 'center',
+    },
+
+    // Título principal "Meus Endereços" em verde
+    tituloEndereco: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+    },
+
+    // Texto informativo acima de cada caixa de entrada
+    labelEndereco: {
+        marginBottom: 5,
+        paddingLeft: 5,
+        fontSize: 14,
+        color: '#666',
+        fontWeight: 'bold',
+    },
+
+    // Estilo interno do campo de texto (onde o usuário digita)
+    inputFieldEndereco: {
+        flex: 1,
+        height: 50,
+        paddingLeft: 15,
+        color: '#333',
+        fontSize: 16,
+    },
+
+    // Container para colocar dois inputs lado a lado na mesma linha
+    rowEndereco: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+
+    // Botão arredondado para salvar os dados com sombra
+    btnSalvarEndereco: {
+        backgroundColor: colors.verdeColheita,
+        height: 55,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 35,
+        elevation: 4, // Sombra para Android
+        shadowColor: '#000', // Sombra para iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+
 
 // =======================================================
     // 🏪 ESTILOS DA TELA QUERO VENDER (QueroVender.tsx)
@@ -593,6 +653,280 @@ const styles = StyleSheet.create({
     textoBtnBranco: {
         color: colors.branco, 
         fontSize: 12, 
+        fontWeight: 'bold',
+    },
+
+    // =======================================================
+    // 📦 ESTILOS DA TELA DE CADASTRAR PRODUTO (CadastrarProduto.tsx)
+    // =======================================================
+
+    // Fundo principal de toda a tela
+    telaTodaCadastrar: {
+        flex: 1,
+        backgroundColor: '#F5F5F5',
+    },
+
+    // Header verde no topo com o botão de voltar e título
+    headerVerdeCadastrar: {
+        backgroundColor: colors.verdeColheita,
+        padding: 20,
+        paddingTop: 50,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        elevation: 5,
+    },
+
+    // Margem do botão de voltar para não colar no texto
+    btnVoltarCadastrar: {
+        marginRight: 15,
+    },
+
+    // Título "ColhaHoje" dentro do header verde
+    tituloHeaderCadastrar: {
+        color: colors.branco,
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+
+    // Container que permite rolagem (ScrollView) e dá o espaçamento nas laterais
+    containerScrollCadastrar: {
+        padding: 20,
+    },
+
+    // Título principal preto da página
+    tituloPaginaCadastrar: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#000',
+        marginBottom: 20,
+    },
+
+    // Área que engloba o quadrado de adicionar fotos
+    areaFotosCadastrar: {
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+
+    // Quadrado cinza tracejado para enviar a imagem do produto
+    fotoPrincipalCadastrar: {
+        backgroundColor: '#E0E0E0',
+        width: '100%',
+        height: 180,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#CCC',
+        borderStyle: 'dashed',
+    },
+
+    // Texto descritivo embaixo do ícone de câmera
+    textoFotoCadastrar: {
+        color: colors.cinzaTecnico,
+        marginTop: 10,
+        fontWeight: '500',
+    },
+
+    // Texto fixo acima de cada campo de input
+    labelGeralCadastrar: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginTop: 18,
+        marginBottom: 8,
+        color: '#333',
+    },
+
+    // Caixa de input branca padrão
+    inputGeralCadastrar: {
+        backgroundColor: colors.branco,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        borderRadius: 8,
+        padding: 14,
+        fontSize: 16,
+        color: '#000',
+        elevation: 1,
+    },
+
+    // Caixa de input bloqueada (quando o sistema preenche sozinho)
+    inputDesativadoCadastrar: {
+        backgroundColor: '#F0F0F0',
+        color: '#888',
+    },
+
+    // Texto fixo acima das opções de categoria
+    labelCategoriaCadastrar: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginTop: 25,
+        marginBottom: 12,
+        color: '#333',
+    },
+
+    // Container que organiza os botões (chips) de categorias lado a lado
+    categoriaContainerCadastrar: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+    },
+
+    // Molde base arredondado para cada botão de categoria
+    chipBaseCadastrar: {
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        borderRadius: 25,
+        borderWidth: 1.5,
+    },
+
+    // Estilo do botão de categoria quando NÃO está clicado (Borda verde, fundo transparente)
+    chipInativoCadastrar: {
+        backgroundColor: 'transparent',
+        borderColor: colors.verdeColheita,
+    },
+
+    // Estilo do botão de categoria quando ESTÁ clicado (Fundo verde preenchido)
+    chipAtivoCadastrar: {
+        backgroundColor: colors.verdeColheita,
+        borderColor: colors.verdeColheita,
+    },
+
+    // Cor do texto quando a categoria NÃO está selecionada
+    textoChipInativoCadastrar: {
+        color: colors.verdeColheita,
+        fontWeight: '500',
+    },
+
+    // Cor do texto quando a categoria ESTÁ selecionada
+    textoChipAtivoCadastrar: {
+        color: colors.branco,
+        fontWeight: 'bold',
+    },
+
+    // Container que divide a tela em duas colunas (Para Preço e Unidade)
+    linhaDuplaCadastrar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+
+    // Coluna da esquerda (Preço)
+    colunaEsquerdaCadastrar: {
+        width: '47%',
+    },
+
+    // Coluna da direita (Unidade)
+    colunaDireitaCadastrar: {
+        width: '48%',
+    },
+
+    // Caixa branca que engloba o símbolo R$ e o input numérico
+    inputPrecoBoxCadastrar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.branco,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        height: 55,
+        elevation: 1,
+    },
+
+    // O textinho "R$:" travado no lado esquerdo do input
+    moedaTextCadastrar: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+        marginRight: 5,
+    },
+
+    // Onde o usuário de fato digita o preço
+    inputPrecoCadastrar: {
+        flex: 1,
+        fontSize: 16,
+        color: '#000',
+    },
+
+    // Caixa branca que envolve o menu dropdown (Picker)
+    pickerBoxCadastrar: {
+        backgroundColor: colors.branco,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        borderRadius: 8,
+        justifyContent: 'center',
+        height: 55,
+        elevation: 1,
+        overflow: 'hidden',
+    },
+
+    // O menu dropdown em si
+    pickerCadastrar: {
+        width: '100%',
+        color: '#000',
+    },
+
+    // Container cinza principal do seletor de Quantidade (+ e -)
+    quantidadeContainerCadastrar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E0E0E0',
+        borderRadius: 10,
+        width: 160,
+        height: 55,
+        marginTop: 10,
+        elevation: 2,
+    },
+
+    // Área clicável dos símbolos de + e -
+    btnQtdCadastrar: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+    },
+
+    // A fonte grande verde dos símbolos + e -
+    btnQtdTextoCadastrar: {
+        fontSize: 28,
+        color: colors.verdeColheita,
+        fontWeight: '300',
+    },
+
+    // O quadrado branco no meio que exibe o número atual da quantidade
+    numeroBoxCadastrar: {
+        width: 60,
+        backgroundColor: colors.branco,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: '#CCC',
+    },
+
+    // O texto do número da quantidade em si
+    numeroTextoCadastrar: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+
+    // Botão final "Cadastrar Produto" no final da página
+    btnCadastrarFinal: {
+        backgroundColor: colors.verdeColheita,
+        padding: 16,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 50,
+        elevation: 3,
+    },
+
+    // Texto branco do botão de envio final
+    textoBtnCadastrarFinal: {
+        color: colors.branco,
+        fontSize: 18,
         fontWeight: 'bold',
     },
 });

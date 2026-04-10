@@ -5,11 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles';
 import { colors } from '../../colors';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // 👈 Adicionado
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const iconLogo = Image.resolveAssetSource(require('../assets/logo.svg')).uri;
 const iconEmail = Image.resolveAssetSource(require('../assets/icon-email.svg')).uri;
 const iconSenha = Image.resolveAssetSource(require('../assets/icon-senha.svg')).uri;
+
+// ⚠️ ATENÇÃO: Verifique se este é o IP atual do seu computador no Wi-Fi (ipconfig)
+const API_URL = 'http://192.168.56.1:3000'; 
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -53,31 +56,39 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         tipo_usuario: 'cliente'
       };
 
-      const response = await axios.post(`http://192.168.56.1:3000${rota}`, dados);
+      // 🔵 Chamada para o Back-end
+      const response = await axios.post(`${API_URL}${rota}`, dados);
 
       if (response.status === 200 || response.status === 201) {
         
-        // 🟢 SALVANDO O NOME REAL DO BANCO NO CELULAR
+        // 🟢 MUDANÇA 1: Salvando o ID único do usuário (Obrigatório para o Cadastro de Produto!)
+        if (response.data && response.data.id) {
+          await AsyncStorage.setItem('user_id', String(response.data.id));
+          console.log("✅ ID do usuário salvo:", response.data.id);
+        }
+
+        // 🟢 MUDANÇA 2: Salvando o Nome Real que veio do Banco
         if (response.data && response.data.nome) {
           await AsyncStorage.setItem('user_name', response.data.nome);
         } else {
-          // Fallback caso o backend não envie o nome, usamos o prefixo do email
           await AsyncStorage.setItem('user_name', email.split('@')[0]);
         }
 
-        // 🟢 MUDANÇA: ADICIONE ESTA LINHA AQUI PARA SALVAR O EMAIL TAMBÉM! 👇
+        // 🟢 MUDANÇA 3: Salvando o Email
         await AsyncStorage.setItem('user_email', email);
 
         Alert.alert("Sucesso!", modo === 'login' ? "Bem-vindo!" : "Conta criada com sucesso!");
+        
+        // Finaliza o login e abre a Home
         onLoginSuccess();
       }
     } catch (error: any) {
-      console.error(error);
+      console.error("Erro no Auth:", error);
       const mensagemServidor = error.response?.data?.error;
       if (mensagemServidor) {
         Alert.alert("Erro no Servidor", mensagemServidor);
       } else {
-        Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor.");
+        Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor. O IP está correto?");
       }
     }
   }
