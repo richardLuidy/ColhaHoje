@@ -14,11 +14,11 @@ model usuarios {
   senha            String
   tipo_usuario     String      @default("cliente")
   whatsapp         String?
+  cpf_cnpj         String?
   url_foto         String?
   data_criacao     DateTime    @default(now())
   data_atualizacao DateTime    @default(now())
   enderecos        enderecos[] 
-  // 🟢 NOVO: Diz ao Prisma que um usuário pode ser dono de vários produtos
   produtos         produtos[]
 }
 

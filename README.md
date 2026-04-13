@@ -42,21 +42,27 @@ A sincronização com a nuvem é feita através de comandos do Prisma.
 
 1. Escreva o modelo da tabela no `schema.prisma` (ex: `model Produtos { ... }`).
 2. Salve o arquivo.
-3. No terminal (CMD) do VS Code, rode:
+3. No terminal (CMD: Api_Crud) do VS Code, rode:
 
 ```bash
 npx prisma db push
+#Dar esse comando dentro do cmd do Api_Crud
 #(O Prisma acessa a nuvem e cria as tabelas ou colunas novas automaticamente).
 #(E sobre escluir tabelas ou colunas:Se você apagar um bloco de model ou uma linha de coluna no schema.prisma e rodar o npx prisma db push, o Prisma vai deletar permanentemente esses dados da nuvem.)
 ```
 
 ### Passo 6: Sincronizar o Prisma (Gerar o Cliente)
+1. No terminal (CMD: Api_Crud) do VS Code, rode:
+
 Sempre que mudar de computador ou alterar o banco, você PRECISA rodar este comando para o código entender as tabelas:
 ```bash
 npx prisma generate
+
 ```
 
 🔍 **PARA VER OS DADOS (PRISMA STUDIO):**
+1. No terminal (CMD: Api_Crud) do VS Code, rode:
+
 #Quer ver as tabelas e os dados cadastrados em uma interface visual no navegador? Rode:
 ```bash
 npx prisma studio

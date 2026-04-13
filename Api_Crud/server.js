@@ -3,6 +3,10 @@ console.log('🚀 Iniciando script...')
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
 import cors from 'cors'
+// 🟢 ADICIONADO: Importando ferramentas para lidar com arquivos (Fotos)
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 
 console.log('📦 Módulos importados')
 
@@ -11,6 +15,23 @@ const app = express()
 
 app.use(express.json())
 app.use(cors())
+
+// 🟢 ADICIONADO: Configuração do local onde as fotos serão salvas
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = './uploads/';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir); // Cria a pasta uploads se não existir
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        // Cria um nome único para a foto usando a data atual
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+// 🟢 ADICIONADO: Libera o acesso para o aplicativo conseguir ver as fotos da pasta uploads
+app.use('/uploads', express.static('uploads'));
 
 console.log('🔄 Configurando servidor...')
 
@@ -90,7 +111,9 @@ app.put('/usuarios/:id', async (req, res) => {
     console.log('🔍 Recebida requisição PUT /usuarios/:id')
     try {
         const { id } = req.params
-        const { nome, email, senha, tipo_usuario, whatsapp, url_foto } = req.body
+
+        // 🟢 1. Adicionado o cpf_cnpj aqui para receber do aplicativo
+        const { nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj } = req.body
 
         const updatedUser = await prisma.usuarios.update({
             where: { id: parseInt(id) },
@@ -101,6 +124,7 @@ app.put('/usuarios/:id', async (req, res) => {
                 tipo_usuario: tipo_usuario,
                 whatsapp: whatsapp,
                 url_foto: url_foto,
+                cpf_cnpj: cpf_cnpj,
                 data_atualizacao: new Date()
             }
         })
@@ -200,7 +224,7 @@ app.get('/enderecos/usuario/:usuario_id', async (req, res) => {
     console.log('🔍 Recebida requisição GET /enderecos/usuario/:usuario_id')
     try {
         const { usuario_id } = req.params
-        
+
         const enderecos = await prisma.enderecos.findMany({
             where: { usuario_id: parseInt(usuario_id) }
         })
@@ -217,7 +241,7 @@ app.get('/enderecos/usuario/:usuario_id', async (req, res) => {
 app.get('/produtor/dados/:id', async (req, res) => {
     try {
         const idProdutor = parseInt(req.params.id);
-        
+
         // Busca o usuário e já traz o endereço dele junto
         const usuario = await prisma.usuarios.findUnique({
             where: { id: idProdutor },
@@ -231,7 +255,7 @@ app.get('/produtor/dados/:id', async (req, res) => {
         // Monta a resposta pegando o nome, o bairro e o ID do endereço
         res.json({
             nome: usuario.nome,
-            localizacao: usuario.enderecos.length > 0 ? usuario.enderecos[0].bairro : "Sem endereço cadastrado",
+            localizacao: usuario.enderecos.length > 0 ? usuario.enderecos[0].rua : "Sem endereço cadastrado",
             // 🟢 NOVO: Enviando o ID do endereço para o aplicativo usar no cadastro do produto!
             endereco_id: usuario.enderecos.length > 0 ? usuario.enderecos[0].id : null
         });
@@ -242,6 +266,67 @@ app.get('/produtor/dados/:id', async (req, res) => {
     }
 });
 
+
+// ==========================================
+// 🟢 ROTAS DE PRODUTOS (ATUALIZADO)
+// ==========================================
+
+// 📝 1. CADASTRAR NOVO PRODUTO (POST)
+app.post('/produtos', upload.single('imagem'), async (req, res) => {
+    // Logs rápidos para você conferir no terminal do Senac
+    console.log('🔍 Requisição POST /produtos recebida');
+    console.log('📸 Arquivo:', req.file ? req.file.filename : 'Sem foto');
+
+    try {
+        const {
+            nome_produto, nome_produtor, localizacao, categoria,
+            preco, unidade, quantidade, produtor_id, endereco_id
+        } = req.body;
+
+        const imagem_url = req.file ? `http://10.0.2.2:3000/uploads/${req.file.filename}` : '';
+
+        if (!nome_produto || !produtor_id || !endereco_id) {
+            return res.status(400).json({ error: "Faltam dados obrigatórios!" });
+        }
+
+        const novoProduto = await prisma.produtos.create({
+            data: {
+                nome_produto,
+                nome_produtor,
+                localizacao,
+                categoria,
+                preco: parseFloat(preco),
+                unidade,
+                quantidade: parseInt(quantidade),
+                produtor_id: parseInt(produtor_id),
+                endereco_id: parseInt(endereco_id),
+                imagem_url: imagem_url 
+            }
+        });
+
+        console.log('✅ Salvo na Nuvem:', nome_produto);
+        res.status(201).json(novoProduto);
+
+    } catch (error) {
+        console.error("❌ Erro:", error.message);
+        res.status(500).json({ error: "Erro ao salvar", details: error.message });
+    }
+});
+
+// 📋 2. LISTAR PRODUTOS (GET) - NOVO!
+// Essa rota permite que o App busque todos os produtos da nuvem
+app.get('/produtos', async (req, res) => {
+    console.log('🔍 Buscando lista de produtos na nuvem...');
+    try {
+        const listaProdutos = await prisma.produtos.findMany({
+            orderBy: { id: 'desc' } // Os mais novos aparecem primeiro
+        });
+        res.status(200).json(listaProdutos);
+    } catch (error) {
+        console.error("❌ Erro ao buscar lista:", error.message);
+        res.status(500).json({ error: "Erro ao buscar produtos" });
+    }
+});
 
 console.log('📝 Endpoints registrados')
 

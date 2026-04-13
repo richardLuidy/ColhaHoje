@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+// 🟢 1. Adicionado o componente 'Image' aqui
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; 
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+// 🟢 2. Importando a biblioteca da galeria
+import * as ImagePicker from 'expo-image-picker';
 
 import styles from '../../styles'; 
 import { colors } from '../../colors';
 
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
 const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
-
 
 const API_URL = 'http://10.0.2.2:3000';
 
@@ -32,10 +34,35 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
   const [unidade, setUnidade] = useState('Caixa');
   const [quantidade, setQuantidade] = useState(1); 
 
-  // 🟢 NOVO: Função que arranca qualquer letra e deixa só número e vírgula
+  // 🟢 3. Estado para guardar a foto que o usuário escolher
+  const [imagemUri, setImagemUri] = useState<string | null>(null);
+
   const formatarPreco = (texto: string) => {
     const apenasNumeros = texto.replace(/[^0-9,]/g, '');
     setPreco(apenasNumeros);
+  };
+
+  // 🟢 4. Função mágica que abre a galeria do celular
+  const escolherFoto = async () => {
+    // Pede permissão para acessar as fotos
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissao.granted === false) {
+      Alert.alert("Permissão negada", "Precisamos de acesso à sua galeria para escolher uma foto.");
+      return;
+    }
+
+    // Abre a galeria
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // Permite cortar a foto
+      aspect: [4, 3], // Formato retangular
+      quality: 0.7, // Deixa um pouco mais leve
+    });
+
+    if (!resultado.canceled) {
+      setImagemUri(resultado.assets[0].uri); // Guarda o caminho da foto na memória
+    }
   };
 
   useEffect(() => {
@@ -78,6 +105,7 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
       return;
     }
 
+    // Por enquanto a imagem vai vazia para o banco, faremos o upload real na Parte 2!
     const dadosParaEnvio = {
       nome_produto: nomeProduto,
       nome_produtor: nomeProdutor,
@@ -114,10 +142,19 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
 
         {/* ÁREA DE FOTOS */}
         <View style={styles.areaFotosCadastrar}>
-           <View style={styles.fotoPrincipalCadastrar}>
-             <Ionicons name="camera" size={50} color={colors.cinzaTecnico} />
-             <Text style={styles.textoFotoCadastrar}>Adicionar foto principal</Text>
-           </View>
+           {/* 🟢 5. Transformamos a caixa em um botão que chama a escolherFoto */}
+           <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
+             {imagemUri ? (
+               // Se o usuário escolheu uma foto, mostra ela aqui
+               <Image source={{ uri: imagemUri }} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+             ) : (
+               // Se não tem foto, mostra o ícone padrão
+               <>
+                 <Ionicons name="camera" size={50} color={colors.cinzaTecnico} />
+                 <Text style={styles.textoFotoCadastrar}>Adicionar foto principal</Text>
+               </>
+             )}
+           </TouchableOpacity>
         </View>
 
         {/* INPUTS GERAIS */}
@@ -163,7 +200,6 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
             <Text style={styles.labelGeralCadastrar}>Preço de venda:</Text>
             <View style={styles.inputPrecoBoxCadastrar}>
               <Text style={styles.moedaTextCadastrar}>R$:</Text>
-              {/* 🟢 ALTERADO: Agora usa o formatarPreco em vez do setPreco direto */}
               <TextInput 
                 style={styles.inputPrecoCadastrar} 
                 keyboardType="numeric" 

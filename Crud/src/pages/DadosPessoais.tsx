@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // 🟢 1. Importando o Axios para falar com a nuvem
 import styles from '../../styles';
 import { colors } from '../../colors';
 
-// Precisamos dessa prop para a tela saber como "voltar" para o menu do perfil
+// 🟢 2. Configurando o IP do servidor (confirme se é esse mesmo que você usa)
+const API_URL = 'http://10.0.2.2:3000'; 
+
 interface DadosPessoaisProps {
   onVoltar: () => void;
 }
@@ -14,93 +17,101 @@ export default function DadosPessoais({ onVoltar }: DadosPessoaisProps) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
+  const [documento, setDocumento] = useState(''); 
+  const [loading, setLoading] = useState(false); // 🟢 Controle de loading
   
   const handleChangeTelefone = (texto: string) => {
-    // Tira tudo que não é número
     let num = texto.replace(/\D/g, '');
-
-    // Limita em 11 dígitos (máximo do celular com DDD)
     num = num.substring(0, 11);
 
-    // Formata: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
     if (num.length > 2) {
       num = `(${num.substring(0, 2)}) ${num.substring(2)}`;
     }
     
     if (num.length > 9) {
-      // Se tiver 11 números, o traço fica depois do 5º dígito do número (Celular)
-      // Se tiver 10, o traço fica depois do 4º dígito (Fixo)
-      const isCelular = num.length === 15; // (XX) XXXXX-XXXX tem 15 caracteres total
-      
-      if (num.length >= 14) { // Formato celular ou fixo completo
-         // Essa regex ajusta o traço dependendo se sobrou 4 ou 5 números no final
+      if (num.length >= 14) { 
          num = num.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
       }
     }
-
     setTelefone(num);
   };
 
-  const [documento, setDocumento] = useState(''); // CPF ou CNPJ
-  
-  // Função que aplica a máscara dinamicamente
   const handleChangeDocumento = (texto: string) => {
-    // Primeiro, tira tudo que não for número (letras, espaços, etc)
     let num = texto.replace(/\D/g, '');
 
-    // Se tiver até 11 dígitos, formata como CPF
     if (num.length <= 11) {
       num = num.replace(/(\d{3})(\d)/, '$1.$2');
       num = num.replace(/(\d{3})(\d)/, '$1.$2');
       num = num.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    } 
-    // Se passar de 11, formata como CNPJ
-    else {
-      num = num.substring(0, 14); // Trava o máximo em 14 números
+    } else {
+      num = num.substring(0, 14); 
       num = num.replace(/^(\d{2})(\d)/, '$1.$2');
       num = num.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
       num = num.replace(/\.(\d{3})(\d)/, '.$1/$2');
       num = num.replace(/(\d{4})(\d)/, '$1-$2');
     }
-
-    // Atualiza o estado com o valor já formatado
     setDocumento(num);
   };
 
-  // 🟢 ATUALIZADO: Agora puxa os 4 dados da memória
+  // 🟢 3. BUSCANDO DA NUVEM QUANDO A TELA ABRE
   useEffect(() => {
-    const carregarDados = async () => {
+    const carregarDadosDaNuvem = async () => {
       try {
-        const nomeSalvo = await AsyncStorage.getItem('user_name');
-        const emailSalvo = await AsyncStorage.getItem('user_email');
-        const docSalvo = await AsyncStorage.getItem('user_documento'); 
-        const telSalvo = await AsyncStorage.getItem('user_telefone'); 
+        const idSalvo = await AsyncStorage.getItem('user_id');
+        if (!idSalvo) return;
+
+        // Bate na API para pegar os dados fresquinhos do banco
+        const response = await axios.get(`${API_URL}/usuarios/${idSalvo}`);
         
-        if (nomeSalvo) setNome(nomeSalvo);
-        if (emailSalvo) setEmail(emailSalvo);
-        if (docSalvo) setDocumento(docSalvo);
-        if (telSalvo) setTelefone(telSalvo);
+        if (response.data) {
+          setNome(response.data.nome);
+          setEmail(response.data.email);
+          
+          // AQUI ESTÁ A MÁGICA: O banco devolve 'whatsapp' e 'cpf_cnpj'
+          // E nós guardamos nas variáveis que a tela já usa:
+          setTelefone(response.data.whatsapp || '');
+          setDocumento(response.data.cpf_cnpj || '');
+        }
       } catch (e) {
-        console.error("Erro ao carregar os dados:", e);
+        console.error("Erro ao carregar da nuvem:", e);
       }
     };
-    carregarDados();
+    
+    carregarDadosDaNuvem();
   }, []);
 
-  // 🟢 ATUALIZADO: Agora salva os 4 dados na memória antes de voltar
+  // 🟢 4. ENVIANDO PARA A NUVEM AO SALVAR
   const handleSalvar = async () => { 
     try {
+      const idSalvo = await AsyncStorage.getItem('user_id');
+      if (!idSalvo) {
+        Alert.alert("Erro", "Sessão não encontrada. Faça login novamente.");
+        return;
+      }
+
+      setLoading(true);
+
+      // MÁGICA 2: Mandando para o banco com os nomes que ele entende
+      await axios.put(`${API_URL}/usuarios/${idSalvo}`, {
+        nome: nome,
+        email: email,
+        whatsapp: telefone, // A variável é telefone, mas o banco recebe whatsapp
+        cpf_cnpj: documento // A variável é documento, mas o banco recebe cpf_cnpj
+      });
+
+      // Atualiza o cache local por garantia
       await AsyncStorage.setItem('user_name', nome);
       await AsyncStorage.setItem('user_email', email);
       await AsyncStorage.setItem('user_documento', documento);
       await AsyncStorage.setItem('user_telefone', telefone);
 
-      console.log("Dados que iriam para o banco:", { nome, email, telefone, documento });
-      Alert.alert("Sucesso", "Seus dados foram atualizados!");
-      onVoltar(); // Volta para o menu do perfil após salvar
+      Alert.alert("Sucesso", "Seus dados foram salvos na nuvem!");
+      onVoltar(); 
     } catch (e) {
-      console.error("Erro ao salvar dados", e);
-      Alert.alert("Erro", "Não foi possível salvar os dados.");
+      console.error("Erro ao salvar dados na nuvem", e);
+      Alert.alert("Erro", "Não foi possível salvar na nuvem.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +150,7 @@ export default function DadosPessoais({ onVoltar }: DadosPessoaisProps) {
           placeholder="seu@email.com" 
           keyboardType="email-address"
           placeholderTextColor={colors.placeholder}
+          editable={false} // E-mail geralmente não deve ser editável após cadastro
         />
       </View>
 
@@ -175,8 +187,16 @@ export default function DadosPessoais({ onVoltar }: DadosPessoaisProps) {
       </View>
 
       {/* 💾 Botão Salvar */}
-      <TouchableOpacity style={[styles.buttonPrimary, { marginTop: 20 }]} onPress={handleSalvar}>
-        <Text style={styles.buttonText}>Salvar Alterações</Text>
+      <TouchableOpacity 
+        style={[styles.buttonPrimary, { marginTop: 20 }]} 
+        onPress={handleSalvar}
+        disabled={loading}
+      >
+        {loading ? (
+           <ActivityIndicator color={colors.branco} />
+        ) : (
+           <Text style={styles.buttonText}>Salvar Alterações</Text>
+        )}
       </TouchableOpacity>
 
     </ScrollView>

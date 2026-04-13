@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
     // Caixa de input bloqueada (quando o sistema preenche sozinho)
     inputDesativadoCadastrar: {
         backgroundColor: '#F0F0F0',
-        color: '#888',
+        color: '#000000',
     },
 
     // Texto fixo acima das opções de categoria
