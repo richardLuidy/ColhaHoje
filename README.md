@@ -30,22 +30,15 @@ DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje
 ```
 #(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)
 
-
-### Passo 4: Sincronizar o Prisma (Gerar o Cliente)
-Sempre que mudar de computador ou alterar o banco, você PRECISA rodar este comando para o código entender as tabelas:
-```bash
-npx prisma generate
-```
-
-### Passo 5: O Mapa das Tabelas (schema.prisma)
+### Passo 4: O Mapa das Tabelas (schema.prisma)
 
 Toda a estrutura do banco fica desenhada dentro do arquivo `prisma/schema.prisma`. A criação e modificação de tabelas **não** é feita manualmente em softwares gerenciadores (como HeidiSQL). O modelo deve ser escrito diretamente neste arquivo.
 
-### Passo 6: Como Criar e Excluir Tabelas
+### Passo 5: Como Criar e Excluir Tabelas
 
 A sincronização com a nuvem é feita através de comandos do Prisma.
 
-🟢 **PARA CRIAR UMA TABELA NOVA:**
+🟢 **PARA CRIAR UMA TABELA NOVA E para Excluir:**
 
 1. Escreva o modelo da tabela no `schema.prisma` (ex: `model Produtos { ... }`).
 2. Salve o arquivo.
@@ -53,16 +46,14 @@ A sincronização com a nuvem é feita através de comandos do Prisma.
 
 ```bash
 npx prisma db push
-#(O que acontece? O Prisma acessa a nuvem (Aiven) e cria a tabela automaticamente.)
+#(O Prisma acessa a nuvem e cria as tabelas ou colunas novas automaticamente).
+#(E sobre escluir tabelas ou colunas:Se você apagar um bloco de model ou uma linha de coluna no schema.prisma e rodar o npx prisma db push, o Prisma vai deletar permanentemente esses dados da nuvem.)
 ```
-🔴 **PARA EXCLUIR UMA TABELA:**
 
-1. Vá no arquivo `schema.prisma` (ex: `model Produtos { ... }`).
-2. Salve o arquivo.
-3. No terminal (CMD) do VS Code, rode:
+### Passo 6: Sincronizar o Prisma (Gerar o Cliente)
+Sempre que mudar de computador ou alterar o banco, você PRECISA rodar este comando para o código entender as tabelas:
 ```bash
-npx prisma db push
-#O que acontece? O Prisma detecta que a tabela sumiu do arquivo e fará a exclusão dela (e dos dados) no banco.
+npx prisma generate
 ```
 
 🔍 **PARA VER OS DADOS (PRISMA STUDIO):**
