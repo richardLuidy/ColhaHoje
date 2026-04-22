@@ -328,6 +328,54 @@ app.get('/produtos', async (req, res) => {
     }
 });
 
+// ==========================================
+// ⚡ ROTAS DE OFERTA RELÂMPAGO
+// ==========================================
+
+// 📝 1. ATIVAR NOVA OFERTA (POST)
+app.post('/ofertas', async (req, res) => {
+    console.log('🔍 Requisição POST /ofertas recebida');
+    try {
+        const { produto_id, preco_original, preco_promocional, duracao_minutos } = req.body;
+
+        // 🛡️ Validação simples
+        if (!produto_id || !preco_promocional || !duracao_minutos) {
+            return res.status(400).json({ error: "Dados da oferta incompletos!" });
+        }
+
+        const novaOferta = await prisma.ofertas_relampago.create({
+            data: {
+                produto_id: parseInt(produto_id),
+                preco_original: parseFloat(preco_original),
+                preco_promocional: parseFloat(preco_promocional),
+                duracao_minutos: parseInt(duracao_minutos),
+                status: 'ativa'
+            }
+        });
+
+        console.log('✅ Oferta Relâmpago Ativada para o produto ID:', produto_id);
+        res.status(201).json(novaOferta);
+
+    } catch (error) {
+        console.error("❌ Erro ao ativar oferta:", error.message);
+        res.status(500).json({ error: "Erro ao salvar oferta na nuvem", details: error.message });
+    }
+});
+
+// 📋 2. LISTAR OFERTAS ATIVAS (GET) - Útil para a tela de 'Ofertas' do App
+app.get('/ofertas', async (req, res) => {
+    try {
+        const ofertas = await prisma.ofertas_relampago.findMany({
+            where: { status: 'ativa' },
+            include: { produto: true }, // Traz os dados do produto junto (nome, imagem, etc)
+            orderBy: { criado_em: 'desc' }
+        });
+        res.status(200).json(ofertas);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar ofertas" });
+    }
+});
+
 console.log('📝 Endpoints registrados')
 
 app.listen(3000, () => {

@@ -40,22 +40,38 @@ model enderecos {
 }
 
 model produtos {
-  id                Int       @id @default(autoincrement())
+  id                Int                 @id @default(autoincrement())
   nome_produto      String
   nome_produtor     String
-  // 🟢 ALTERADO: Coloquei o "?" para deixar opcional, pois a localização real e exata agora vem da tabela de endereços abaixo
+  // 🟢 ALTERADO: Localização opcional, pois vem da tabela de endereços
   localizacao       String?   
   categoria         String
-  preco             Decimal   @db.Decimal(10, 2)
+  preco             Decimal             @db.Decimal(10, 2)
   unidade           String
-  quantidade        Int       @default(1)
+  quantidade        Int                 @default(1)
   imagem_url        String?
   produtor_id       Int
-  // 🟢 NOVO: A coluna que vai guardar o número de identificação (ID) do endereço exato
+  // 🟢 NOVO: ID do endereço exato
   endereco_id       Int       
-  usuario           usuarios  @relation(fields: [produtor_id], references: [id]) 
-  // 🟢 NOVO: A ponte oficial que liga o produto à tabela de endereços
-  endereco          enderecos @relation(fields: [endereco_id], references: [id]) 
+  usuario           usuarios            @relation(fields: [produtor_id], references: [id]) 
+  // 🟢 NOVO: Ponte oficial com a tabela de endereços
+  endereco          enderecos           @relation(fields: [endereco_id], references: [id]) 
   
-  data_criacao      DateTime  @default(now())
+  data_criacao      DateTime            @default(now())
+
+  // ⚡ RELAÇÃO NOVA: Permite que este produto tenha Ofertas Relâmpago
+  ofertas_relampago ofertas_relampago[] 
+}
+
+model ofertas_relampago {
+  id                Int      @id @default(autoincrement())
+  produto_id        Int
+  preco_original    Decimal  @db.Decimal(10, 2)
+  preco_promocional Decimal  @db.Decimal(10, 2)
+  duracao_minutos   Int
+  status            String   @default("ativa") // ativa ou encerrada
+  criado_em         DateTime @default(now())
+
+  // Relacionamento: Liga a oferta ao produto selecionado
+  produto           produtos @relation(fields: [produto_id], references: [id], onDelete: Cascade)
 }

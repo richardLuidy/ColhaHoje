@@ -929,6 +929,127 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+
+ // =======================================================
+    // ⚡ ESTILOS DO MODAL DE OFERTA RELÂMPAGO (OfertaRelampago.tsx)
+    // =======================================================
+
+    // Fundo escuro que começa logo abaixo do Header
+    modalFundoEscuro: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', 
+        justifyContent: 'flex-end',
+        // 🟢 IMPORTANTE: Se o seu Header tiver, por exemplo, 100px de altura,
+        // você pode ajustar este marginTop para bater com a linha do verde.
+        marginTop: 100, 
+    },
+    
+    // A caixa branca com contorno fino e SEM a sombra explosiva do Android
+    modalConteudoBranco: {
+        backgroundColor: '#ffffff', 
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 20,
+        paddingTop: 15,
+        paddingBottom: 40,
+        
+        // 🟢 TRUQUE DO FIGMA: Borda fina em vez de elevation
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.1)', 
+        borderBottomWidth: 0, // Garante que a borda não apareça na base da tela
+
+        elevation: 0, // Zera para o contorno ficar limpo igual ao Figma
+
+        // Shadow para iOS/Simuladores
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    
+    // O pequeno traço cinza no topo do modal
+    tracinhoModal: {
+        width: 40,
+        height: 5,
+        backgroundColor: colors.placeholder,
+        borderRadius: 5,
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
+    
+    // O texto de título laranja
+    tituloModalOferta: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.laranjaAlerta,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+
+    // =======================================================
+    // 🏷️ ESTILOS DA CAIXA DE PREÇO AUTOMÁTICO (Círculo Azul)
+    // =======================================================
+    boxPrecoAutomatico: {
+        backgroundColor: colors.branco,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 20,
+    },
+    textoPrecoRiscado: {
+        fontSize: 14,
+        color: colors.cinzaTecnico,
+        textDecorationLine: 'line-through',
+        marginBottom: 5,
+    },
+    textoPrecoDesconto: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+
+    // =======================================================
+    // ⏱️ ESTILOS DO CONTADOR DE TEMPO E BOTÃO FINAL
+    // =======================================================
+    containerTempoOferta: {
+        flexDirection: 'row',
+        backgroundColor: '#E6E6E6',
+        borderRadius: 12,
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    btnTempoBase: {
+        width: 45,
+        height: 45,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 2, 
+    },
+    btnTempoAtivo: {
+        backgroundColor: colors.verdeColheita,
+    },
+    textoTempoOferta: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+    },
+    btnAtivarOfertaAgora: {
+        backgroundColor: colors.verdeColheita,
+        borderRadius: 12,
+        paddingVertical: 15,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    textoBtnAtivarOferta: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
 
 export default styles;

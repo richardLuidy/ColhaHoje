@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 // 🟢 1. Adicionado o componente 'Image' aqui
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; 
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 // 🟢 2. Importando a biblioteca da galeria
 import * as ImagePicker from 'expo-image-picker';
 
-import styles from '../../styles'; 
+
+
+import styles from '../../styles';
 import { colors } from '../../colors';
 
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
@@ -27,12 +29,12 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
   const [enderecoId, setEnderecoId] = useState<number | null>(null);
 
   const [nomeProduto, setNomeProduto] = useState('');
-  const [nomeProdutor, setNomeProdutor] = useState(''); 
-  const [localizacao, setLocalizacao] = useState('');   
+  const [nomeProdutor, setNomeProdutor] = useState('');
+  const [localizacao, setLocalizacao] = useState('');
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('Frutas');
   const [preco, setPreco] = useState('');
   const [unidade, setUnidade] = useState('Caixa');
-  const [quantidade, setQuantidade] = useState(1); 
+  const [quantidade, setQuantidade] = useState(1);
 
   // 🟢 3. Estado para guardar a foto que o usuário escolher
   const [imagemUri, setImagemUri] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
   const escolherFoto = async () => {
     // Pede permissão para acessar as fotos
     const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (permissao.granted === false) {
       Alert.alert("Permissão negada", "Precisamos de acesso à sua galeria para escolher uma foto.");
       return;
@@ -69,22 +71,22 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
     const carregarDadosDaNuvem = async () => {
       try {
         const idSalvo = await AsyncStorage.getItem('user_id');
-        console.log("🔍 DEBUG - ID Salvo no celular:", idSalvo); 
-        
+        console.log("🔍 DEBUG - ID Salvo no celular:", idSalvo);
+
         if (idSalvo) {
           setProdutorId(parseInt(idSalvo));
 
-          console.log(`🔍 DEBUG - Buscando dados na URL: ${API_URL}/produtor/dados/${idSalvo}`); 
+          console.log(`🔍 DEBUG - Buscando dados na URL: ${API_URL}/produtor/dados/${idSalvo}`);
           const response = await axios.get(`${API_URL}/produtor/dados/${idSalvo}`);
           const dadosDaNuvem = response.data;
 
-          console.log("🔍 DEBUG - Dados que vieram da Nuvem:", dadosDaNuvem); 
+          console.log("🔍 DEBUG - Dados que vieram da Nuvem:", dadosDaNuvem);
 
           setNomeProdutor(dadosDaNuvem.nome);
           setLocalizacao(dadosDaNuvem.localizacao);
-          
+
           if (dadosDaNuvem.endereco_id) {
-             setEnderecoId(dadosDaNuvem.endereco_id);
+            setEnderecoId(dadosDaNuvem.endereco_id);
           }
         } else {
           console.log("⚠️ NENHUM ID ENCONTRADO - O usuário fez login?");
@@ -111,12 +113,12 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
       nome_produtor: nomeProdutor,
       localizacao: localizacao,
       categoria: categoriaSelecionada,
-      preco: parseFloat(preco.replace(',', '.')), 
+      preco: parseFloat(preco.replace(',', '.')),
       unidade: unidade,
       quantidade: quantidade,
       produtor_id: produtorId,
-      endereco_id: enderecoId, 
-      imagem_url: '' 
+      endereco_id: enderecoId,
+      imagem_url: ''
     };
 
     try {
@@ -125,7 +127,7 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
 
       if (response.status === 201) {
         Alert.alert("Sucesso!", "Seu produto já está na nuvem ColhaHoje!");
-        onVoltar(); 
+        onVoltar();
       }
     } catch (error) {
       console.error(error);
@@ -142,50 +144,50 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
 
         {/* ÁREA DE FOTOS */}
         <View style={styles.areaFotosCadastrar}>
-           {/* 🟢 5. Transformamos a caixa em um botão que chama a escolherFoto */}
-           <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
-             {imagemUri ? (
-               // Se o usuário escolheu uma foto, mostra ela aqui
-               <Image source={{ uri: imagemUri }} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
-             ) : (
-               // Se não tem foto, mostra o ícone padrão
-               <>
-                 <Ionicons name="camera" size={50} color={colors.cinzaTecnico} />
-                 <Text style={styles.textoFotoCadastrar}>Adicionar foto principal</Text>
-               </>
-             )}
-           </TouchableOpacity>
+          {/* 🟢 5. Transformamos a caixa em um botão que chama a escolherFoto */}
+          <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
+            {imagemUri ? (
+              // Se o usuário escolheu uma foto, mostra ela aqui
+              <Image source={{ uri: imagemUri }} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+            ) : (
+              // Se não tem foto, mostra o ícone padrão
+              <>
+                <Ionicons name="camera" size={50} color={colors.cinzaTecnico} />
+                <Text style={styles.textoFotoCadastrar}>Adicionar foto principal</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* INPUTS GERAIS */}
         <Text style={styles.labelGeralCadastrar}>Nome do Produto:</Text>
-        <TextInput 
-          style={styles.inputGeralCadastrar} 
-          placeholder="ex: Morango Orgânico do Vale" 
+        <TextInput
+          style={styles.inputGeralCadastrar}
+          placeholder="ex: Morango Orgânico do Vale"
           value={nomeProduto}
           onChangeText={setNomeProduto}
         />
 
         <Text style={styles.labelGeralCadastrar}>Nome do Produtor:</Text>
-        <TextInput 
-          style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} 
+        <TextInput
+          style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]}
           value={nomeProdutor}
-          editable={false}
+          onChangeText={setNomeProdutor}
         />
 
         <Text style={styles.labelGeralCadastrar}>Localização:</Text>
-        <TextInput 
-          style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} 
+        <TextInput
+          style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]}
           value={localizacao}
-          editable={false}
+          onChangeText={setLocalizacao}
         />
 
         {/* CATEGORIAS */}
         <Text style={styles.labelCategoriaCadastrar}>Categoria</Text>
         <View style={styles.categoriaContainerCadastrar}>
           {categoriasAtivas.map((cat) => (
-            <TouchableOpacity 
-              key={cat} 
+            <TouchableOpacity
+              key={cat}
               style={[styles.chipBaseCadastrar, categoriaSelecionada === cat ? styles.chipAtivoCadastrar : styles.chipInativoCadastrar]}
               onPress={() => setCategoriaSelecionada(cat)}
             >
@@ -200,12 +202,12 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
             <Text style={styles.labelGeralCadastrar}>Preço de venda:</Text>
             <View style={styles.inputPrecoBoxCadastrar}>
               <Text style={styles.moedaTextCadastrar}>R$:</Text>
-              <TextInput 
-                style={styles.inputPrecoCadastrar} 
-                keyboardType="numeric" 
-                placeholder="0,00" 
-                value={preco} 
-                onChangeText={formatarPreco} 
+              <TextInput
+                style={styles.inputPrecoCadastrar}
+                keyboardType="numeric"
+                placeholder="0,00"
+                value={preco}
+                onChangeText={formatarPreco}
               />
             </View>
           </View>
@@ -224,7 +226,7 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
         <Text style={styles.labelGeralCadastrar}>Quantidade Disponível (Sacos, caixas, maços):</Text>
         <View style={styles.quantidadeContainerCadastrar}>
           <TouchableOpacity style={styles.btnQtdCadastrar} onPress={diminuirQuantidade}>
-            <Text style={styles.btnQtdTextoCadastrar}>—</Text> 
+            <Text style={styles.btnQtdTextoCadastrar}>—</Text>
           </TouchableOpacity>
           <View style={styles.numeroBoxCadastrar}>
             <Text style={styles.numeroTextoCadastrar}>{quantidade}</Text>

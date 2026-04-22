@@ -1,46 +1,46 @@
-import React, { useState } from 'react'; // 🟢 useState adicionado aqui!
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-// 🔴 REMOVIDO: import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import styles from '../../styles'; 
+import styles from '../../styles';
 import { colors } from '../../colors';
 
-// 🟢 NOVO: Importando a tela de Cadastrar Produto
-import CadastrarProduto from './CadastrarProduto'; 
+// 🟢 Importando a tela de Cadastrar Produto e o Modal
+import CadastrarProduto from './CadastrarProduto';
+import OfertaRelampago from '../components/OfertaRelampago';
 
 interface QueroVenderProps {
   onVoltar: () => void;
 }
 
 export default function QueroVender({ onVoltar }: QueroVenderProps) {
-  
-  // 🟢 NOVO: Criando a memória para saber se o usuário clicou no botão
-  const [abrindoCadastro, setAbrindoCadastro] = useState(false);
 
-  // 🟢 NOVO: Se ele clicou (true), esconde o Dashboard e renderiza o Cadastro
+  // Memórias da tela
+  const [abrindoCadastro, setAbrindoCadastro] = useState(false);
+  const [modalOfertaAberto, setModalOfertaAberto] = useState(false); // 🟢 Controle do Modal
+
+  // Se ele clicou no cadastro, mostra o cadastro
   if (abrindoCadastro) {
-    // Passamos uma função para que o botão de voltar lá do Cadastro feche essa tela (mude pra false)
     return <CadastrarProduto onVoltar={() => setAbrindoCadastro(false)} />;
   }
 
-  // 🟢 Se for falso, mostra o seu Dashboard normalmente
+  // Dashboard normal
   return (
     <ScrollView contentContainerStyle={styles.containerQueroVender} showsVerticalScrollIndicator={false}>
-      
+
       {/* 🟦 DASHBOARD */}
       <Text style={styles.tituloSessaoItalico}>Dashboard</Text>
-      
+
       <View style={styles.rowCards}>
         <View style={styles.cardPequeno}>
           <Text style={styles.cardLabel}>Vendas do Dia</Text>
           <Text style={styles.cardValor}>R$ 0,00</Text>
           <View style={styles.areaInfoVendas}>
             <View style={styles.areaGreyDots}>
-               {[...Array(6)].map((_, i) => <View key={i} style={styles.greyDot} />)}
+              {[...Array(6)].map((_, i) => <View key={i} style={styles.greyDot} />)}
             </View>
-             <View style={styles.badgeVerde}>
-                <Text style={styles.badgeTexto}>+0%</Text>
-             </View>
+            <View style={styles.badgeVerde}>
+              <Text style={styles.badgeTexto}>+0%</Text>
+            </View>
           </View>
         </View>
 
@@ -55,58 +55,51 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         </View>
       </View>
 
-      {/* 🟥 ÁREA DE DESTAQUE (ESTRUTURA CORRETA DO FIGMA: 2 CARDS) */}
-      
-      {/* 1º CARD: O Card Brancão de Fundo */}
+      {/* 🟥 ÁREA DE DESTAQUE */}
       <View style={styles.cardDestaqueBrancao}>
-        
-        {/* Título e Estrela dentro do Card Branco */}
         <View style={styles.headerDestaque}>
-            <Text style={styles.tituloSessao}>Destaque seu Produto!</Text>
-            <Ionicons name="star-outline" size={24} color={colors.verdeColheita} />
+          <Text style={styles.tituloSessao}>Destaque seu Produto!</Text>
         </View>
 
-        {/* 2º CARD: O Card Menor Laranjado por dentro */}
         <View style={styles.cardMenorLaranjado}>
-            <Text style={styles.tituloOfertaLaranjaItalico}>Oferta Relâmpago Ativar!</Text>
-            
-            <View style={styles.areaDestaqueConteudo}>
-                {/* Imagem Placeholder */}
-                <View style={styles.areaDestaqueEsquerda}>
-                    <View style={styles.areaImagemPlaceholderGrande}>
-                        <Ionicons name="camera-outline" size={50} color="#ccc" />
-                    </View>
-                </View>
+          <Text style={styles.tituloOfertaLaranjaItalico}>Oferta Relâmpago Ativar!</Text>
 
-                {/* Preços e Timer */}
-                <View style={styles.areaDestaqueDireita}>
-                    <Text style={styles.textoPrecoNormalZeradoDetalhe}>De R$ 0,00/kg</Text>
-                    <Text style={styles.textoPrecoDestaqueZeradoGrande}>R$ 0,00/kg</Text>
-                    <Text style={styles.textoTimerLabelZerado}>Encerrar em:</Text>
-                    <Text style={styles.textoTimerZeradoGrande}>00:00:00</Text>
-                </View>
+          <View style={styles.areaDestaqueConteudo}>
+            <View style={styles.areaDestaqueEsquerda}>
+              <View style={styles.areaImagemPlaceholderGrande}>
+                <Ionicons name="camera-outline" size={50} color="#ccc" />
+              </View>
             </View>
+
+            <View style={styles.areaDestaqueDireita}>
+              <Text style={styles.textoPrecoNormalZeradoDetalhe}>De R$ 0,00/kg</Text>
+              <Text style={styles.textoPrecoDestaqueZeradoGrande}>R$ 0,00/kg</Text>
+              <Text style={styles.textoTimerLabelZerado}>Encerrar em:</Text>
+              <Text style={styles.textoTimerZeradoGrande}>00:00:00</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Descrições e Botão Verde (Ficam no Card Brancão, abaixo do Laranja) */}
         <Text style={styles.tituloProdutoOfertaGeral}>Nenhum produto em oferta</Text>
         <Text style={styles.descProdutoOfertaGeral}>Crie uma oferta agora e venda o que sobrou do dia.</Text>
 
         <TouchableOpacity style={styles.btnVerPedidosOuter}>
-            <Text style={styles.textoBtnBranco}>Ver pedidos</Text>
+          <Text style={styles.textoBtnBranco}>Ver pedidos</Text>
         </TouchableOpacity>
 
-        {/* Botão Flutuante (Preso no Card Brancão) */}
-        <TouchableOpacity style={styles.btnRedondoFlutuante}>
+        {/* Botão Flutuante que abre o Modal */}
+        <TouchableOpacity
+          style={styles.btnRedondoFlutuante}
+          onPress={() => setModalOfertaAberto(true)} 
+        >
           <Ionicons name="camera-outline" size={24} color="#fff" />
           <Text style={styles.textoIconeFlutuante}>Criar oferta</Text>
         </TouchableOpacity>
-
       </View>
 
       {/* 🟩 GERENCIAR ESTOQUE */}
       <Text style={[styles.tituloSessao, { marginTop: 25, marginBottom: 10 }]}>Gerenciar Estoque</Text>
-      
+
       <View style={styles.cardEstoque}>
         <View style={styles.quadradoAdicionarCentral}>
           <Ionicons name="add-circle-outline" size={55} color="#666" />
@@ -115,19 +108,24 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <View style={styles.infoEstoque}>
           <Text style={styles.tituloEstoque}>Adicionar Produto ao Catálogo</Text>
           <Text style={styles.descEstoque}>Cadastre sua colheita para venda regular sem prazo.</Text>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.btnCadastrar}
-            // 🟢 AQUI ESTÁ A MÁGICA: Muda o estado para abrir a tela de cadastro
             onPress={() => setAbrindoCadastro(true)}
           >
             <Text style={styles.textoBtnBranco}>Cadastrar Produto</Text>
           </TouchableOpacity>
-
         </View>
       </View>
 
       <View style={{ height: 40 }} />
+
+        {/* 🟢 MODAL OFERTA RELÂMPAGO */}
+      <OfertaRelampago 
+         visivel={modalOfertaAberto} 
+         onClose={() => setModalOfertaAberto(false)} 
+      />
+
     </ScrollView>
   );
 }

@@ -6,6 +6,8 @@ import axios from 'axios'; // 🟢 1. Importando o Axios para falar com a nuvem
 import styles from '../../styles';
 import { colors } from '../../colors';
 
+
+
 // 🟢 2. Configurando o IP do servidor (confirme se é esse mesmo que você usa)
 const API_URL = 'http://10.0.2.2:3000'; 
 
