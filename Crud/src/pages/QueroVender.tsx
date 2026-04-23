@@ -6,7 +6,6 @@ import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
 
-// Importando a tela de Cadastrar Produto e o Modal
 import CadastrarProduto from './CadastrarProduto';
 import OfertaRelampago from '../components/OfertaRelampago';
 
@@ -21,9 +20,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [listaProdutosEstoque, setListaProdutosEstoque] = useState<any[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // 🟢 ESTADO PARA EDIÇÃO
+  const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
+
   const API_URL = 'http://10.0.2.2:3000';
 
-  // 🟢 BUSCA DE DADOS
   const buscarDadosEstoque = useCallback(async () => {
     try {
       const idSalvo = await AsyncStorage.getItem('user_id');
@@ -60,8 +61,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     buscarDadosEstoque();
   }, [refreshKey, buscarDadosEstoque]); 
 
-  // 🟢 FUNÇÕES DE GESTÃO (EXCLUIR / EDITAR)
-
+  // 🟢 MENU DE OPÇÕES (EDITAR / EXCLUIR)
   const abrirMenuOpcoes = (produto: any) => {
     Alert.alert(
       "Gerenciar Produto",
@@ -70,7 +70,10 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         { text: "Cancelar", style: "cancel" },
         { 
           text: "Editar", 
-          onPress: () => Alert.alert("Em breve", "A tela de edição será integrada no próximo passo!") 
+          onPress: () => {
+            setProdutoParaEditar(produto); // Carrega os dados para a edição
+            setAbrindoCadastro(true);      // Abre a tela
+          } 
         },
         { 
           text: "Excluir", 
@@ -97,7 +100,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const response = await axios.delete(`${API_URL}/produtos/${id}`);
       if (response.status === 200) {
         Alert.alert("Sucesso", "Produto removido com sucesso!");
-        // 🟢 Dá o refresh na lista e no contador automaticamente
         setRefreshKey(prev => prev + 1);
       }
     } catch (error) {
@@ -107,6 +109,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
 
   const fecharCadastroEAtualizar = () => {
     setAbrindoCadastro(false);
+    setProdutoParaEditar(null); // 🟢 Limpa o estado de edição ao fechar
     setTotalProdutos('...'); 
     setListaProdutosEstoque([]); 
     setTimeout(() => {
@@ -115,7 +118,13 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   };
 
   if (abrindoCadastro) {
-    return <CadastrarProduto key={`cad-${refreshKey}`} onVoltar={fecharCadastroEAtualizar} />;
+    return (
+      <CadastrarProduto 
+        key={`cad-${refreshKey}`} 
+        onVoltar={fecharCadastroEAtualizar} 
+        produtoEditando={produtoParaEditar} // 🟢 Passa os dados para a tela de cadastro
+      />
+    );
   }
 
   return (
@@ -124,7 +133,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       contentContainerStyle={styles.containerQueroVenderSério} 
       showsVerticalScrollIndicator={false}
     >
-
       <Text style={styles.tituloSessaoItalicoSério}>Dashboard</Text>
 
       <View style={styles.rowCardsSério}>
@@ -224,7 +232,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
                 </View>
             </View>
 
-            {/* 🟢 BOTÃO DE TRÊS PONTINHOS ATUALIZADO */}
             <TouchableOpacity 
               style={styles.btnOpcoesEstoqueSério}
               onPress={() => abrirMenuOpcoes(produto)}
