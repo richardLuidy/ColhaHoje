@@ -417,27 +417,27 @@ const styles = StyleSheet.create({
     // 🏪 ESTILOS DA TELA QUERO VENDER (QueroVender.tsx)
     // =======================================================
 
-    containerQueroVender: {
+    containerQueroVenderSério: {
         padding: 20,
         backgroundColor: colors.branco,
     },
-    tituloSessaoItalico: {
+    tituloSessaoItalicoSério: {
         fontSize: 22,
         fontWeight: 'bold',
         fontStyle: 'italic',
         color: '#000',
         marginBottom: 15,
     },
-    tituloSessao: {
+    tituloSessaoSério: {
         fontSize: 18,
         fontWeight: 'bold',
         color: colors.verdeColheita,
     },
-    rowCards: {
+    rowCardsSério: {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    cardPequeno: {
+    cardPequenoSério: {
         backgroundColor: colors.branco,
         width: '48%',
         padding: 15,
@@ -445,53 +445,51 @@ const styles = StyleSheet.create({
         elevation: 3,
         alignItems: 'center',
     },
-    cardLabel: {
+    cardLabelSério: {
         fontSize: 14,
         color: colors.cinzaTecnico,
     },
-    cardValor: {
+    cardValorSério: {
         fontSize: 24,
         fontWeight: 'bold',
         marginTop: 5,
     },
-    areaInfoVendas: {
+    areaInfoVendasSério: {
         alignItems: 'center', 
         marginTop: 10,
     },
-    areaGreyDots: {
+    areaGreyDotsSério: {
         flexDirection: 'row', 
         gap: 2, 
         marginVertical: 5,
     },
-    greyDot: {
+    greyDotSério: {
         width: 6, 
         height: 6, 
         borderRadius: 3, 
         backgroundColor: '#ccc',
     },
-    badgeVerde: {
+    badgeVerdeSério: {
         backgroundColor: '#E8F5E9',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 10,
         marginLeft: 5,
     },
-    badgeTexto: {
+    badgeTextoSério: {
         color: colors.verdeColheita,
         fontSize: 12,
         fontWeight: 'bold',
     },
-    areaPlantIcons: {
+    areaPlantIconsSério: {
         flexDirection: 'row', 
         marginTop: 10, 
         gap: 4, 
         justifyContent: 'center',
     },
     
-    // 🟢 OFERTA RELÂMPAGO (ESTRUTURA FIEL AO FIGMA: 2 CARDS)
-    
-    // 1º CARD (Brancão de fundo com sombra)
-    cardDestaqueBrancao: {
+    // 🟠 OFERTA RELÂMPAGO
+    cardDestaqueBrancaoSério: {
         backgroundColor: colors.branco,
         borderRadius: 20,
         padding: 15,
@@ -504,82 +502,78 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
     },
-    headerDestaque: {
+    headerDestaqueSério: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 15,
     },
-    
-    // 2º CARD (Laranjado por dentro)
-    cardMenorLaranjado: {
+    cardMenorLaranjadoSério: {
         borderRadius: 15,
         padding: 15,
         borderWidth: 2,
-        borderColor: '#FFA000', // Borda Laranja
+        borderColor: '#FFA000', 
         marginBottom: 15,
     },
-    tituloOfertaLaranjaItalico: {
+    tituloOfertaLaranjaItalicoSério: {
         color: '#FF8F00',
         fontSize: 18,
         fontWeight: 'bold',
         fontStyle: 'italic',
         marginBottom: 10,
     },
-    areaDestaqueConteudo: {
+    areaDestaqueConteudoSério: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    areaDestaqueEsquerda: {
+    areaDestaqueEsquerdaSério: {
         width: '55%',
     },
-    areaImagemPlaceholderGrande: {
+    areaImagemPlaceholderGrandeSério: {
         backgroundColor: '#EEEEEE',
         height: 100,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    areaDestaqueDireita: {
+    areaDestaqueDireitaSério: {
         width: '42%',
         alignItems: 'flex-end',
     },
-    textoPrecoNormalZeradoDetalhe: {
+    textoPrecoNormalZeradoDetalheSério: {
         fontSize: 12,
         color: '#999',
         textDecorationLine: 'line-through',
     },
-    textoPrecoDestaqueZeradoGrande: {
+    textoPrecoDestaqueZeradoGrandeSério: {
         fontSize: 22,
         fontWeight: 'bold',
         color: colors.verdeColheita,
         marginTop: 2,
         marginBottom: 10,
     },
-    textoTimerLabelZerado: {
+    textoTimerLabelZeradoSério: {
         fontSize: 12,
         color: '#333',
     },
-    textoTimerZeradoGrande: {
+    textoTimerZeradoGrandeSério: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginTop: 2,
     },
-    
-    // Textos que ficam no Card Brancão, abaixo do Laranjado
-    tituloProdutoOfertaGeral: {
+    tituloProdutoOfertaGeralSério: {
         fontSize: 15,
         fontWeight: 'bold',
         color: '#000',
     },
-    descProdutoOfertaGeral: {
+    descProdutoOfertaGeralSério: {
         fontSize: 10,
         color: colors.cinzaTecnico,
         marginTop: 3,
     },
-    btnVerPedidosOuter: {
+    btnVerPedidosOuterSério: {
         backgroundColor: colors.verdeColheita,
         paddingVertical: 10,
         paddingHorizontal: 20,
@@ -588,7 +582,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         alignSelf: 'flex-start',
     },
-   btnRedondoFlutuante: {
+    btnRedondoFlutuanteSério: {
         backgroundColor: colors.verdeColheita,
         width: 88,
         height: 88,
@@ -604,53 +598,119 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
     },
-    textoIconeFlutuante: {
+    textoIconeFlutuanteSério: {
         color: colors.branco, 
         fontSize: 11, 
         fontWeight: 'bold',
         marginTop: 4,
     },
 
-    // 🟢 ESTOQUE
-    cardEstoque: {
-        backgroundColor: colors.branco,
-        borderRadius: 20,
-        padding: 15,
+    // 🟢 ESTOQUE MODO LISTA (GERENCIAR ESTOQUE)
+    cardCadastrarNovoSério: {
         flexDirection: 'row',
-        elevation: 3,
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        padding: 15,
+        borderRadius: 15,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        elevation: 2,
+    },
+    infoEstoqueSério: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    tituloEstoqueSério: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+    },
+    descEstoqueSério: {
+        fontSize: 12,
+        color: colors.placeholder,
+    },
+    cardEstoqueSério: {
+        flexDirection: 'row',
+        backgroundColor: '#FFF',
+        borderRadius: 15,
+        padding: 12,
+        marginBottom: 10,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         alignItems: 'center',
     },
-    quadradoAdicionarCentral: {
-        backgroundColor: '#E0E0E0',
-        width: 80,
-        height: 80,
-        borderRadius: 15,
+    imagemEstoqueSério: {
+        width: 60,
+        height: 60,
+        borderRadius: 10,
+        marginRight: 12,
+    },
+    quadradoPlaceholderSério: {
+        width: 60,
+        height: 60,
+        borderRadius: 10,
+        backgroundColor: '#F0F0F0',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 15,
+        marginRight: 12,
     },
-    infoEstoque: {
+    infoEstoqueListSério: {
         flex: 1,
     },
-    tituloEstoque: {
+    linhaCategoriaBadgeSério: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginBottom: -5,
+    },
+    badgeCategoriaRealSério: {
+        backgroundColor: colors.verdeColheita,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    badgeCategoriaTextRealSério: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    tituloEstoqueListSério: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+    },
+    linhaPrecoQuantidadeSério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    precoEstoqueSério: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#000',
-    },
-    descEstoque: {
-        fontSize: 11,
         color: colors.cinzaTecnico,
-        marginTop: 3,
-        marginBottom: 10,
     },
-    btnCadastrar: {
-        backgroundColor: colors.verdeColheita,
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        borderRadius: 15,
-        alignSelf: 'flex-start',
+    unidadeEstoqueSério: {
+        fontSize: 11,
+        color: colors.placeholder,
     },
-    textoBtnBranco: {
+    quantidadeEstoqueSério: {
+        fontSize: 11,
+        color: colors.laranjaAlerta,
+        backgroundColor: '#FFF3E0',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        fontWeight: 'bold',
+    },
+    btnOpcoesEstoqueSério: {
+        padding: 5,
+        marginLeft: 5,
+    },
+    textoBtnBrancoSério: {
         color: colors.branco, 
         fontSize: 12, 
         fontWeight: 'bold',
@@ -1049,6 +1109,234 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+
+// =======================================================
+    // 🏠 ESTILOS DA TELA INÍCIO / HOME (Inicio.tsx) - VISUAL SÉRIO
+    // =======================================================
+
+    // Fundo principal de toda a tela, um cinza bem clarinho e suave
+    containerHomeSério: {
+        flex: 1,
+        backgroundColor: '#F5F5F7', 
+    },
+
+    // Espaçamento interno de todo o conteúdo para não colar nas bordas
+    contentContainerHomeSério: {
+        padding: 16,
+        paddingBottom: 90, // Espaço extra no final para não cobrir o último card
+    },
+
+    // Centralizador para o ActivityIndicator (Carregamento)
+    centerHomeSério: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    // Título principal "Ofertas Fresquinhas" (Catálogo)
+    tituloSecaoSério: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+        marginTop: 24,
+        marginBottom: 16,
+    },
+
+    // =======================================================
+    // ⚡ DESTAQUE BANNER (OFERTA RELÂMPAGO) - ESTILO HIGH-FIDELITY
+    // =======================================================
+    
+    // Caixa principal do banner de destaque, usando a imagem inteira
+    bannerDestaqueSério: {
+        height: 200,
+        borderRadius: 20,
+        overflow: 'hidden', // Essencial para que a imagem siga as bordas arredondadas
+        marginBottom: 10,
+        elevation: 5, // Sombra Android
+        shadowColor: '#000', // Sombra iOS
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+    },
+    
+    // O ImageBackground que preenche todo o banner
+    bannerImageBackgroundSério: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
+    
+    // Faixa no topo para o título e o timer
+    bannerTopOverlaySério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+    },
+    
+    // Título "OFERTA RELÂMPAGO!" com sombra para dar leitura em cima da foto
+    bannerTitleOverSério: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 3,
+    },
+    
+    // O blockzinho branco semi-transparente do cronômetro
+    bannerTimerBlockSério: {
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+    },
+    
+    // O texto do cronômetro dentro do blockzinho
+    bannerTimerTextSério: {
+        color: colors.cinzaTecnico,
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    
+    // Faixa inferior escura e transparente para o nome do produto e preço
+    bannerBottomInfoOverlaySério: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        padding: 12,
+    },
+    
+    // Nome do produto no destaque (Ex: Morango Orgânico)
+    bannerBottomNameSério: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    
+    // Area para alinhar os dois preços
+    bannerBottomPricesSério: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    
+    // Preço original riscado
+    bannerBottomPriceRiscadoSério: {
+        color: '#CCC',
+        textDecorationLine: 'line-through',
+        marginRight: 8,
+        fontSize: 12,
+    },
+    
+    // Preço promocional em destaque (Laranja Alerta)
+    bannerBottomPriceNovoSério: {
+        color: colors.laranjaAlerta, 
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+
+    // =======================================================
+    // 🛒 CATÁLOGO DE PRODUTOS (CARDS PROFISSIONAIS)
+    // =======================================================
+    
+    // Grid para alinhar os cards (2 por linha)
+    gridProdutosSério: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    
+    // Card individual do produto, mais limpo e profissional
+    cardProdutoSério: {
+        width: '48%', // Garante dois por linha
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        marginBottom: 16,
+        overflow: 'hidden', 
+        elevation: 3, 
+        shadowColor: '#000', 
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+    },
+    
+    // Caixa para a foto do catálogo (Preenche todo o topo do card)
+    cardCatalogueImageContainerSério: {
+        height: 120,
+        width: '100%',
+        backgroundColor: colors.backGroundPage,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    
+    // A foto real do produto no catálogo
+    cardCatalogueImageSério: {
+        width: '100%',
+        height: '100%',
+    },
+    
+    // Badge de "Orgânico" em verde forte no card
+    badgeOrganicoSério: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: colors.verdeColheita,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    
+    // Texto do Badge (Orgânico)
+    badgeOrganicoTextSério: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    
+    // Container das informações de texto do card, com mais padding
+    cardCatalogueInfoSério: {
+        padding: 12,
+    },
+    
+    // Título do produto no cardzinho (Ex: Banana Prata)
+    cardCatalogueNameSério: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+        marginBottom: 2,
+    },
+    
+    // Nome do produtor no cardzinho (Ex: richard.richard)
+    cardCatalogueVendorSério: {
+        fontSize: 12,
+        color: colors.placeholder,
+        marginBottom: 8,
+    },
+    
+    // Area inferior do card para alinhar preço e botão
+    cardCataloguePriceRowSério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    
+    // Preço final do produto no cardzinho
+    cardCataloguePriceSério: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.cinzaTecnico,
+    },
+    
+    // Botão verde redondo com o "Add"
+    btnAddCardNewSério: {
+        backgroundColor: colors.verdeColheita,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

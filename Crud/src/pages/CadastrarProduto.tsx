@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-// 🟢 1. Adicionado o componente 'Image' aqui
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-// 🟢 2. Importando a biblioteca da galeria
 import * as ImagePicker from 'expo-image-picker';
-
-
 
 import styles from '../../styles';
 import { colors } from '../../colors';
@@ -16,7 +12,8 @@ import { colors } from '../../colors';
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
 const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
 
-const API_URL = 'http://10.0.2.2:3000';
+// 🟢 Mantenha 10.0.2.2 já que você usa o emulador do Android Studio!
+const API_URL = 'http://10.0.2.2:3000'; 
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;
@@ -36,7 +33,6 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
   const [unidade, setUnidade] = useState('Caixa');
   const [quantidade, setQuantidade] = useState(1);
 
-  // 🟢 3. Estado para guardar a foto que o usuário escolher
   const [imagemUri, setImagemUri] = useState<string | null>(null);
 
   const formatarPreco = (texto: string) => {
@@ -44,9 +40,7 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
     setPreco(apenasNumeros);
   };
 
-  // 🟢 4. Função mágica que abre a galeria do celular
   const escolherFoto = async () => {
-    // Pede permissão para acessar as fotos
     const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissao.granted === false) {
@@ -54,16 +48,15 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
       return;
     }
 
-    // Abre a galeria
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, // Permite cortar a foto
-      aspect: [4, 3], // Formato retangular
-      quality: 0.7, // Deixa um pouco mais leve
+      allowsEditing: true, 
+      aspect: [4, 3], 
+      quality: 0.7, 
     });
 
     if (!resultado.canceled) {
-      setImagemUri(resultado.assets[0].uri); // Guarda o caminho da foto na memória
+      setImagemUri(resultado.assets[0].uri); 
     }
   };
 
@@ -71,16 +64,11 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
     const carregarDadosDaNuvem = async () => {
       try {
         const idSalvo = await AsyncStorage.getItem('user_id');
-        console.log("🔍 DEBUG - ID Salvo no celular:", idSalvo);
-
+        
         if (idSalvo) {
           setProdutorId(parseInt(idSalvo));
-
-          console.log(`🔍 DEBUG - Buscando dados na URL: ${API_URL}/produtor/dados/${idSalvo}`);
           const response = await axios.get(`${API_URL}/produtor/dados/${idSalvo}`);
           const dadosDaNuvem = response.data;
-
-          console.log("🔍 DEBUG - Dados que vieram da Nuvem:", dadosDaNuvem);
 
           setNomeProdutor(dadosDaNuvem.nome);
           setLocalizacao(dadosDaNuvem.localizacao);
@@ -88,11 +76,9 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
           if (dadosDaNuvem.endereco_id) {
             setEnderecoId(dadosDaNuvem.endereco_id);
           }
-        } else {
-          console.log("⚠️ NENHUM ID ENCONTRADO - O usuário fez login?");
         }
       } catch (error) {
-        console.error("❌ ERRO AO BUSCAR DADOS! Verifique o seu IP e o servidor Node.", error);
+        console.error("❌ ERRO AO BUSCAR DADOS!", error);
       }
     };
     carregarDadosDaNuvem();
@@ -101,37 +87,70 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
   const aumentarQuantidade = () => setQuantidade(quantidade + 1);
   const diminuirQuantidade = () => quantidade > 1 && setQuantidade(quantidade - 1);
 
+  // ==========================================================
+  // 🟢 NOVA FUNÇÃO FINALIZAR CADASTRO (COM UPLOAD DE IMAGEM REAL)
+  // ==========================================================
   const finalizarCadastro = async () => {
     if (!nomeProduto || !preco || !produtorId || !enderecoId) {
       Alert.alert("Erro", "Por favor, preencha o nome do produto, preço e verifique se você tem um endereço cadastrado.");
       return;
     }
 
-    // Por enquanto a imagem vai vazia para o banco, faremos o upload real na Parte 2!
-    const dadosParaEnvio = {
-      nome_produto: nomeProduto,
-      nome_produtor: nomeProdutor,
-      localizacao: localizacao,
-      categoria: categoriaSelecionada,
-      preco: parseFloat(preco.replace(',', '.')),
-      unidade: unidade,
-      quantidade: quantidade,
-      produtor_id: produtorId,
-      endereco_id: enderecoId,
-      imagem_url: ''
-    };
-
     try {
       setLoading(true);
-      const response = await axios.post(`${API_URL}/produtos`, dadosParaEnvio);
+
+      // 1. Criamos o "caminhão de entrega" FormData
+      const formData = new FormData();
+      
+      // 2. Colocamos todos os textos lá dentro
+      formData.append('nome_produto', nomeProduto);
+      formData.append('nome_produtor', nomeProdutor);
+      formData.append('localizacao', localizacao);
+      formData.append('categoria', categoriaSelecionada);
+      formData.append('preco', parseFloat(preco.replace(',', '.')).toString());
+      formData.append('unidade', unidade);
+      formData.append('quantidade', quantidade.toString());
+      formData.append('produtor_id', produtorId.toString());
+      formData.append('endereco_id', enderecoId.toString());
+
+      // 3. Se o usuário escolheu uma foto, nós a empacotamos
+      if (imagemUri) {
+        const filename = imagemUri.split('/').pop() || 'foto.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        formData.append('imagem', {
+          uri: imagemUri,
+          name: filename,
+          type: type,
+        } as any); 
+      }
+
+      // 4. Mandamos o caminhão para o servidor
+      const response = await axios.post(`${API_URL}/produtos`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.status === 201) {
-        Alert.alert("Sucesso!", "Seu produto já está na nuvem ColhaHoje!");
-        onVoltar();
+        // 🟢 A MÁGICA AQUI: O alerta aguarda o clique no botão "OK" para chamar o onVoltar()
+        Alert.alert(
+          "Sucesso!", 
+          "Seu produto já está na nuvem ColhaHoje com a foto!",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                onVoltar(); // Só executa depois que o produtor clicar em OK
+              }
+            }
+          ]
+        );
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert("Erro na Nuvem", "Não foi possível salvar o produto agora.");
+      console.error("Erro ao enviar produto:", error);
+      Alert.alert("Erro na Nuvem", "Não foi possível salvar o produto e a foto agora.");
     } finally {
       setLoading(false);
     }
@@ -144,13 +163,10 @@ export default function CadastrarProduto({ onVoltar }: CadastrarProdutoProps) {
 
         {/* ÁREA DE FOTOS */}
         <View style={styles.areaFotosCadastrar}>
-          {/* 🟢 5. Transformamos a caixa em um botão que chama a escolherFoto */}
           <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
             {imagemUri ? (
-              // Se o usuário escolheu uma foto, mostra ela aqui
               <Image source={{ uri: imagemUri }} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
             ) : (
-              // Se não tem foto, mostra o ícone padrão
               <>
                 <Ionicons name="camera" size={50} color={colors.cinzaTecnico} />
                 <Text style={styles.textoFotoCadastrar}>Adicionar foto principal</Text>
