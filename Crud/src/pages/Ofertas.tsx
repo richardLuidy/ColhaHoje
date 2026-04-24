@@ -1,19 +1,85 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, ImageBackground } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../colors';
+import styles from '../../styles';
 
 export default function Ofertas() {
+    const [ofertas, setOfertas] = useState<any[]>([]);
+    const [carregando, setCarregando] = useState(true);
+
+    useEffect(() => {
+        carregarOfertas();
+    }, []);
+
+    const carregarOfertas = async () => {
+        try {
+            const res = await fetch('http://10.0.2.2:3000/ofertas');
+            if (res.ok) {
+                const listaOfertas = await res.json();
+                setOfertas(listaOfertas);
+            }
+        } catch (error) {
+            console.error("Erro ao carregar ofertas:", error);
+        } finally {
+            setCarregando(false);
+        }
+    };
+
+    if (carregando) {
+        return (
+            <View style={styles.centerHomeSério}>
+                <ActivityIndicator size="large" color={colors.verdeColheita} />
+            </View>
+        );
+    }
+
     return (
-        <View >
-            <Text style={styles.title}>Aqui vai ser a Tela de Ofertas!</Text>
-        </View>
+        <ScrollView
+            style={styles.containerHomeSério}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.contentContainerHomeSério}
+        >
+            <Text style={styles.tituloSecaoSério}>Todas as Ofertas</Text>
+
+            <View style={styles.gridProdutosSério}>
+                {ofertas.map((oferta) => {
+                    const imagem = oferta.produto.imagem_url
+                        ? { uri: oferta.produto.imagem_url }
+                        : { uri: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&h=400' };
+
+                    return (
+                        <View key={oferta.id} style={styles.cardProdutoSério}>
+                            <View style={styles.cardCatalogueImageContainerSério}>
+                                <Image source={imagem} style={styles.cardCatalogueImageSério} />
+                                <View style={styles.badgeOrganicoSério}>
+                                    <Text style={styles.badgeOrganicoTextSério}>
+                                        {oferta.produto.categoria || "Oferta"}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.cardCatalogueInfoSério}>
+                                <Text style={styles.cardCatalogueNameSério} numberOfLines={1}>{oferta.produto.nome_produto}</Text>
+                                <Text style={styles.cardCatalogueVendorSério} numberOfLines={1}>{oferta.produto.nome_produtor}</Text>
+
+                                <View style={styles.cardCataloguePriceRowSério}>
+                                    <Text style={styles.cardCataloguePriceSério}>
+                                        R$ {parseFloat(oferta.preco_promocional).toFixed(2).replace('.', ',')}
+                                    </Text>
+                                    <Text style={styles.cardCataloguePriceRiscadoSério}>
+                                        R$ {parseFloat(oferta.preco_original).toFixed(2).replace('.', ',')}
+                                    </Text>
+
+                                    <TouchableOpacity style={styles.btnAddCardNewSério}>
+                                        <Ionicons name="add" size={20} color="#FFF" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    );
+                })}
+            </View>
+        </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-   
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#2E7D32', // Verde Colheita
-    }
-});

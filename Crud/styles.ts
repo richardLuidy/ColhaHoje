@@ -1338,6 +1338,41 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
+    // =======================================================
+    // 🌊 ESTILOS DA SPLASH SCREEN
+    // =======================================================
+
+    // Container principal da splash
+    splashContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.verdeColheita, // Fundo verde da marca
+    },
+
+    // Logo da aplicação
+    splashLogo: {
+        width: 150,
+        height: 150,
+        marginBottom: 20,
+    },
+
+    // Texto principal "ColhaHoje"
+    splashText: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: colors.branco,
+        marginBottom: 10,
+    },
+
+    // Subtítulo descritivo
+    splashSubtitle: {
+        fontSize: 16,
+        color: colors.branco,
+        textAlign: 'center',
+        opacity: 0.8,
+    },
 });
 
 export default styles;

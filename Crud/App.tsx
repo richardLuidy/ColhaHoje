@@ -12,8 +12,9 @@ import Ofertas from './src/pages/Ofertas';
 import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
+import SplashScreen from './src/pages/SplashScreen';
 
-type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
+type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
 const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
@@ -44,7 +45,7 @@ const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive:
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>('login');
+  const [activeTab, setActiveTab] = useState<TabKey>('splash');
   
   // 1. Definimos as abas do footer
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
@@ -68,6 +69,13 @@ export default function App() {
 
     return result;
   }, []);
+
+  // 🛡️ Lógica de Splash
+  if (activeTab === 'splash') {
+    return (
+      <SplashScreen onFinish={() => setActiveTab('login')} />
+    );
+  }
 
   // 🛡️ Lógica de Login
   if (activeTab === 'login') {
