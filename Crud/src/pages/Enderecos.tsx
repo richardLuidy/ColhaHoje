@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios'; 
+import axios from 'axios';
+import * as Location from 'expo-location';
 import styles from '../../styles';
 import { colors } from '../../colors';
-
-const API_URL = 'http://10.0.2.2:3000'; 
+import { API_URL } from '../../api'; 
 
 interface EnderecosProps {
   onVoltar: () => void;
@@ -105,6 +105,21 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
       setLoading(true);
       const numFinal = numero.trim() === '' ? 'S/N' : numero;
 
+      // Obter coordenadas do endereço
+      let latitude = null;
+      let longitude = null;
+      try {
+        const enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, ${estado}, ${cep}, Brasil`;
+        const geocoded = await Location.geocodeAsync(enderecoCompleto);
+        if (geocoded.length > 0) {
+          latitude = geocoded[0].latitude;
+          longitude = geocoded[0].longitude;
+        }
+      } catch (geoError) {
+        console.warn('Não foi possível geocodificar o endereço:', geoError);
+        // Continua sem coordenadas se geocoding falhar
+      }
+
       // 🟢 Salvando na Nuvem
       const response = await axios.post(`${API_URL}/enderecos`, {
         cep,
@@ -113,6 +128,8 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
         bairro,
         cidade,
         estado,
+        latitude,
+        longitude,
         usuario_id: produtorId
       });
 
