@@ -73,7 +73,7 @@ export default function Inicio() {
     }
 
     const imagemDestaque = ofertaDestaque?.produto.imagem_url
-        ? { uri: ofertaDestaque.produto.imagem_url }
+        ? { uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }
         : { uri: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&h=400' };
 
     return (
@@ -125,7 +125,7 @@ export default function Inicio() {
 
                             <View style={styles.cardCatalogueImageContainerSério}>
                                 {produto.imagem_url ? (
-                                    <Image source={{ uri: produto.imagem_url }} style={styles.cardCatalogueImageSério} />
+                                    <Image source={{ uri: `${API_URL}${produto.imagem_url}` }} style={styles.cardCatalogueImageSério} />
                                 ) : (
                                     <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
                                 )}

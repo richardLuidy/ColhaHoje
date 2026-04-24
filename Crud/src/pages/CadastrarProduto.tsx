@@ -40,7 +40,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       setPreco(produtoEditando.preco.toString().replace('.', ','));
       setUnidade(produtoEditando.unidade);
       setQuantidade(produtoEditando.quantidade);
-      setImagemUri(produtoEditando.imagem_url); // Carrega a foto atual
+      setImagemUri(produtoEditando.imagem_url ? `${API_URL}${produtoEditando.imagem_url}` : null); // Carrega a foto atual
     }
   }, [produtoEditando]);
 
@@ -170,12 +170,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
         <Text style={styles.labelGeralCadastrar}>Nome do Produto:</Text>
         <TextInput style={styles.inputGeralCadastrar} value={nomeProduto} onChangeText={setNomeProduto} />
-
-        <Text style={styles.labelGeralCadastrar}>Nome do Produtor:</Text>
-        <TextInput style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} value={nomeProdutor} editable={false} />
-
-        <Text style={styles.labelGeralCadastrar}>Localização:</Text>
-        <TextInput style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} value={localizacao} editable={false} />
 
         <Text style={styles.labelCategoriaCadastrar}>Categoria</Text>
         <View style={styles.categoriaContainerCadastrar}>

@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
+import { API_URL } from '../../api';
 
 import CadastrarProduto from './CadastrarProduto';
 import OfertaRelampago from '../components/OfertaRelampago';
@@ -209,7 +210,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       {listaProdutosEstoque.map((produto) => (
           <View key={produto.id} style={styles.cardEstoqueSério}>
             {produto.imagem_url ? (
-               <Image source={{ uri: produto.imagem_url }} style={styles.imagemEstoqueSério} />
+               <Image source={{ uri: `${API_URL}${produto.imagem_url}` }} style={styles.imagemEstoqueSério} />
             ) : (
                <View style={styles.quadradoPlaceholderSério}>
                   <Ionicons name="leaf-outline" size={30} color={colors.placeholder} />

@@ -160,11 +160,11 @@ app.get('/produtor/dados/:id', async (req, res) => {
 
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
-        const { nome_produto, nome_produtor, localizacao, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
-        const imagem_url = req.file ? `http://10.0.2.2:3000/uploads/${req.file.filename}` : '';
+        const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
+        const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
         const novoProduto = await prisma.produtos.create({
             data: {
-                nome_produto, nome_produtor, localizacao, categoria,
+                nome_produto, categoria,
                 preco: parseFloat(preco), unidade, quantidade: parseInt(quantidade),
                 produtor_id: parseInt(produtor_id), endereco_id: parseInt(endereco_id), imagem_url
             }
@@ -242,7 +242,7 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         };
 
         if (req.file) {
-            dadosParaAtualizar.imagem_url = `http://10.0.2.2:3000/uploads/${req.file.filename}`;
+            dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
         }
 
         const produtoAtualizado = await prisma.produtos.update({

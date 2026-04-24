@@ -46,7 +46,7 @@ export default function Ofertas() {
             <View style={styles.gridProdutosSério}>
                 {ofertas.map((oferta) => {
                     const imagem = oferta.produto.imagem_url
-                        ? { uri: oferta.produto.imagem_url }
+                        ? { uri: `${API_URL}${oferta.produto.imagem_url}` }
                         : { uri: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&h=400' };
 
                     return (
