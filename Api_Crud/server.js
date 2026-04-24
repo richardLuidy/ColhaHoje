@@ -177,8 +177,20 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
 
 app.get('/produtos', async (req, res) => {
     try {
-        const listaProdutos = await prisma.produtos.findMany({ orderBy: { id: 'desc' } });
-        res.status(200).json(listaProdutos);
+        const listaProdutos = await prisma.produtos.findMany({
+            orderBy: { id: 'desc' },
+            include: {
+                produtor: { select: { nome: true } },
+                endereco: { select: { cidade: true, estado: true } }
+            }
+        });
+        // Mapear para manter compatibilidade com frontend
+        const produtosMapeados = listaProdutos.map(produto => ({
+            ...produto,
+            nome_produtor: produto.produtor.nome,
+            localizacao: produto.endereco ? `${produto.endereco.cidade}, ${produto.endereco.estado}` : null
+        }));
+        res.status(200).json(produtosMapeados);
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar produtos" });
     }
@@ -201,6 +213,24 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nome_produto, categoria, preco, unidade, quantidade } = req.body;
+
+        // Buscar o produto atual para obter a imagem antiga
+        const produtoAtual = await prisma.produtos.findUnique({
+            where: { id: parseInt(id) }
+        });
+        
+        if (!produtoAtual) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+
+        // Se o usuário mandou uma foto nova, apagamos a antiga
+        if (req.file && produtoAtual.imagem_url) {
+            const caminhoImagemAntiga = path.join('uploads', path.basename(produtoAtual.imagem_url));
+            if (fs.existsSync(caminhoImagemAntiga)) {
+                fs.unlinkSync(caminhoImagemAntiga);
+                console.log('🗑️ Imagem antiga removida:', caminhoImagemAntiga);
+            }
+        }
 
         // Se o usuário mandou uma foto nova, usamos ela. Se não, mantemos a antiga (logica no front)
         const dadosParaAtualizar = {
@@ -233,6 +263,25 @@ app.delete('/produtos/:id', async (req, res) => {
     console.log(`🔍 Requisição DELETE /produtos/${req.params.id} recebida`);
     try {
         const { id } = req.params;
+        
+        // Buscar o produto para obter o caminho da imagem
+        const produto = await prisma.produtos.findUnique({
+            where: { id: parseInt(id) }
+        });
+        
+        if (!produto) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+        
+        // Apagar a imagem se existir
+        if (produto.imagem_url) {
+            const caminhoImagem = path.join('uploads', path.basename(produto.imagem_url));
+            if (fs.existsSync(caminhoImagem)) {
+                fs.unlinkSync(caminhoImagem);
+                console.log('🗑️ Imagem antiga removida:', caminhoImagem);
+            }
+        }
+        
         await prisma.produtos.delete({
             where: { id: parseInt(id) }
         });

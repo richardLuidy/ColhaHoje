@@ -18,8 +18,8 @@ model usuarios {
   url_foto         String?
   data_criacao     DateTime    @default(now())
   data_atualizacao DateTime    @default(now())
-  enderecos        enderecos[] 
-  produtos         produtos[]
+  enderecos        enderecos[]
+  produtos         produtos[]  @relation("ProdutosProdutor")
 }
 
 model enderecos {
@@ -42,25 +42,18 @@ model enderecos {
 model produtos {
   id                Int                 @id @default(autoincrement())
   nome_produto      String
-  nome_produtor     String
-  // 🟢 ALTERADO: Localização opcional, pois vem da tabela de endereços
-  localizacao       String?   
   categoria         String
   preco             Decimal             @db.Decimal(10, 2)
   unidade           String
   quantidade        Int                 @default(1)
   imagem_url        String?
   produtor_id       Int
-  // 🟢 NOVO: ID do endereço exato
-  endereco_id       Int       
-  usuario           usuarios            @relation(fields: [produtor_id], references: [id]) 
-  // 🟢 NOVO: Ponte oficial com a tabela de endereços
-  endereco          enderecos           @relation(fields: [endereco_id], references: [id]) 
-  
+  endereco_id       Int?
+  produtor          usuarios            @relation("ProdutosProdutor", fields: [produtor_id], references: [id], onDelete: Cascade)
+  endereco          enderecos?          @relation(fields: [endereco_id], references: [id], onDelete: SetNull)
+  ofertas_relampago ofertas_relampago[]
   data_criacao      DateTime            @default(now())
-
-  // ⚡ RELAÇÃO NOVA: Permite que este produto tenha Ofertas Relâmpago
-  ofertas_relampago ofertas_relampago[] 
+  data_atualizacao  DateTime            @default(now())
 }
 
 model ofertas_relampago {
