@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import styles from './styles';
 import Header from './src/components/Header';
 
@@ -24,6 +25,18 @@ import PedidosCinza from './src/assets/pedidos_cinza.svg';
 import PedidosVerde from './src/assets/pedidos_verde.svg';
 import PerfilCinza from './src/assets/perfil_cinza.svg';
 import PerfilVerde from './src/assets/perfil_verde.svg';
+
+// Configuração do React Query para cache otimizado
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutos - dados ficam "frescos"
+      gcTime: 1000 * 60 * 30, // 30 minutos - dados ficam em cache
+      retry: 2, // Tenta novamente 2x em caso de erro
+      refetchOnWindowFocus: false, // Não refetch ao focar a tela
+    },
+  },
+});
 
 type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
@@ -82,14 +95,15 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      
-      {/* 🟢 HEADER ATUALIZADO: Mostra a seta se estiver em 'dados' ou 'enderecos' */}
-      <Header 
-        activeTab={activeTab} 
-        forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu'} 
-        onBackPress={() => {
-          if (activeTab === 'perfil') setSubTelaPerfil('menu');
+    <QueryClientProvider client={queryClient}>
+      <View style={styles.container}>
+        
+        {/* 🟢 HEADER ATUALIZADO: Mostra a seta se estiver em 'dados' ou 'enderecos' */}
+        <Header 
+          activeTab={activeTab} 
+          forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu'} 
+          onBackPress={() => {
+            if (activeTab === 'perfil') setSubTelaPerfil('menu');
         }}
       />
 
@@ -138,5 +152,6 @@ export default function App() {
 
       <StatusBar style="light" />
     </View>
+    </QueryClientProvider>
   );
 }

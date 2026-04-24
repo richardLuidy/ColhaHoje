@@ -3,17 +3,17 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Ima
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
-import { API_URL } from '../../api';
+import { useProdutos, useOfertasRelampago } from '../hooks/api';
 
 export default function Inicio() {
-    const [ofertaDestaque, setOfertaDestaque] = useState<any>(null);
-    const [produtos, setProdutos] = useState<any[]>([]);
-    const [carregando, setCarregando] = useState(true);
     const [tempoRestante, setTempoRestante] = useState("");
 
-    useEffect(() => {
-        carregarDadosHome();
-    }, []);
+    // 🟢 REACT QUERY: Cache inteligente para produtos e ofertas
+    const { data: produtos = [], isLoading: carregandoProdutos } = useProdutos();
+    const { data: ofertas = [], isLoading: carregandoOfertas } = useOfertasRelampago();
+
+    const carregando = carregandoProdutos || carregandoOfertas;
+    const ofertaDestaque = ofertas.length > 0 ? ofertas[0] : null;
 
     // 🟢 LÓGICA DO RELÓGIO EM TEMPO REAL
     useEffect(() => {
@@ -28,7 +28,6 @@ export default function Inicio() {
 
             if (distancia < 0) {
                 setTempoRestante("Expirado");
-                setOfertaDestaque(null);
                 clearInterval(interval);
             } else {
                 const h = Math.floor(distancia / (1000 * 60 * 60));
@@ -43,26 +42,6 @@ export default function Inicio() {
 
         return () => clearInterval(interval);
     }, [ofertaDestaque]);
-
-    const carregarDadosHome = async () => {
-        try {
-            const resOferta = await fetch(`${API_URL}/ofertas/destaque`);
-            if (resOferta.ok) {
-                const oferta = await resOferta.json();
-                setOfertaDestaque(oferta);
-            }
-
-            const resProdutos = await fetch(`${API_URL}/produtos`);
-            if (resProdutos.ok) {
-                const listaProdutos = await resProdutos.json();
-                setProdutos(listaProdutos);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar a Home:", error);
-        } finally {
-            setCarregando(false);
-        }
-    };
 
     if (carregando) {
         return (

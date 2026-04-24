@@ -3,12 +3,16 @@ import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { colors } from '../../colors';
-import { API_URL } from '../../api';
+import { useProdutores } from '../hooks/api';
 
 export default function Mapa() {
-    const [produtores, setProdutores] = useState<any[]>([]);
-    const [carregando, setCarregando] = useState(true);
+    const [carregandoLocalizacao, setCarregandoLocalizacao] = useState(true);
     const [localizacaoUsuario, setLocalizacaoUsuario] = useState<Region | null>(null);
+
+    // 🟢 REACT QUERY: Cache inteligente para produtores
+    const { data: produtores = [], isLoading: carregandoProdutores } = useProdutores();
+
+    const carregando = carregandoLocalizacao || carregandoProdutores;
 
     useEffect(() => {
         solicitarPermissaoLocalizacao();
@@ -23,7 +27,7 @@ export default function Mapa() {
                     'Precisamos da sua localização para mostrar produtores próximos.',
                     [{ text: 'OK' }]
                 );
-                setCarregando(false);
+                setCarregandoLocalizacao(false);
                 return;
             }
 
@@ -35,7 +39,7 @@ export default function Mapa() {
                 longitudeDelta: 0.0421,
             };
             setLocalizacaoUsuario(region);
-            carregarProdutores();
+            setCarregandoLocalizacao(false);
         } catch (error) {
             console.error('Erro ao obter localização:', error);
             // Fallback para localização padrão
@@ -45,29 +49,7 @@ export default function Mapa() {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             });
-            carregarProdutores();
-        }
-    };
-
-    const carregarProdutores = async () => {
-        try {
-            const res = await fetch(`${API_URL}/produtos`);
-            if (res.ok) {
-                const produtos = await res.json();
-                // Filtrar produtos com localização válida
-                const produtoresComCoords = produtos
-                    .filter((produto: any) => produto.endereco)
-                    .map((produto: any, index: number) => ({
-                        ...produto,
-                        latitude: parseFloat(produto.endereco.latitude) || (-23.5505 + (index * 0.01)),
-                        longitude: parseFloat(produto.endereco.longitude) || (-46.6333 + (index * 0.01)),
-                    }));
-                setProdutores(produtoresComCoords);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar produtores:", error);
-        } finally {
-            setCarregando(false);
+            setCarregandoLocalizacao(false);
         }
     };
 

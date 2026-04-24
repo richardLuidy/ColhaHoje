@@ -1,31 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
-import { API_URL } from '../../api';
+import { useOfertasRelampago } from '../hooks/api';
 
 export default function Ofertas() {
-    const [ofertas, setOfertas] = useState<any[]>([]);
-    const [carregando, setCarregando] = useState(true);
-
-    useEffect(() => {
-        carregarOfertas();
-    }, []);
-
-    const carregarOfertas = async () => {
-        try {
-            const res = await fetch(`${API_URL}/ofertas`);
-            if (res.ok) {
-                const listaOfertas = await res.json();
-                setOfertas(listaOfertas);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar ofertas:", error);
-        } finally {
-            setCarregando(false);
-        }
-    };
+    // 🟢 REACT QUERY: Cache inteligente para ofertas
+    const { data: ofertas = [], isLoading: carregando } = useOfertasRelampago();
 
     if (carregando) {
         return (
