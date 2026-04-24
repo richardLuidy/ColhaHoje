@@ -1,21 +1,14 @@
 // src/components/Header.tsx
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
-import { SvgUri } from 'react-native-svg';
 import { colors } from '../../colors';
-import styles from '../../styles'; 
+import styles from '../../styles';
 
-// =======================================================
-// 🗂️ TIPAGEM E CONFIGURAÇÃO
-// =======================================================
-type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login' | 'cadastro';
-
-const icons = {
-    lupaBranca: Image.resolveAssetSource(require('../../src/assets/Lupa_Branca.svg')).uri,
-    lupaPreta: Image.resolveAssetSource(require('../../src/assets/Lupa_Preta.svg')).uri, 
-    sacola: Image.resolveAssetSource(require('../../src/assets/Sacola_Branca.svg')).uri,
-    voltar: Image.resolveAssetSource(require('../../src/assets/Seta_Voltar_Branca.svg')).uri,
-};
+// Importar SVGs diretamente
+import LupaBranca from '../../src/assets/Lupa_Branca.svg';
+import LupaPreta from '../../src/assets/Lupa_Preta.svg';
+import SacolaBranca from '../../src/assets/Sacola_Branca.svg';
+import SetaVoltarBranca from '../../src/assets/Seta_Voltar_Branca.svg';
 
 const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActions?: boolean }> = {
     inicio: { title: 'ColhaHoje', showActions: true },
@@ -53,14 +46,14 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
 
                     {/* Seta de voltar: Aumentada para 28 */}
                     <TouchableOpacity onPress={() => setIsSearching(false)} style={styles.iconButton}>
-                        <SvgUri width={28} height={28} uri={icons.voltar} />
+                        <SetaVoltarBranca width={28} height={28} />
                     </TouchableOpacity>
 
                     {/* Campo de Entrada Branco */}
                     <View style={styles.searchInputFieldContainer}>
                         <View style={{ marginRight: 10 }}>
                             {/* Lupa Preta: Aumentada para 24 para destacar na barra */}
-                            <SvgUri width={24} height={24} uri={icons.lupaPreta} />
+                            <LupaPreta width={24} height={24} />
                         </View>
 
                         <TextInput
@@ -73,7 +66,7 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
 
                     {/* Sacola: Aumentada para 28 */}
                     <TouchableOpacity style={styles.iconButton}>
-                        <SvgUri width={28} height={28} uri={icons.sacola} />
+                        <SacolaBranca width={28} height={28} />
                     </TouchableOpacity>
 
                 </View>
@@ -95,7 +88,7 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
                 {/* 🟢A MUDANÇA ESTÁ AQUI: Troquei 'currentHeader.showBack' por 'showBackButton' */}
                 {showBackButton && (
                     <TouchableOpacity onPress={onBackPress} style={styles.iconButton}>
-                        <SvgUri width={28} height={28} uri={icons.voltar} />
+                        <SetaVoltarBranca width={28} height={28} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -114,12 +107,12 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
                             onPress={() => setIsSearching(true)}
                         >
                             {/* Lupa Branca: Aumentada para 28 */}
-                            <SvgUri width={28} height={28} uri={icons.lupaBranca} />
+                            <LupaBranca width={28} height={28} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.iconButton}>
                             {/* Sacola Branca: Aumentada para 28 */}
-                            <SvgUri width={28} height={28} uri={icons.sacola} />
+                            <SacolaBranca width={28} height={28} />
                         </TouchableOpacity>
                     </>
                 )}

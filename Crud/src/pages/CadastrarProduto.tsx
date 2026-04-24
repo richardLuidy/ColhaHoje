@@ -12,7 +12,7 @@ import { colors } from '../../colors';
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
 const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
 
-const API_URL = 'http://10.0.2.2:3000'; 
+import { API_URL } from '../../api'; 
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;
@@ -26,8 +26,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
   const [enderecoId, setEnderecoId] = useState<number | null>(null);
 
   const [nomeProduto, setNomeProduto] = useState('');
-  const [nomeProdutor, setNomeProdutor] = useState('');
-  const [localizacao, setLocalizacao] = useState('');
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('Frutas');
   const [preco, setPreco] = useState('');
   const [unidade, setUnidade] = useState('Caixa');
@@ -54,8 +52,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
           setProdutorId(parseInt(idSalvo));
           const response = await axios.get(`${API_URL}/produtor/dados/${idSalvo}`);
           const dadosDaNuvem = response.data;
-          setNomeProdutor(dadosDaNuvem.nome);
-          setLocalizacao(dadosDaNuvem.localizacao);
           if (dadosDaNuvem.endereco_id) setEnderecoId(dadosDaNuvem.endereco_id);
         }
       } catch (error) {
@@ -90,8 +86,20 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
   // 🟢 FINALIZAR (DINÂMICO: POST OU PUT)
   const finalizarCadastro = async () => {
-    if (!nomeProduto || !preco || !produtorId || !enderecoId) {
+    if (!nomeProduto || !preco || !produtorId) {
       Alert.alert("Erro", "Preencha os campos obrigatórios.");
+      return;
+    }
+
+    if (!enderecoId) {
+      Alert.alert(
+        "Endereço Necessário",
+        "Você precisa cadastrar um endereço antes de vender produtos. Vá para o menu Perfil > Endereços para adicionar um endereço.",
+        [
+          { text: "Voltar", style: "cancel" },
+          { text: "Ir para Endereços", onPress: onVoltar } // Volta para o menu do perfil
+        ]
+      );
       return;
     }
 
@@ -99,8 +107,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       setLoading(true);
       const formData = new FormData();
       formData.append('nome_produto', nomeProduto);
-      formData.append('nome_produtor', nomeProdutor);
-      formData.append('localizacao', localizacao);
       formData.append('categoria', categoriaSelecionada);
       formData.append('preco', parseFloat(preco.replace(',', '.')).toString());
       formData.append('unidade', unidade);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { colors } from '../../colors';
+import { API_URL } from '../../api';
 
 export default function Mapa() {
     const [produtores, setProdutores] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function Mapa() {
 
     const carregarProdutores = async () => {
         try {
-            const res = await fetch('http://10.0.2.2:3000/produtos');
+            const res = await fetch(`${API_URL}/produtos`);
             if (res.ok) {
                 const produtos = await res.json();
                 // Simular coordenadas para os produtores (em um app real, viria do banco)

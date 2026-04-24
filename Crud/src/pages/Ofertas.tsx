@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Ima
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
+import { API_URL } from '../../api';
 
 export default function Ofertas() {
     const [ofertas, setOfertas] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function Ofertas() {
 
     const carregarOfertas = async () => {
         try {
-            const res = await fetch('http://10.0.2.2:3000/ofertas');
+            const res = await fetch(`${API_URL}/ofertas`);
             if (res.ok) {
                 const listaOfertas = await res.json();
                 setOfertas(listaOfertas);

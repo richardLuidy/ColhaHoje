@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { SvgUri } from 'react-native-svg';
+import { Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
 import Header from './src/components/Header';
 
@@ -14,33 +13,45 @@ import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
 import SplashScreen from './src/pages/SplashScreen';
 
+// Importar SVGs diretamente
+import MapaCinza from './src/assets/mapa_cinza.svg';
+import MapaVerde from './src/assets/mapa_verde.svg';
+import OfertasCinza from './src/assets/ofertas_cinza.svg';
+import OfertasVerde from './src/assets/ofertas_verde.svg';
+import HomeCinza from './src/assets/home_cinza.svg';
+import HomeVerde from './src/assets/home_verde.svg';
+import PedidosCinza from './src/assets/pedidos_cinza.svg';
+import PedidosVerde from './src/assets/pedidos_verde.svg';
+import PerfilCinza from './src/assets/perfil_cinza.svg';
+import PerfilVerde from './src/assets/perfil_verde.svg';
+
 type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
 const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
     label: 'Mapa',
-    iconInactive: require('./src/assets/mapa_cinza.svg'),
-    iconActive: require('./src/assets/mapa_verde.svg'),
+    iconInactive: MapaCinza,
+    iconActive: MapaVerde,
   },
   ofertas: {
     label: 'Ofertas',
-    iconInactive: require('./src/assets/ofertas_cinza.svg'),
-    iconActive: require('./src/assets/ofertas_verde.svg'),
+    iconInactive: OfertasCinza,
+    iconActive: OfertasVerde,
   },
   inicio: {
     label: 'Início',
-    iconInactive: require('./src/assets/home_cinza.svg'),
-    iconActive: require('./src/assets/home_verde.svg'),
+    iconInactive: HomeCinza,
+    iconActive: HomeVerde,
   },
   pedidos: {
     label: 'Pedidos',
-    iconInactive: require('./src/assets/pedidos_cinza.svg'),
-    iconActive: require('./src/assets/pedidos_verde.svg'),
+    iconInactive: PedidosCinza,
+    iconActive: PedidosVerde,
   },
   perfil: {
     label: 'Perfil',
-    iconInactive: require('./src/assets/perfil_cinza.svg'),
-    iconActive: require('./src/assets/perfil_verde.svg'),
+    iconInactive: PerfilCinza,
+    iconActive: PerfilVerde,
   },
 };
 
@@ -52,23 +63,6 @@ export default function App() {
 
   // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
-
-  // 2. Criamos o resolvedIcons
-  const resolvedIcons = useMemo(() => {
-    const result = {} as Record<Exclude<TabKey, 'login'>, { active: string; inactive: string }>;
-
-    tabs.forEach((key) => {
-      const activeSource = Image.resolveAssetSource(tabConfig[key].iconActive);
-      const inactiveSource = Image.resolveAssetSource(tabConfig[key].iconInactive);
-
-      result[key] = {
-        active: (activeSource.uri || '') as string,
-        inactive: (inactiveSource.uri || '') as string,
-      };
-    });
-
-    return result;
-  }, []);
 
   // 🛡️ Lógica de Splash
   if (activeTab === 'splash') {
@@ -115,14 +109,12 @@ export default function App() {
         )}
       </View>
 
-      {/* 🟢 FOOTER ATUALIZADO */}
       <View style={styles.footer}>
         {tabs.map((key) => {
           const isActive = key === activeTab;
           const tabData = tabConfig[key];
           
-          const icons = resolvedIcons[key];
-          const src = isActive ? icons?.active : icons?.inactive;
+          const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
 
           return (
             <TouchableOpacity
@@ -135,7 +127,7 @@ export default function App() {
               }}
               activeOpacity={0.75}
             >
-              <SvgUri width={31} height={31} uri={src || ''} />
+              <IconComponent width={31} height={31} />
               <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                 {tabData.label}
               </Text>

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Ima
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
+import { API_URL } from '../../api';
 
 export default function Inicio() {
     const [ofertaDestaque, setOfertaDestaque] = useState<any>(null);
@@ -30,7 +31,7 @@ export default function Inicio() {
                 setOfertaDestaque(null);
                 clearInterval(interval);
             } else {
-                const h = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const h = Math.floor(distancia / (1000 * 60 * 60));
                 const m = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((distancia % (1000 * 60)) / 1000);
 
@@ -45,13 +46,13 @@ export default function Inicio() {
 
     const carregarDadosHome = async () => {
         try {
-            const resOferta = await fetch('http://10.0.2.2:3000/ofertas/destaque');
+            const resOferta = await fetch(`${API_URL}/ofertas/destaque`);
             if (resOferta.ok) {
                 const oferta = await resOferta.json();
                 setOfertaDestaque(oferta);
             }
 
-            const resProdutos = await fetch('http://10.0.2.2:3000/produtos');
+            const resProdutos = await fetch(`${API_URL}/produtos`);
             if (resProdutos.ok) {
                 const listaProdutos = await resProdutos.json();
                 setProdutos(listaProdutos);
