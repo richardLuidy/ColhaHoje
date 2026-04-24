@@ -30,6 +30,8 @@ model enderecos {
   bairro           String
   cidade           String 
   estado           String 
+  latitude         Decimal?   @db.Decimal(10, 8)
+  longitude        Decimal?   @db.Decimal(11, 8)
   usuario_id       Int      
   usuario          usuarios   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   

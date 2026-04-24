@@ -30,6 +30,43 @@ DATABASE_URL="mysql://avnadmin:AVNS_lvd6YRnV5wqxzuzoj3y@mysql-2c20f33f-colhahoje
 ```
 #(Nota: No Aiven, o banco de dados já vem criado com o nome defaultdb. Não é necessário rodar "CREATE DATABASE" na nuvem!)
 
+### Passo 6: Configuração do Google Maps (Frontend)
+
+O app utiliza mapas interativos que requerem uma API key do Google Maps.
+
+#### Configuração da API Key:
+1. Siga o guia detalhado em `GOOGLE_MAPS_SETUP.md`
+2. Ou execute o script `setup_maps.bat` na pasta `Crud`
+3. Cole sua API key quando solicitada
+
+#### Teste do mapa:
+```bash
+cd Crud
+npm install
+npx expo start --clear
+```
+
+**⚠️ Importante:** O mapa só funcionará corretamente com uma API key válida configurada no `app.json`.
+
+### Passo 7: Executar o Projeto Completo
+
+#### Backend:
+```bash
+cd Api_Crud
+npm start
+```
+
+#### Frontend:
+```bash
+cd Crud
+npx expo start
+```
+
+### Passo 8: Verificar se Está Tudo Funcionando
+
+1. **Backend:** Acesse `http://localhost:3000` no navegador. Deve aparecer "API ColhaHoje funcionando!".
+2. **Frontend:** Abra o app no Expo Go. Deve carregar a tela de splash e permitir navegação entre todas as telas.
+
 ### Passo 4: O Mapa das Tabelas (schema.prisma)
 
 Toda a estrutura do banco fica desenhada dentro do arquivo `prisma/schema.prisma`. A criação e modificação de tabelas **não** é feita manualmente em softwares gerenciadores (como HeidiSQL). O modelo deve ser escrito diretamente neste arquivo.
