@@ -40,7 +40,8 @@ const queryClient = new QueryClient({
 
 type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
-const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
+// 🟢 ALTERADO AQUI: Adicionado o " | 'splash' " para o TypeScript não cobrar ela no rodapé
+const tabConfig: Record<Exclude<TabKey, 'login' | 'splash'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
     label: 'Mapa',
     iconInactive: MapaCinza,
@@ -71,8 +72,8 @@ const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive:
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
   
-  // 1. Definimos as abas do footer
-  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
+  // 🟢 ALTERADO AQUI: Adicionado o " | 'splash' " aqui também para a lista bater certinho com o tabConfig
+  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash'>[];
 
   // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');

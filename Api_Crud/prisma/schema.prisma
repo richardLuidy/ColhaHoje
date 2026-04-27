@@ -8,37 +8,43 @@ datasource db {
 }
 
 model usuarios {
-  id               Int         @id @default(autoincrement())
-  nome             String
-  email            String      @unique
-  senha            String
-  tipo_usuario     String      @default("cliente")
-  whatsapp         String?
-  cpf_cnpj         String?
-  url_foto         String?
-  data_criacao     DateTime    @default(now())
-  data_atualizacao DateTime    @default(now())
-  enderecos        enderecos[]
-  produtos         produtos[]  @relation("ProdutosProdutor")
+  id                Int      @id @default(autoincrement())
+  nome              String
+  email             String   @unique
+  senha             String
+  tipo_usuario      String   @default("cliente")
+  whatsapp          String?
+  cpf_cnpj          String?
+  url_foto          String?
+  data_criacao      DateTime @default(now())
+  data_atual_izacao DateTime @default(now())
+
+  // 🟢 RELAÇÕES EXISTENTES
+  enderecos enderecos[]
+  produtos  produtos[]  @relation("ProdutosProdutor")
+
+  // 🟢 ADICIONE ESTAS DUAS LINHAS ABAIXO:
+  cartoes cartoes[]
+  pedidos pedidos[]
 }
 
 model enderecos {
-  id               Int        @id @default(autoincrement())
-  cep              String
-  rua              String
-  numero           String?
-  bairro           String
-  cidade           String 
-  estado           String 
-  latitude         Decimal?   @db.Decimal(10, 8)
-  longitude        Decimal?   @db.Decimal(11, 8)
-  usuario_id       Int      
-  usuario          usuarios   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  
-  produtos         produtos[] 
+  id         Int      @id @default(autoincrement())
+  cep        String
+  rua        String
+  numero     String?
+  bairro     String
+  cidade     String
+  estado     String
+  latitude   Decimal? @db.Decimal(10, 8)
+  longitude  Decimal? @db.Decimal(11, 8)
+  usuario_id Int
+  usuario    usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
-  data_criacao     DateTime   @default(now())
-  data_atualizacao DateTime   @default(now())
+  produtos produtos[]
+
+  data_criacao     DateTime @default(now())
+  data_atualizacao DateTime @default(now())
 }
 
 model produtos {
@@ -54,8 +60,12 @@ model produtos {
   produtor          usuarios            @relation("ProdutosProdutor", fields: [produtor_id], references: [id], onDelete: Cascade)
   endereco          enderecos?          @relation(fields: [endereco_id], references: [id], onDelete: SetNull)
   ofertas_relampago ofertas_relampago[]
-  data_criacao      DateTime            @default(now())
-  data_atualizacao  DateTime            @default(now())
+
+  // 🟢 ADICIONE ESTA LINHA ABAIXO:
+  itens_pedido itens_pedido[]
+
+  data_criacao      DateTime @default(now())
+  data_atual_izacao DateTime @default(now())
 }
 
 model ofertas_relampago {
@@ -68,5 +78,40 @@ model ofertas_relampago {
   criado_em         DateTime @default(now())
 
   // Relacionamento: Liga a oferta ao produto selecionado
-  produto           produtos @relation(fields: [produto_id], references: [id], onDelete: Cascade)
+  produto produtos @relation(fields: [produto_id], references: [id], onDelete: Cascade)
+}
+
+model cartoes {
+  id              Int      @id @default(autoincrement())
+  usuario_id      Int
+  numero_final    String // Armazena só os últimos 4 dígitos por segurança
+  bandeira        String // ex: "Visa", "Mastercard"
+  nome_titular    String
+  validade        String
+  token_pagamento String // Simula um token de gateway de pagamento
+  usuario         usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  criado_em       DateTime @default(now())
+}
+
+model pedidos {
+  id               Int      @id @default(autoincrement())
+  cliente_id       Int
+  total            Decimal  @db.Decimal(10, 2)
+  status           String   @default("pendente") // pendente, entregue, cancelado
+  metodo_pagamento String // Pix, Cartão, Dinheiro
+  data_pedido      DateTime @default(now())
+
+  cliente usuarios       @relation(fields: [cliente_id], references: [id])
+  itens   itens_pedido[]
+}
+
+model itens_pedido {
+  id         Int     @id @default(autoincrement())
+  pedido_id  Int
+  produto_id Int
+  quantidade Int
+  preco_unit Decimal @db.Decimal(10, 2)
+
+  pedido  pedidos  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  produto produtos @relation(fields: [produto_id], references: [id])
 }

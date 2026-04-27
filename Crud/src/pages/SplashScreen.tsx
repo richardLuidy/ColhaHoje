@@ -1,32 +1,38 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { colors } from '../../colors';
 import styles from '../../styles';
 
+import Logo from '../assets/logo.svg';
+
 export default function SplashScreenComponent({ onFinish }: { onFinish: () => void }) {
   useEffect(() => {
-    // Previne que a splash nativa do Expo seja ocultada automaticamente
-    SplashScreen.preventAutoHideAsync();
+    // 🟢 1. Esconde a splash nativa do Expo imediatamente
+    SplashScreen.hideAsync();
 
-    // Simula um carregamento (ex.: verificar token, carregar dados iniciais)
-    const timer = setTimeout(async () => {
-      await SplashScreen.hideAsync(); // Oculta a splash nativa
-      onFinish(); // Chama a função para prosseguir para a próxima tela
-    }, 3000); // 3 segundos de splash
+    // 🟢 2. Simula um carregamento, mantendo a sua tela verde por 3 segundos
+    const timer = setTimeout(() => {
+      onFinish(); // 🟢 3. Chama a função para ir pro Login
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [onFinish]);
 
   return (
-    <View style={styles.splashContainer}>
-      <Image
-        source={require('../assets/logo.png')} // Substitua pelo caminho do seu logo
-        style={styles.splashLogo}
-        resizeMode="contain"
-      />
-      <Text style={styles.splashText}>ColhaHoje</Text>
-      <Text style={styles.splashSubtitle}>Conectando produtores e consumidores</Text>
+    // 🟢 Forçamos o verdeColheita (escuro) aqui para dar o melhor contraste
+    <View style={[styles.splashContainer, { backgroundColor: colors.verdeColheita }]}>
+
+{/* <Logo width={220} height={220} style={{ marginBottom: 20 }} /> */}
+      <Text style={[styles.splashText, { textAlign: 'center' }]}>
+        ColhaHoje
+      </Text>
+      
+      <Text style={[styles.splashSubtitle, { textAlign: 'center', marginTop: 5, paddingHorizontal: 20 }]}>
+        Conectando produtores e consumidores
+      </Text>
+      
     </View>
   );
 }

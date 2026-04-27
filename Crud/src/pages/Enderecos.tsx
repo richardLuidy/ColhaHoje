@@ -5,7 +5,7 @@ import axios from 'axios';
 import * as Location from 'expo-location';
 import styles from '../../styles';
 import { colors } from '../../colors';
-import { API_URL } from '../../api'; 
+import { API_URL } from '../api'; 
 
 interface EnderecosProps {
   onVoltar: () => void;
@@ -103,6 +103,18 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
 
     try {
       setLoading(true);
+
+      // 🟢 ADICIONADO AQUI: Pedido de permissão para usar o GPS
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permissão Necessária', 
+          'Precisamos da permissão de localização para marcar o seu endereço no mapa.'
+        );
+        setLoading(false); // Tira o loading se ele negar
+        return; // Para a função aqui
+      }
+
       const numFinal = numero.trim() === '' ? 'S/N' : numero;
 
       // Obter coordenadas do endereço
@@ -144,7 +156,9 @@ export default function Enderecos({ onVoltar }: EnderecosProps) {
 
         Alert.alert("Sucesso", "Endereço salvo com sucesso!");
       }
-    } catch (e) {
+    } catch (e: any) {
+      // 🟢 O NOSSO ESPIÃO: vai imprimir o erro real no terminal do VS Code
+      console.log("🔥 ERRO NA API:", e.response?.data || e.message);
       Alert.alert("Erro", "Não foi possível salvar na nuvem.");
     } finally {
       setLoading(false);
