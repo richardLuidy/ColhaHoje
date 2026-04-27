@@ -15,6 +15,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
+// Configuração de Upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dir = './uploads/';
@@ -76,16 +77,29 @@ app.get('/usuarios/:id', async (req, res) => {
     }
 })
 
+// 🟢 ROTA ATUALIZADA (SEM ERROS)
 app.put('/usuarios/:id', async (req, res) => {
     try {
         const { id } = req.params
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj } = req.body
+        
         const updatedUser = await prisma.usuarios.update({
             where: { id: parseInt(id) },
-            data: { nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj, data_atualizacao: new Date() }
+            data: { 
+                nome, 
+                email, 
+                senha, 
+                tipo_usuario, 
+                whatsapp, 
+                url_foto, 
+                cpf_cnpj, 
+                // ✅ Nome do campo corrigido para bater com seu banco de dados
+                data_atual_izacao: new Date() 
+            }
         })
         res.status(200).json(updatedUser)
     } catch (error) {
+        console.error("❌ Erro ao atualizar usuário:", error);
         res.status(500).json({ error: "Erro ao atualizar usuário" })
     }
 })
@@ -123,7 +137,7 @@ app.post('/enderecos', async (req, res) => {
             data: { 
                 cep, 
                 rua, 
-                numero, 
+                numero: String(numero), 
                 bairro, 
                 cidade, 
                 estado, 
@@ -194,7 +208,6 @@ app.get('/produtos', async (req, res) => {
                 endereco: { select: { cidade: true, estado: true } }
             }
         });
-        // Mapear para manter compatibilidade com frontend
         const produtosMapeados = listaProdutos.map(produto => ({
             ...produto,
             nome_produtor: produto.produtor.nome,
@@ -206,7 +219,6 @@ app.get('/produtos', async (req, res) => {
     }
 });
 
-// 🔢 CONTAR PRODUTOS
 app.get('/produtos/contar/:produtor_id', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     try {
@@ -217,88 +229,45 @@ app.get('/produtos/contar/:produtor_id', async (req, res) => {
     }
 });
 
-// ✏️ 3. ATUALIZAR PRODUTO (PUT) - 🟢 NOVO!
 app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
-    console.log(`🔍 Requisição PUT /produtos/${req.params.id} recebida`);
     try {
         const { id } = req.params;
         const { nome_produto, categoria, preco, unidade, quantidade } = req.body;
+        const produtoAtual = await prisma.produtos.findUnique({ where: { id: parseInt(id) } });
+        if (!produtoAtual) return res.status(404).json({ error: "Produto não encontrado" });
 
-        // Buscar o produto atual para obter a imagem antiga
-        const produtoAtual = await prisma.produtos.findUnique({
-            where: { id: parseInt(id) }
-        });
-        
-        if (!produtoAtual) {
-            return res.status(404).json({ error: "Produto não encontrado" });
-        }
-
-        // Se o usuário mandou uma foto nova, apagamos a antiga
         if (req.file && produtoAtual.imagem_url) {
             const caminhoImagemAntiga = path.join('uploads', path.basename(produtoAtual.imagem_url));
-            if (fs.existsSync(caminhoImagemAntiga)) {
-                fs.unlinkSync(caminhoImagemAntiga);
-                console.log('🗑️ Imagem antiga removida:', caminhoImagemAntiga);
-            }
+            if (fs.existsSync(caminhoImagemAntiga)) fs.unlinkSync(caminhoImagemAntiga);
         }
 
-        // Se o usuário mandou uma foto nova, usamos ela. Se não, mantemos a antiga (logica no front)
         const dadosParaAtualizar = {
-            nome_produto,
-            categoria,
-            preco: parseFloat(preco),
-            unidade,
-            quantidade: parseInt(quantidade),
+            nome_produto, categoria, preco: parseFloat(preco), unidade, quantidade: parseInt(quantidade),
         };
-
-        if (req.file) {
-            dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
-        }
+        if (req.file) dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
 
         const produtoAtualizado = await prisma.produtos.update({
             where: { id: parseInt(id) },
             data: dadosParaAtualizar
         });
-
-        console.log('✅ Produto atualizado:', nome_produto);
         res.status(200).json(produtoAtualizado);
     } catch (error) {
-        console.error("❌ Erro ao atualizar:", error.message);
         res.status(500).json({ error: "Erro ao atualizar produto" });
     }
 });
 
-// 🗑️ 4. EXCLUIR PRODUTO (DELETE) - 🟢 NOVO!
 app.delete('/produtos/:id', async (req, res) => {
-    console.log(`🔍 Requisição DELETE /produtos/${req.params.id} recebida`);
     try {
         const { id } = req.params;
-        
-        // Buscar o produto para obter o caminho da imagem
-        const produto = await prisma.produtos.findUnique({
-            where: { id: parseInt(id) }
-        });
-        
-        if (!produto) {
-            return res.status(404).json({ error: "Produto não encontrado" });
-        }
-        
-        // Apagar a imagem se existir
+        const produto = await prisma.produtos.findUnique({ where: { id: parseInt(id) } });
+        if (!produto) return res.status(404).json({ error: "Produto não encontrado" });
         if (produto.imagem_url) {
             const caminhoImagem = path.join('uploads', path.basename(produto.imagem_url));
-            if (fs.existsSync(caminhoImagem)) {
-                fs.unlinkSync(caminhoImagem);
-                console.log('🗑️ Imagem antiga removida:', caminhoImagem);
-            }
+            if (fs.existsSync(caminhoImagem)) fs.unlinkSync(caminhoImagem);
         }
-        
-        await prisma.produtos.delete({
-            where: { id: parseInt(id) }
-        });
-        console.log('✅ Produto excluído do banco.');
+        await prisma.produtos.delete({ where: { id: parseInt(id) } });
         res.status(200).json({ message: "Produto excluído com sucesso!" });
     } catch (error) {
-        console.error("❌ Erro ao excluir:", error.message);
         res.status(500).json({ error: "Erro ao excluir produto" });
     }
 });

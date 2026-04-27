@@ -5,6 +5,9 @@ import { colors } from '../../colors';
 import styles from '../../styles';
 import { useProdutos, useOfertasRelampago } from '../hooks/api';
 
+// 🟢 Importando a URL da API para as imagens funcionarem
+import { API_URL } from '../api';
+
 export default function Inicio() {
     const [tempoRestante, setTempoRestante] = useState("");
 
@@ -98,8 +101,8 @@ export default function Inicio() {
 
             <View style={styles.gridProdutosSério}>
                 {produtos
-                    .filter(p => p.id !== ofertaDestaque?.produto_id) // 👈 A mágica acontece aqui!
-                    .map((produto) => (
+                    .filter((p: any) => p.id !== ofertaDestaque?.produto_id) 
+                    .map((produto: any) => ( // 👈 Ajustado aqui com : any
                         <View key={produto.id} style={styles.cardProdutoSério}>
 
                             <View style={styles.cardCatalogueImageContainerSério}>
@@ -109,7 +112,6 @@ export default function Inicio() {
                                     <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
                                 )}
 
-                                {/* 🟢 A MÁGICA AQUI: Trocamos "Orgânico" pela categoria real do banco! */}
                                 <View style={styles.badgeOrganicoSério}>
                                     <Text style={styles.badgeOrganicoTextSério}>
                                         {produto.categoria || "Produto"}
