@@ -1,6 +1,6 @@
 // src/components/Header.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { colors } from '../../colors';
 import styles from '../../styles';
 
@@ -9,6 +9,9 @@ import LupaBranca from '../../src/assets/Lupa_Branca.svg';
 import LupaPreta from '../../src/assets/Lupa_Preta.svg';
 import SacolaBranca from '../../src/assets/Sacola_Branca.svg';
 import SetaVoltarBranca from '../../src/assets/Seta_Voltar_Branca.svg';
+
+// 🟢 Definindo o tipo TabKey para matar o erro do VS Code
+type TabKey = 'inicio' | 'mapa' | 'ofertas' | 'pedidos' | 'perfil' | 'login' | 'cadastro';
 
 const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActions?: boolean }> = {
     inicio: { title: 'ColhaHoje', showActions: true },
@@ -24,38 +27,32 @@ interface HeaderProps {
     activeTab: TabKey;
     onBackPress?: () => void;
     forceShowBack?: boolean;
+    esconderSetaForçado?: boolean; // 🟢 Nova prop para sumir com a seta quando quisermos
 }
 
-// =======================================================
-// 🚀 COMPONENTE HEADER
-// =======================================================
-export default function Header({ activeTab, onBackPress, forceShowBack }: HeaderProps) {
+export default function Header({ activeTab, onBackPress, forceShowBack, esconderSetaForçado }: HeaderProps) {
     const [isSearching, setIsSearching] = useState(false);
 
+    // Se for login ou cadastro, o header nem aparece
     if (activeTab === 'login' || activeTab === 'cadastro') return null;
     
     const currentHeader = headerConfig[activeTab];
 
-    // ==========================================
-    // 🔍 MODO PESQUISA (Barra Branca Ativa)
-    // ==========================================
+    // 🟢 Lógica de botão de voltar: se 'esconderSetaForçado' for true, a seta NUNCA aparece
+    const showBackButton = esconderSetaForçado ? false : (currentHeader?.showBack || forceShowBack);
+
     if (isSearching) {
         return (
             <View style={styles.headerContainer}>
                 <View style={styles.searchContainer}>
-
-                    {/* Seta de voltar: Aumentada para 28 */}
                     <TouchableOpacity onPress={() => setIsSearching(false)} style={styles.iconButton}>
                         <SetaVoltarBranca width={28} height={28} />
                     </TouchableOpacity>
 
-                    {/* Campo de Entrada Branco */}
                     <View style={styles.searchInputFieldContainer}>
                         <View style={{ marginRight: 10 }}>
-                            {/* Lupa Preta: Aumentada para 24 para destacar na barra */}
                             <LupaPreta width={24} height={24} />
                         </View>
-
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Morangos"
@@ -64,28 +61,17 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
                         />
                     </View>
 
-                    {/* Sacola: Aumentada para 28 */}
                     <TouchableOpacity style={styles.iconButton}>
                         <SacolaBranca width={28} height={28} />
                     </TouchableOpacity>
-
                 </View>
             </View>
         );
     }
     
-    // 🟢 AQUI ESTÁ A VARIÁVEL QUE VOCÊ CRIOU
-    const showBackButton = currentHeader.showBack || forceShowBack;
-
-    // ==========================================
-    // 🟢 MODO NORMAL (Logo e Ícones)
-    // ==========================================
     return (
         <View style={styles.headerContainer}>
-
-            {/* Lado Esquerdo (Seta no Perfil): Aumentada para 28 */}
             <View style={styles.headerSide}>
-                {/* 🟢A MUDANÇA ESTÁ AQUI: Troquei 'currentHeader.showBack' por 'showBackButton' */}
                 {showBackButton && (
                     <TouchableOpacity onPress={onBackPress} style={styles.iconButton}>
                         <SetaVoltarBranca width={28} height={28} />
@@ -93,31 +79,23 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
                 )}
             </View>
 
-            {/* Centro: Título Logo */}
             <View style={styles.headerCenter}>
-                <Text style={styles.headerTitle}>{currentHeader.title}</Text>
+                <Text style={styles.headerTitle}>{currentHeader?.title || 'ColhaHoje'}</Text>
             </View>
 
-            {/* Lado Direito: Ações */}
             <View style={[styles.headerSide, styles.actionsContainer]}>
-                {currentHeader.showActions && (
+                {currentHeader?.showActions && (
                     <>
-                        <TouchableOpacity
-                            style={styles.iconButton}
-                            onPress={() => setIsSearching(true)}
-                        >
-                            {/* Lupa Branca: Aumentada para 28 */}
+                        <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearching(true)}>
                             <LupaBranca width={28} height={28} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.iconButton}>
-                            {/* Sacola Branca: Aumentada para 28 */}
                             <SacolaBranca width={28} height={28} />
                         </TouchableOpacity>
                     </>
                 )}
             </View>
-
         </View>
     );
 }

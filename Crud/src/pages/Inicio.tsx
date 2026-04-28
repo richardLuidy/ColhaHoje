@@ -1,22 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, ImageBackground } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, ImageBackground, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
-import { useProdutos, useOfertasRelampago } from '../hooks/api';
 
-// 🟢 Importando a URL da API para as imagens funcionarem
-import { API_URL } from '../api';
+// 🟢 Importando nossa API centralizada
+import api, { API_URL } from '../api';
 
 export default function Inicio() {
     const [tempoRestante, setTempoRestante] = useState("");
+    const [produtos, setProdutos] = useState<any[]>([]);
+    const [ofertaDestaque, setOfertaDestaque] = useState<any>(null);
+    const [carregando, setCarregando] = useState(true);
+    const [refreshing, setRefreshing] = useState(false); // 🟢 Para a bolinha de atualizar
 
-    // 🟢 REACT QUERY: Cache inteligente para produtos e ofertas
-    const { data: produtos = [], isLoading: carregandoProdutos } = useProdutos();
-    const { data: ofertas = [], isLoading: carregandoOfertas } = useOfertasRelampago();
+    // 🟢 FUNÇÃO QUE BUSCA OS DADOS (SEM O HOOK QUE CAUSA ERRO)
+    const buscarDadosFresquinhos = async () => {
+        try {
+            const resProdutos = await api.get('/produtos');
+            setProdutos(resProdutos.data);
 
-    const carregando = carregandoProdutos || carregandoOfertas;
-    const ofertaDestaque = ofertas.length > 0 ? ofertas[0] : null;
+            const resOferta = await api.get('/ofertas/destaque');
+            setOfertaDestaque(resOferta.data || null);
+        } catch (error) {
+            console.error("Erro ao carregar a tela Início:", error);
+        }
+    };
+
+    // Roda a primeira vez que a tela abre
+    useEffect(() => {
+        buscarDadosFresquinhos().finally(() => setCarregando(false));
+    }, []);
+
+    // Roda quando você puxa a tela para baixo
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        buscarDadosFresquinhos().finally(() => setRefreshing(false));
+    }, []);
 
     // 🟢 LÓGICA DO RELÓGIO EM TEMPO REAL
     useEffect(() => {
@@ -63,10 +83,12 @@ export default function Inicio() {
             style={styles.containerHomeSério}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.contentContainerHomeSério}
+            // 🟢 Puxar para atualizar ativado!
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.verdeColheita]} />}
         >
 
             {/* 🔴 BANNER DE OFERTA RELÂMPAGO */}
-            {ofertaDestaque && (
+            {ofertaDestaque && ofertaDestaque.produto && (
                 <View style={styles.bannerDestaqueSério}>
                     <ImageBackground
                         source={imagemDestaque}
@@ -96,48 +118,60 @@ export default function Inicio() {
                 </View>
             )}
 
-            {/* 🟢 CATÁLOGO DE PRODUTOS */}
-            <Text style={styles.tituloSecaoSério}>Ofertas Fresquinhas</Text>
+            {/* 🟢 CATÁLOGO DE PRODUTOS - Ocupando mais espaço lateral */}
+            <View style={{ width: '100%', paddingHorizontal: 12, marginTop: 20 }}>
+                <Text style={[styles.tituloSecaoSério, { marginLeft: 8 }]}>Ofertas Fresquinhas</Text>
 
-            <View style={styles.gridProdutosSério}>
-                {produtos
-                    .filter((p: any) => p.id !== ofertaDestaque?.produto_id) 
-                    .map((produto: any) => ( // 👈 Ajustado aqui com : any
-                        <View key={produto.id} style={styles.cardProdutoSério}>
+                <View style={styles.gridProdutosSério}>
+                    {produtos
+                        .filter((p: any) => p.id !== ofertaDestaque?.produto_id)
+                        .map((produto: any) => (
+                            <View key={produto.id} style={styles.cardProdutoSério}>
 
-                            <View style={styles.cardCatalogueImageContainerSério}>
-                                {produto.imagem_url ? (
-                                    <Image source={{ uri: `${API_URL}${produto.imagem_url}` }} style={styles.cardCatalogueImageSério} />
-                                ) : (
-                                    <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
-                                )}
+                                {/* Foto do Produto - Arredondada e com Altura de 160px para preencher */}
+                                <View style={styles.cardCatalogueImageContainerSério}>
+                                    {produto.imagem_url ? (
+                                        <Image
+                                            source={{ uri: `${API_URL}${produto.imagem_url}` }}
+                                            style={styles.cardCatalogueImageSério}
+                                        />
+                                    ) : (
+                                        <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
+                                    )}
 
-                                <View style={styles.badgeOrganicoSério}>
-                                    <Text style={styles.badgeOrganicoTextSério}>
-                                        {produto.categoria || "Produto"}
+                                    {/* Etiqueta de Categoria no Verde Lima oficial */}
+                                    <View style={styles.badgeOrganicoSério}>
+                                        <Text style={styles.badgeOrganicoTextSério}>
+                                            {produto.categoria || "Produto"}
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                {/* Informações do Produto com leitura clara */}
+                                <View style={styles.cardCatalogueInfoSério}>
+                                    <Text style={styles.cardCatalogueNameSério} numberOfLines={1}>
+                                        {produto.nome_produto}
                                     </Text>
+                                    <Text style={styles.cardCatalogueVendorSério} numberOfLines={1}>
+                                        {produto.nome_produtor}
+                                    </Text>
+
+                                    <View style={styles.cardCataloguePriceRowSério}>
+                                        <Text style={styles.cardCataloguePriceSério}>
+                                            R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
+                                        </Text>
+
+                                        <TouchableOpacity style={styles.btnAddCardNewSério}>
+                                            <Ionicons name="add" size={20} color="#FFF" />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
-
-                            <View style={styles.cardCatalogueInfoSério}>
-                                <Text style={styles.cardCatalogueNameSério} numberOfLines={1}>{produto.nome_produto}</Text>
-                                <Text style={styles.cardCatalogueVendorSério} numberOfLines={1}>{produto.nome_produtor}</Text>
-
-                                <View style={styles.cardCataloguePriceRowSério}>
-                                    <Text style={styles.cardCataloguePriceSério}>
-                                        R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
-                                    </Text>
-
-                                    <TouchableOpacity style={styles.btnAddCardNewSério}>
-                                        <Ionicons name="add" size={20} color="#FFF" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                    ))}
+                        ))}
+                </View>
 
                 {produtos.length === 0 && (
-                    <Text style={{ textAlign: 'center', marginTop: 20, color: colors.placeholder }}>
+                    <Text style={{ textAlign: 'center', marginTop: 40, color: colors.placeholder }}>
                         Nenhum produto cadastrado no Vale do Ribeira.
                     </Text>
                 )}

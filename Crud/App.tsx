@@ -26,66 +26,38 @@ import PedidosVerde from './src/assets/pedidos_verde.svg';
 import PerfilCinza from './src/assets/perfil_cinza.svg';
 import PerfilVerde from './src/assets/perfil_verde.svg';
 
-// Configuração do React Query para cache otimizado
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutos - dados ficam "frescos"
-      gcTime: 1000 * 60 * 30, // 30 minutos - dados ficam em cache
-      retry: 2, // Tenta novamente 2x em caso de erro
-      refetchOnWindowFocus: false, // Não refetch ao focar a tela
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+      retry: 2,
+      refetchOnWindowFocus: false,
     },
   },
 });
 
 type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
-// 🟢 ALTERADO AQUI: Adicionado o " | 'splash' " para o TypeScript não cobrar ela no rodapé
 const tabConfig: Record<Exclude<TabKey, 'login' | 'splash'>, { label: string; iconInactive: any; iconActive: any }> = {
-  mapa: {
-    label: 'Mapa',
-    iconInactive: MapaCinza,
-    iconActive: MapaVerde,
-  },
-  ofertas: {
-    label: 'Ofertas',
-    iconInactive: OfertasCinza,
-    iconActive: OfertasVerde,
-  },
-  inicio: {
-    label: 'Início',
-    iconInactive: HomeCinza,
-    iconActive: HomeVerde,
-  },
-  pedidos: {
-    label: 'Pedidos',
-    iconInactive: PedidosCinza,
-    iconActive: PedidosVerde,
-  },
-  perfil: {
-    label: 'Perfil',
-    iconInactive: PerfilCinza,
-    iconActive: PerfilVerde,
-  },
+  mapa: { label: 'Mapa', iconInactive: MapaCinza, iconActive: MapaVerde },
+  ofertas: { label: 'Ofertas', iconInactive: OfertasCinza, iconActive: OfertasVerde },
+  inicio: { label: 'Início', iconInactive: HomeCinza, iconActive: HomeVerde },
+  pedidos: { label: 'Pedidos', iconInactive: PedidosCinza, iconActive: PedidosVerde },
+  perfil: { label: 'Perfil', iconInactive: PerfilCinza, iconActive: PerfilVerde },
 };
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
-  
-  // 🟢 ALTERADO AQUI: Adicionado o " | 'splash' " aqui também para a lista bater certinho com o tabConfig
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash'>[];
 
-  // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
+  // 🟢 ESTADO ATUALIZADO: Inclui 'vender'
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
 
-  // 🛡️ Lógica de Splash
   if (activeTab === 'splash') {
-    return (
-      <SplashScreen onFinish={() => setActiveTab('login')} />
-    );
+    return <SplashScreen onFinish={() => setActiveTab('login')} />;
   }
 
-  // 🛡️ Lógica de Login
   if (activeTab === 'login') {
     return (
       <View style={styles.container}>
@@ -99,60 +71,60 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <View style={styles.container}>
         
-        {/* 🟢 HEADER ATUALIZADO: Mostra a seta se estiver em 'dados' ou 'enderecos' */}
+        {/* 🟢 HEADER SINCRONIZADO: 
+            Agora ele esconde a seta verde se você estiver na tela de vender (onde estão o cadastro e ofertas)
+        */}
         <Header 
           activeTab={activeTab} 
-          forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu'} 
+          forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu' && subTelaPerfil !== 'vender'} 
+          esconderSetaForçado={activeTab === 'perfil' && subTelaPerfil === 'vender'}
           onBackPress={() => {
             if (activeTab === 'perfil') setSubTelaPerfil('menu');
-        }}
-      />
+          }}
+        />
 
-      <View style={styles.content}>
-        {activeTab === 'mapa' && <Mapa />}
-        {activeTab === 'ofertas' && <Ofertas />}
-        {activeTab === 'inicio' && <Inicio />}
-        {activeTab === 'pedidos' && <Pedidos />}
-        
-        {/* 🟢 PERFIL ATUALIZADO: Recebe as novas props de controle */}
-        {activeTab === 'perfil' && (
-          <Perfil 
-            onLogout={() => setActiveTab('login')} 
-            telaAtual={subTelaPerfil}
-            setTelaAtual={setSubTelaPerfil}
-          />
-        )}
-      </View>
-
-      <View style={styles.footer}>
-        {tabs.map((key) => {
-          const isActive = key === activeTab;
-          const tabData = tabConfig[key];
+        <View style={styles.content}>
+          {activeTab === 'mapa' && <Mapa />}
+          {activeTab === 'ofertas' && <Ofertas />}
+          {activeTab === 'inicio' && <Inicio />}
+          {activeTab === 'pedidos' && <Pedidos />}
           
-          const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
+          {activeTab === 'perfil' && (
+            <Perfil 
+              onLogout={() => setActiveTab('login')} 
+              telaAtual={subTelaPerfil}
+              setTelaAtual={setSubTelaPerfil}
+            />
+          )}
+        </View>
 
-          return (
-            <TouchableOpacity
-              key={key}
-              style={styles.tabButton}
-              onPress={() => {
-                setActiveTab(key);
-                // Se mudar de aba, resetamos o Perfil para o menu principal
-                if (key !== 'perfil') setSubTelaPerfil('menu');
-              }}
-              activeOpacity={0.75}
-            >
-              <IconComponent width={31} height={31} />
-              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                {tabData.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        <View style={styles.footer}>
+          {tabs.map((key) => {
+            const isActive = key === activeTab;
+            const tabData = tabConfig[key];
+            const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
+
+            return (
+              <TouchableOpacity
+                key={key}
+                style={styles.tabButton}
+                onPress={() => {
+                  setActiveTab(key);
+                  if (key !== 'perfil') setSubTelaPerfil('menu');
+                }}
+                activeOpacity={0.75}
+              >
+                <IconComponent width={31} height={31} />
+                <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                  {tabData.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <StatusBar style="light" />
       </View>
-
-      <StatusBar style="light" />
-    </View>
     </QueryClientProvider>
   );
 }

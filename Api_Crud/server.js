@@ -41,6 +41,7 @@ app.get('/usuarios', async (req, res) => {
         const users = await prisma.usuarios.findMany()
         res.status(200).json(users)
     } catch (error) {
+        console.error("❌ Erro GET /usuarios:", error);
         res.status(500).json({ error: "Erro ao buscar usuários" })
     }
 })
@@ -63,16 +64,21 @@ app.post('/usuarios', async (req, res) => {
         })
         res.status(201).json(newUser)
     } catch (error) {
+        console.error("❌ Erro POST /usuarios:", error);
         res.status(500).json({ error: "Erro ao criar usuário" })
     }
 })
 
 app.get('/usuarios/:id', async (req, res) => {
     try {
-        const user = await prisma.usuarios.findUnique({ where: { id: parseInt(req.params.id) } })
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+        const user = await prisma.usuarios.findUnique({ where: { id: id } })
         if (!user) return res.status(404).json({ error: "Usuário não encontrado" })
         res.status(200).json(user)
     } catch (error) {
+        console.error("❌ Erro GET /usuarios/:id:", error);
         res.status(500).json({ error: "Erro ao buscar usuário" })
     }
 })
@@ -80,11 +86,13 @@ app.get('/usuarios/:id', async (req, res) => {
 // 🟢 ROTA ATUALIZADA (SEM ERROS)
 app.put('/usuarios/:id', async (req, res) => {
     try {
-        const { id } = req.params
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj } = req.body
         
         const updatedUser = await prisma.usuarios.update({
-            where: { id: parseInt(id) },
+            where: { id: id },
             data: { 
                 nome, 
                 email, 
@@ -93,22 +101,25 @@ app.put('/usuarios/:id', async (req, res) => {
                 whatsapp, 
                 url_foto, 
                 cpf_cnpj, 
-                // ✅ Nome do campo corrigido para bater com seu banco de dados
                 data_atual_izacao: new Date() 
             }
         })
         res.status(200).json(updatedUser)
     } catch (error) {
-        console.error("❌ Erro ao atualizar usuário:", error);
+        console.error("❌ Erro PUT /usuarios/:id:", error);
         res.status(500).json({ error: "Erro ao atualizar usuário" })
     }
 })
 
 app.delete('/usuarios/:id', async (req, res) => {
     try {
-        await prisma.usuarios.delete({ where: { id: parseInt(req.params.id) } })
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+        await prisma.usuarios.delete({ where: { id: id } })
         res.status(200).json({ message: "Usuário deletado" })
     } catch (error) {
+        console.error("❌ Erro DELETE /usuarios/:id:", error);
         res.status(500).json({ error: "Erro ao deletar usuário" })
     }
 })
@@ -120,6 +131,7 @@ app.post('/login', async (req, res) => {
         if (!user || user.senha !== senha) return res.status(401).json({ error: "E-mail ou senha incorretos!" })
         res.status(200).json(user)
     } catch (error) {
+        console.error("❌ Erro POST /login:", error);
         res.status(500).json({ error: "Erro interno ao tentar logar" })
     }
 })
@@ -148,23 +160,31 @@ app.post('/enderecos', async (req, res) => {
         })
         res.status(201).json(novoEndereco)
     } catch (error) {
+        console.error("❌ Erro POST /enderecos:", error);
         res.status(500).json({ error: "Erro ao salvar endereço" })
     }
 })
 
 app.get('/enderecos/usuario/:usuario_id', async (req, res) => {
     try {
-        const enderecos = await prisma.enderecos.findMany({ where: { usuario_id: parseInt(req.params.usuario_id) } })
+        const usuario_id = parseInt(req.params.usuario_id);
+        if (isNaN(usuario_id)) return res.status(400).json({ error: "ID inválido" });
+
+        const enderecos = await prisma.enderecos.findMany({ where: { usuario_id: usuario_id } })
         res.status(200).json(enderecos)
     } catch (error) {
+        console.error("❌ Erro GET /enderecos/usuario/:usuario_id:", error);
         res.status(500).json({ error: "Erro ao buscar endereços" })
     }
 })
 
 app.get('/produtor/dados/:id', async (req, res) => {
     try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
         const usuario = await prisma.usuarios.findUnique({
-            where: { id: parseInt(req.params.id) },
+            where: { id: id },
             include: { enderecos: true }
         });
         if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
@@ -174,6 +194,7 @@ app.get('/produtor/dados/:id', async (req, res) => {
             endereco_id: usuario.enderecos.length > 0 ? usuario.enderecos[0].id : null
         });
     } catch (error) {
+        console.error("❌ Erro GET /produtor/dados/:id:", error);
         res.status(500).json({ error: "Erro ao buscar dados na nuvem" });
     }
 });
@@ -186,16 +207,23 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
         const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
+        
         const novoProduto = await prisma.produtos.create({
             data: {
-                nome_produto, categoria,
-                preco: parseFloat(preco), unidade, quantidade: parseInt(quantidade),
-                produtor_id: parseInt(produtor_id), endereco_id: parseInt(endereco_id), imagem_url
+                nome_produto, 
+                categoria,
+                preco: parseFloat(preco) || 0, 
+                unidade, 
+                quantidade: parseInt(quantidade) || 0,
+                produtor_id: parseInt(produtor_id) || 0, 
+                endereco_id: parseInt(endereco_id) || 0, 
+                imagem_url
             }
         });
         res.status(201).json(novoProduto);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao salvar" });
+        console.error("❌ Erro POST /produtos:", error);
+        res.status(500).json({ error: "Erro ao salvar produto" });
     }
 });
 
@@ -215,6 +243,7 @@ app.get('/produtos', async (req, res) => {
         }));
         res.status(200).json(produtosMapeados);
     } catch (error) {
+        console.error("❌ Erro GET /produtos:", error);
         res.status(500).json({ error: "Erro ao buscar produtos" });
     }
 });
@@ -222,18 +251,24 @@ app.get('/produtos', async (req, res) => {
 app.get('/produtos/contar/:produtor_id', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     try {
-        const total = await prisma.produtos.count({ where: { produtor_id: parseInt(req.params.produtor_id) } });
+        const produtor_id = parseInt(req.params.produtor_id);
+        if (isNaN(produtor_id)) return res.status(400).json({ error: "ID inválido" });
+
+        const total = await prisma.produtos.count({ where: { produtor_id: produtor_id } });
         res.status(200).json({ total });
     } catch (error) {
+        console.error("❌ Erro GET /produtos/contar:", error);
         res.status(500).json({ error: "Erro ao contar produtos" });
     }
 });
 
 app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
         const { nome_produto, categoria, preco, unidade, quantidade } = req.body;
-        const produtoAtual = await prisma.produtos.findUnique({ where: { id: parseInt(id) } });
+        const produtoAtual = await prisma.produtos.findUnique({ where: { id: id } });
         if (!produtoAtual) return res.status(404).json({ error: "Produto não encontrado" });
 
         if (req.file && produtoAtual.imagem_url) {
@@ -242,32 +277,41 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         }
 
         const dadosParaAtualizar = {
-            nome_produto, categoria, preco: parseFloat(preco), unidade, quantidade: parseInt(quantidade),
+            nome_produto, 
+            categoria, 
+            preco: parseFloat(preco) || 0, 
+            unidade, 
+            quantidade: parseInt(quantidade) || 0,
         };
         if (req.file) dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
 
         const produtoAtualizado = await prisma.produtos.update({
-            where: { id: parseInt(id) },
+            where: { id: id },
             data: dadosParaAtualizar
         });
         res.status(200).json(produtoAtualizado);
     } catch (error) {
+        console.error("❌ Erro PUT /produtos/:id:", error);
         res.status(500).json({ error: "Erro ao atualizar produto" });
     }
 });
 
 app.delete('/produtos/:id', async (req, res) => {
     try {
-        const { id } = req.params;
-        const produto = await prisma.produtos.findUnique({ where: { id: parseInt(id) } });
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+        const produto = await prisma.produtos.findUnique({ where: { id: id } });
         if (!produto) return res.status(404).json({ error: "Produto não encontrado" });
+        
         if (produto.imagem_url) {
             const caminhoImagem = path.join('uploads', path.basename(produto.imagem_url));
             if (fs.existsSync(caminhoImagem)) fs.unlinkSync(caminhoImagem);
         }
-        await prisma.produtos.delete({ where: { id: parseInt(id) } });
+        await prisma.produtos.delete({ where: { id: id } });
         res.status(200).json({ message: "Produto excluído com sucesso!" });
     } catch (error) {
+        console.error("❌ Erro DELETE /produtos/:id:", error);
         res.status(500).json({ error: "Erro ao excluir produto" });
     }
 });
@@ -276,21 +320,55 @@ app.delete('/produtos/:id', async (req, res) => {
 // ⚡ ROTAS DE OFERTA RELÂMPAGO
 // ==========================================
 
+// ROTA PARA CRIAR OFERTA
 app.post('/ofertas', async (req, res) => {
     try {
         const { produto_id, preco_original, preco_promocional, duracao_minutos } = req.body;
         const novaOferta = await prisma.ofertas_relampago.create({
             data: {
-                produto_id: parseInt(produto_id),
-                preco_original: parseFloat(preco_original),
-                preco_promocional: parseFloat(preco_promocional),
-                duracao_minutos: parseInt(duracao_minutos),
+                produto_id: parseInt(produto_id) || 0,
+                preco_original: parseFloat(preco_original) || 0,
+                preco_promocional: parseFloat(preco_promocional) || 0,
+                duracao_minutos: parseInt(duracao_minutos) || 0,
                 status: 'ativa'
             }
         });
         res.status(201).json(novaOferta);
     } catch (error) {
+        console.error("❌ Erro POST /ofertas:", error);
         res.status(500).json({ error: "Erro ao salvar oferta" });
+    }
+});
+
+// 🟢 ROTA QUE ESTAVA FALTANDO: BUSCAR TODAS AS OFERTAS
+app.get('/ofertas', async (req, res) => {
+    try {
+        const listaOfertas = await prisma.ofertas_relampago.findMany({
+            include: {
+                produto: true // Traz os dados do produto junto (imagem, nome, etc)
+            },
+            orderBy: { criado_em: 'desc' }
+        });
+        res.status(200).json(listaOfertas);
+    } catch (error) {
+        console.error("❌ Erro GET /ofertas:", error);
+        res.status(500).json({ error: "Erro ao buscar lista de ofertas" });
+    }
+});
+
+// 🟢 ROTA PARA O BOTÃO DE LIXEIRA (REMOVER DA PROMOÇÃO)
+app.delete('/ofertas/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+
+        await prisma.ofertas_relampago.delete({
+            where: { id: id }
+        });
+        res.status(200).json({ message: "Oferta removida com sucesso!" });
+    } catch (error) {
+        console.error("❌ Erro DELETE /ofertas/:id:", error);
+        res.status(500).json({ error: "Erro ao remover oferta" });
     }
 });
 
@@ -303,6 +381,7 @@ app.get('/ofertas/destaque', async (req, res) => {
         });
         res.status(200).json(ofertaDestaque || null);
     } catch (error) {
+        console.error("❌ Erro GET /ofertas/destaque:", error);
         res.status(500).json({ error: "Erro ao buscar destaque" });
     }
 });

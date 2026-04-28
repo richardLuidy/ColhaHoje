@@ -8,15 +8,11 @@ import * as ImagePicker from 'expo-image-picker';
 
 import styles from '../../styles';
 import { colors } from '../../colors';
-
-const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
-const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
-
 import { API_URL } from '../api'; 
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;
-  produtoEditando?: any; // 🟢 Recebe os dados se for uma edição
+  produtoEditando?: any; 
 }
 
 export default function CadastrarProduto({ onVoltar, produtoEditando }: CadastrarProdutoProps) {
@@ -32,7 +28,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
   const [quantidade, setQuantidade] = useState(1);
   const [imagemUri, setImagemUri] = useState<string | null>(null);
 
-  // 🟢 Lógica para preencher os campos se estiver EDITANDO
   useEffect(() => {
     if (produtoEditando) {
       setNomeProduto(produtoEditando.nome_produto);
@@ -40,7 +35,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       setPreco(produtoEditando.preco.toString().replace('.', ','));
       setUnidade(produtoEditando.unidade);
       setQuantidade(produtoEditando.quantidade);
-      setImagemUri(produtoEditando.imagem_url ? `${API_URL}${produtoEditando.imagem_url}` : null); // Carrega a foto atual
+      setImagemUri(produtoEditando.imagem_url ? `${API_URL}${produtoEditando.imagem_url}` : null);
     }
   }, [produtoEditando]);
 
@@ -84,7 +79,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
   const aumentarQuantidade = () => setQuantidade(quantidade + 1);
   const diminuirQuantidade = () => quantidade > 1 && setQuantidade(quantidade - 1);
 
-  // 🟢 FINALIZAR (DINÂMICO: POST OU PUT)
   const finalizarCadastro = async () => {
     if (!nomeProduto || !preco || !produtorId) {
       Alert.alert("Erro", "Preencha os campos obrigatórios.");
@@ -94,10 +88,10 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
     if (!enderecoId) {
       Alert.alert(
         "Endereço Necessário",
-        "Você precisa cadastrar um endereço antes de vender produtos. Vá para o menu Perfil > Endereços para adicionar um endereço.",
+        "Você precisa cadastrar um endereço antes de vender produtos.",
         [
           { text: "Voltar", style: "cancel" },
-          { text: "Ir para Endereços", onPress: onVoltar } // Volta para o menu do perfil
+          { text: "Ir para Endereços", onPress: onVoltar }
         ]
       );
       return;
@@ -114,7 +108,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       formData.append('produtor_id', produtorId.toString());
       formData.append('endereco_id', enderecoId.toString());
 
-      // Só envia a imagem se ela for uma URI local (uma foto nova escolhida agora)
       if (imagemUri && !imagemUri.startsWith('http')) {
         const filename = imagemUri.split('/').pop() || 'foto.jpg';
         const match = /\.(\w+)$/.exec(filename);
@@ -122,7 +115,6 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
         formData.append('imagem', { uri: imagemUri, name: filename, type } as any); 
       }
 
-      // 🟢 O PULO DO GATO: Decide se usa POST (novo) ou PUT (editar)
       const config = {
         method: produtoEditando ? 'put' : 'post',
         url: produtoEditando ? `${API_URL}/produtos/${produtoEditando.id}` : `${API_URL}/produtos`,
@@ -149,12 +141,19 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
   return (
     <View style={styles.telaTodaCadastrar}>
-      <ScrollView style={styles.containerScrollCadastrar} showsVerticalScrollIndicator={false}>
-        {/* Título Dinâmico */}
-        <Text style={styles.tituloPaginaCadastrar}>
+      
+      {/* 🟢 HEADER INTERNO (Seta + Título Alinhados) */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 10 }}>
+        <TouchableOpacity onPress={onVoltar} style={{ padding: 5 }}>
+          <Ionicons name="arrow-back" size={28} color={colors.verdeColheita} />
+        </TouchableOpacity>
+        <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.cinzaTecnico, marginLeft: 15 }}>
             {produtoEditando ? "Editar Produto" : "Cadastrar Produto"}
         </Text>
+      </View>
 
+      <ScrollView style={styles.containerScrollCadastrar} showsVerticalScrollIndicator={false}>
+        
         <View style={styles.areaFotosCadastrar}>
           <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
             {imagemUri ? (
@@ -173,7 +172,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
         <Text style={styles.labelCategoriaCadastrar}>Categoria</Text>
         <View style={styles.categoriaContainerCadastrar}>
-          {categoriasAtivas.map((cat) => (
+          {['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'].map((cat) => (
             <TouchableOpacity
               key={cat}
               style={[styles.chipBaseCadastrar, categoriaSelecionada === cat ? styles.chipAtivoCadastrar : styles.chipInativoCadastrar]}
@@ -196,7 +195,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
             <Text style={styles.labelGeralCadastrar}>Unidade:</Text>
             <View style={styles.pickerBoxCadastrar}>
               <Picker selectedValue={unidade} onValueChange={(v) => setUnidade(v)} style={styles.pickerCadastrar} mode="dropdown">
-                {unidadesAgricolas.map((und) => <Picker.Item key={und} label={und} value={und} />)}
+                {['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'].map((und) => <Picker.Item key={und} label={und} value={und} />)}
               </Picker>
             </View>
           </View>

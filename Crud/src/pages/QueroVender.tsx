@@ -5,17 +5,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
-import { API_URL } from '../../api';
+import { API_URL } from '../api';
 
 import CadastrarProduto from './CadastrarProduto';
 import OfertaRelampago from '../components/OfertaRelampago';
-
+import MinhasOfertas from '../components/MinhasOfertas';
 interface QueroVenderProps {
   onVoltar: () => void;
 }
 
 export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [abrindoCadastro, setAbrindoCadastro] = useState(false);
+  const [vendoMinhasOfertas, setVendoMinhasOfertas] = useState(false); // 🟢 Controle da nova tela
   const [modalOfertaAberto, setModalOfertaAberto] = useState(false);
   const [totalProdutos, setTotalProdutos] = useState<number | string>('...'); 
   const [listaProdutosEstoque, setListaProdutosEstoque] = useState<any[]>([]);
@@ -23,8 +24,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
 
   // 🟢 ESTADO PARA EDIÇÃO
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
-
-  const API_URL = 'http://10.0.2.2:3000';
 
   const buscarDadosEstoque = useCallback(async () => {
     try {
@@ -72,8 +71,8 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         { 
           text: "Editar", 
           onPress: () => {
-            setProdutoParaEditar(produto); // Carrega os dados para a edição
-            setAbrindoCadastro(true);      // Abre a tela
+            setProdutoParaEditar(produto);
+            setAbrindoCadastro(true);
           } 
         },
         { 
@@ -108,22 +107,32 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     }
   };
 
-  const fecharCadastroEAtualizar = () => {
+  const fecharTudoEAtualizar = () => {
     setAbrindoCadastro(false);
-    setProdutoParaEditar(null); // 🟢 Limpa o estado de edição ao fechar
+    setVendoMinhasOfertas(false); // 🟢 Garante que volta para a dashboard
+    setProdutoParaEditar(null);
     setTotalProdutos('...'); 
     setListaProdutosEstoque([]); 
     setTimeout(() => {
       setRefreshKey(prev => prev + 1);
-    }, 1000);
+    }, 500);
   };
 
+  // 🟢 RENDERIZAÇÃO CONDICIONAL DE TELAS
   if (abrindoCadastro) {
     return (
       <CadastrarProduto 
         key={`cad-${refreshKey}`} 
-        onVoltar={fecharCadastroEAtualizar} 
-        produtoEditando={produtoParaEditar} // 🟢 Passa os dados para a tela de cadastro
+        onVoltar={fecharTudoEAtualizar} 
+        produtoEditando={produtoParaEditar}
+      />
+    );
+  }
+
+  if (vendoMinhasOfertas) {
+    return (
+      <MinhasOfertas 
+        onVoltar={fecharTudoEAtualizar} 
       />
     );
   }
@@ -186,8 +195,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <Text style={styles.tituloProdutoOfertaGeralSério}>Nenhum produto em oferta</Text>
         <Text style={styles.descProdutoOfertaGeralSério}>Crie uma oferta agora e venda o que sobrou do dia.</Text>
 
-        <TouchableOpacity style={styles.btnVerPedidosOuterSério}>
-          <Text style={styles.textoBtnBrancoSério}>Ver pedidos</Text>
+        <TouchableOpacity 
+            style={styles.btnVerPedidosOuterSério}
+            onPress={() => setVendoMinhasOfertas(true)} // 🟢 Agora abre a lista de ofertas
+        >
+          <Text style={styles.textoBtnBrancoSério}>Minhas ofertas</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnRedondoFlutuanteSério} onPress={() => setModalOfertaAberto(true)}>
