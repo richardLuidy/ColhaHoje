@@ -1521,6 +1521,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 
+    // 🟢 Etiqueta de Status Antiga (Mantida para o "Esgotando")
+    badgeStatusOfertaSério: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8, 
+        paddingVertical: 3, 
+        borderRadius: 6,
+        marginBottom: 4,
+    },
+
+    // 🟢 Texto da Etiqueta Antiga
+    badgeStatusTextoOfertaSério: {
+        fontSize: 10, 
+        fontWeight: 'bold', 
+        marginLeft: 4, 
+        textTransform: 'uppercase',
+    },
+
     // Título do produto (Limpíssimo)
     tituloOfertaGerenciamentoSério: {
         fontSize: 16,
@@ -1578,6 +1597,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FFE5E5', // Fundo vermelho bem clarinho
         borderRadius: 12,
+        alignSelf: 'flex-end',
+    },
+
+    // ==========================================
+    // 🟢 NOVOS: ETIQUETA DO CANTO DIREITO
+    // ==========================================
+    badgeStatusTopRightSério: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    dotStatusSério: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        marginRight: 4,
+    },
+    badgeStatusTextoTopRightSério: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
     },
 });
 

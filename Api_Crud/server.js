@@ -83,7 +83,6 @@ app.get('/usuarios/:id', async (req, res) => {
     }
 })
 
-// 🟢 ROTA ATUALIZADA (SEM ERROS)
 app.put('/usuarios/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -320,7 +319,6 @@ app.delete('/produtos/:id', async (req, res) => {
 // ⚡ ROTAS DE OFERTA RELÂMPAGO
 // ==========================================
 
-// ROTA PARA CRIAR OFERTA
 app.post('/ofertas', async (req, res) => {
     try {
         const { produto_id, preco_original, preco_promocional, duracao_minutos } = req.body;
@@ -340,12 +338,11 @@ app.post('/ofertas', async (req, res) => {
     }
 });
 
-// 🟢 ROTA QUE ESTAVA FALTANDO: BUSCAR TODAS AS OFERTAS
 app.get('/ofertas', async (req, res) => {
     try {
         const listaOfertas = await prisma.ofertas_relampago.findMany({
             include: {
-                produto: true // Traz os dados do produto junto (imagem, nome, etc)
+                produto: true 
             },
             orderBy: { criado_em: 'desc' }
         });
@@ -356,7 +353,6 @@ app.get('/ofertas', async (req, res) => {
     }
 });
 
-// 🟢 ROTA PARA O BOTÃO DE LIXEIRA (REMOVER DA PROMOÇÃO)
 app.delete('/ofertas/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -385,6 +381,76 @@ app.get('/ofertas/destaque', async (req, res) => {
         res.status(500).json({ error: "Erro ao buscar destaque" });
     }
 });
+
+// =======================================================
+// 💳 ROTAS DE MÉTODOS DE PAGAMENTO (CARTÕES)
+// =======================================================
+
+// 1. Listar cartões do utilizador
+app.get('/cartoes/:usuario_id', async (req, res) => {
+  try {
+    const { usuario_id } = req.params;
+    const cartoes = await prisma.cartoes.findMany({
+      where: { usuario_id: parseInt(usuario_id) },
+      orderBy: { criado_em: 'desc' } 
+    });
+    res.json(cartoes);
+  } catch (error) {
+    console.error("Erro ao buscar cartões:", error);
+    res.status(500).json({ error: "Erro ao procurar cartões" });
+  }
+});
+
+// 2. Adicionar um novo cartão
+app.post('/cartoes', async (req, res) => {
+  try {
+    const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
+
+    if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
+        return res.status(400).json({ error: "Dados incompletos" });
+    }
+
+    // SEGURANÇA: Extrai apenas os últimos 4 dígitos do número completo
+    const numero_final = numero_cartao.slice(-4);
+
+    // SIMULAÇÃO DE TOKEN: Numa app real, isto seria gerado por um gateway (Stripe/Pagar.me)
+    const token_pagamento = `tok_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
+
+    const novoCartao = await prisma.cartoes.create({
+      data: {
+        usuario_id: parseInt(usuario_id),
+        numero_final,
+        bandeira,
+        nome_titular,
+        validade,
+        token_pagamento
+      }
+    });
+
+    res.status(201).json(novoCartao);
+  } catch (error) {
+    console.error("Erro ao guardar cartão:", error);
+    res.status(500).json({ error: "Erro ao guardar o cartão na base de dados" });
+  }
+});
+
+// 3. Remover um cartão
+app.delete('/cartoes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.cartoes.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ message: "Cartão removido com sucesso" });
+  } catch (error) {
+    console.error("Erro ao apagar cartão:", error);
+    res.status(500).json({ error: "Erro ao remover cartão" });
+  }
+});
+
+// ==========================================
+// 🚀 INICIALIZAÇÃO DO SERVIDOR (Sempre no final)
+// ==========================================
 
 console.log('📝 Endpoints registrados')
 
