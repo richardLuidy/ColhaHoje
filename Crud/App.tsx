@@ -51,8 +51,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash'>[];
 
-  // 🟢 ESTADO ATUALIZADO: Inclui 'vender'
-  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
+  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'>('menu');
 
   if (activeTab === 'splash') {
     return <SplashScreen onFinish={() => setActiveTab('login')} />;
@@ -71,13 +70,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <View style={styles.container}>
         
-        {/* 🟢 HEADER SINCRONIZADO: 
-            Agora ele esconde a seta verde se você estiver na tela de vender (onde estão o cadastro e ofertas)
-        */}
+        {/* 🟢 HEADER CONFIGURADO PARA MOSTRAR SETA NO 'VENDER' TAMBÉM */}
         <Header 
           activeTab={activeTab} 
-          forceShowBack={activeTab === 'perfil' && subTelaPerfil !== 'menu' && subTelaPerfil !== 'vender'} 
-          esconderSetaForçado={activeTab === 'perfil' && subTelaPerfil === 'vender'}
+          forceShowBack={activeTab === 'perfil' && ['dados', 'enderecos', 'pagamento', 'vender'].includes(subTelaPerfil)} 
+          esconderSetaForçado={false} 
           onBackPress={() => {
             if (activeTab === 'perfil') setSubTelaPerfil('menu');
           }}

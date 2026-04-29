@@ -19,13 +19,14 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [abrindoCadastro, setAbrindoCadastro] = useState(false);
   const [vendoMinhasOfertas, setVendoMinhasOfertas] = useState(false);
   const [modalOfertaAberto, setModalOfertaAberto] = useState(false);
-  const [totalProdutos, setTotalProdutos] = useState<number | string>('...');
   const [listaProdutosEstoque, setListaProdutosEstoque] = useState<any[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
 
+  // 🟢 VOLTAMOS O "..." PARA O ESTADO INICIAL DO CONTADOR
+  const [totalProdutos, setTotalProdutos] = useState<number | string>('...');
+
   const [filtroAtivo, setFiltroAtivo] = useState<'Todos' | 'Catálogo' | 'Ofertas'>('Todos');
-  
   const [ofertasBrutas, setOfertasBrutas] = useState<any[]>([]);
   const [agora, setAgora] = useState(new Date().getTime());
 
@@ -45,10 +46,13 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         return;
       }
 
+      // 🟢 BUSCA A CONTAGEM INTELIGENTE DO BACKEND (JÁ FILTRADA)
       const responseContar = await axios.get(`${API_URL}/produtos/contar/${idSalvo}`, {
         params: { _cache: Date.now() }
       });
-      if (responseContar.status === 200) setTotalProdutos(responseContar.data.total);
+      if (responseContar.status === 200) {
+        setTotalProdutos(responseContar.data.total);
+      }
 
       const responseLista = await axios.get(`${API_URL}/produtos?produtor_id=${idSalvo}`, {
         params: { _cache: Date.now() }
@@ -74,7 +78,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     buscarDadosEstoque();
   }, [refreshKey, buscarDadosEstoque]);
 
-  // 🟢 MENU INTELIGENTE ATUALIZADO
   const abrirMenuOpcoes = (produto: any) => {
     const ofertaExistente = ofertasBrutas.find(o => o.produto.id === produto.id);
     const taEmOferta = !!ofertaExistente;
@@ -134,7 +137,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     setAbrindoCadastro(false);
     setVendoMinhasOfertas(false);
     setProdutoParaEditar(null);
-    setTotalProdutos('...');
+    setTotalProdutos('...'); // Reseta para os pontinhos ao atualizar
     setListaProdutosEstoque([]);
     setTimeout(() => {
       setRefreshKey(prev => prev + 1);
@@ -149,27 +152,29 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     return <MinhasOfertas onVoltar={fecharTudoEAtualizar} />;
   }
 
-  // 🟢 FILTRO DE SEGURANÇA: Esconde se a oferta expirou
+  // 🟢 FILTRO DE INTERFACE (Apenas para esconder da lista o que expirou)
   const produtosFiltrados = listaProdutosEstoque.filter((produto) => {
     const ofertaDesteProduto = ofertasBrutas.find(o => o.produto.id === produto.id);
-    
     if (ofertaDesteProduto) {
       const dataExpiracao = new Date(ofertaDesteProduto.criado_em).getTime() + (ofertaDesteProduto.duracao_minutos * 60 * 1000);
-      const expirou = dataExpiracao <= agora;
-
-      if (expirou) return false; // SOME DA LISTA se expirou (sua ideia de segurança)
-      
+      if (dataExpiracao <= agora) return false;
       if (filtroAtivo === 'Catálogo') return false;
     } else {
       if (filtroAtivo === 'Ofertas') return false;
     }
-
     return true; 
   });
 
   return (
     <ScrollView key={`dash-${refreshKey}`} contentContainerStyle={styles.containerQueroVenderSério} showsVerticalScrollIndicator={false}>
-      <Text style={styles.tituloSessaoItalicoSério}>Dashboard</Text>
+      
+      {/* 🟢 HEADER COM SETA */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 20 }}>
+        <TouchableOpacity onPress={onVoltar} style={{ padding: 5, marginRight: 10 }}>
+            <Ionicons name="arrow-back" size={28} color={colors.verdeColheita} />
+        </TouchableOpacity>
+        <Text style={styles.tituloSessaoItalicoSério}>Painel de Vendas</Text>
+      </View>
 
       <View style={styles.rowCardsSério}>
         <View style={styles.cardPequenoSério}>
@@ -187,6 +192,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
 
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Produtos Ativos</Text>
+          {/* 🟢 EXIBE O TOTAL VINDO DA API (QUE JÁ É INTELIGENTE) OU OS PONTINHOS */}
           <Text style={styles.cardValorSério}>{totalProdutos}</Text>
           <View style={styles.areaPlantIconsSério}>
             <Ionicons name="nutrition-outline" size={20} color="#999" />
@@ -196,11 +202,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         </View>
       </View>
 
+      {/* ... Resto do código (Destaque, Cadastrar, Central) igual ao anterior ... */}
       <View style={styles.cardDestaqueBrancaoSério}>
         <View style={styles.headerDestaqueSério}>
           <Text style={styles.tituloSessaoSério}>Destaque seu Produto!</Text>
         </View>
-
         <View style={styles.cardMenorLaranjadoSério}>
           <Text style={styles.tituloOfertaLaranjaItalicoSério}>Oferta Relâmpago Ativar!</Text>
           <View style={styles.areaDestaqueConteudoSério}>
@@ -217,14 +223,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
             </View>
           </View>
         </View>
-
         <Text style={styles.tituloProdutoOfertaGeralSério}>Nenhum produto em oferta</Text>
         <Text style={styles.descProdutoOfertaGeralSério}>Crie uma oferta agora e venda o que sobrou do dia.</Text>
-
         <TouchableOpacity style={styles.btnVerPedidosOuterSério} onPress={() => setVendoMinhasOfertas(true)}>
           <Text style={styles.textoBtnBrancoSério}>Minhas ofertas</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.btnRedondoFlutuanteSério} onPress={() => setModalOfertaAberto(true)}>
           <Ionicons name="camera-outline" size={24} color="#fff" />
           <Text style={styles.textoIconeFlutuanteSério}>Criar oferta</Text>
@@ -232,7 +235,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       </View>
 
       <Text style={[styles.tituloSessaoSério, { marginTop: 25, marginBottom: 10 }]}>Cadastrar Produto</Text>
-
       <TouchableOpacity style={styles.cardCadastrarNovoSério} onPress={() => setAbrindoCadastro(true)}>
         <Ionicons name="add-circle" size={40} color={colors.verdeColheita} />
         <View style={styles.infoEstoqueSério}>
@@ -242,11 +244,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <Ionicons name="chevron-forward" size={24} color={colors.placeholder} />
       </TouchableOpacity>
 
-      
-      <Text style={[styles.tituloSessaoSério, { marginTop: 30, marginBottom: 15 }]}>
-        Central do Produtor
-      </Text>
-      
+      <Text style={[styles.tituloSessaoSério, { marginTop: 30, marginBottom: 15 }]}>Central do Produtor</Text>
       <View style={{ flexDirection: 'row', marginBottom: 15, marginTop: 5 }}>
         {['Todos', 'Catálogo', 'Ofertas'].map(filtro => (
           <TouchableOpacity
@@ -260,20 +258,13 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
               marginRight: 10,
             }}
           >
-            <Text style={{
-              color: filtroAtivo === filtro ? '#FFF' : colors.placeholder,
-              fontWeight: 'bold',
-              fontSize: 12
-            }}>
-              {filtro}
-            </Text>
+            <Text style={{ color: filtroAtivo === filtro ? '#FFF' : colors.placeholder, fontWeight: 'bold', fontSize: 12 }}>{filtro}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       {produtosFiltrados.map((produto) => {
         const taEmOferta = ofertasBrutas.some(o => o.produto.id === produto.id);
-
         return (
           <View key={produto.id} style={styles.cardEstoqueSério}>
             {produto.imagem_url ? (
@@ -283,14 +274,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
                 <Ionicons name="leaf-outline" size={30} color={colors.placeholder} />
               </View>
             )}
-
             <View style={styles.infoEstoqueListSério}>
-
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
                 <View style={[styles.badgeCategoriaRealSério, { marginRight: 6 }]}>
                   <Text style={styles.badgeCategoriaTextRealSério}>{produto.categoria}</Text>
                 </View>
-
                 {taEmOferta ? (
                   <View style={[styles.badgeCategoriaRealSério, { backgroundColor: '#FFF5E6' }]}>
                     <Text style={[styles.badgeCategoriaTextRealSério, { color: colors.laranjaAlerta }]}>⚡ Em Oferta</Text>
@@ -301,43 +289,21 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
                   </View>
                 )}
               </View>
-
               <Text style={styles.tituloEstoqueListSério} numberOfLines={1}>{produto.nome_produto}</Text>
-
               <View style={styles.linhaPrecoQuantidadeSério}>
-                <Text style={styles.precoEstoqueSério}>
-                  R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
-                  <Text style={styles.unidadeEstoqueSério}> / {produto.unidade}</Text>
-                </Text>
+                <Text style={styles.precoEstoqueSério}>R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}<Text style={styles.unidadeEstoqueSério}> / {produto.unidade}</Text></Text>
                 <Text style={styles.quantidadeEstoqueSério}>{produto.quantidade} unid.</Text>
               </View>
             </View>
-
-            <TouchableOpacity
-              style={styles.btnOpcoesEstoqueSério}
-              onPress={() => abrirMenuOpcoes(produto)}
-            >
+            <TouchableOpacity style={styles.btnOpcoesEstoqueSério} onPress={() => abrirMenuOpcoes(produto)}>
               <Ionicons name="ellipsis-vertical" size={20} color={colors.placeholder} />
             </TouchableOpacity>
           </View>
         );
       })}
 
-      {produtosFiltrados.length === 0 && (
-        <Text style={{ textAlign: 'center', marginTop: 20, color: colors.placeholder }}>
-          Nenhum produto encontrado neste filtro.
-        </Text>
-      )}
-
       <View style={{ height: 40 }} />
-
-      <OfertaRelampago 
-        visivel={modalOfertaAberto} 
-        onClose={() => {
-            setModalOfertaAberto(false);
-            setProdutoParaEditar(null);
-        }} 
-      />
+      <OfertaRelampago visivel={modalOfertaAberto} onClose={() => { setModalOfertaAberto(false); setProdutoParaEditar(null); }} />
     </ScrollView>
   );
 }

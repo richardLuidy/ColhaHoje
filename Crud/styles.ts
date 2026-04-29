@@ -1230,7 +1230,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },
 
-   // =======================================================
+    // =======================================================
     // 🛒 CATÁLOGO DE PRODUTOS (ESTILO FIGMA + PALETA OFICIAL)
     // =======================================================
 
@@ -1242,9 +1242,9 @@ const styles = StyleSheet.create({
         width: '100%',
     },
 
-   
+
     cardProdutoSério: {
-        width: '48%', 
+        width: '48%',
         backgroundColor: colors.branco,
         borderRadius: 24,
         marginBottom: 20, // Mais espaço entre as linhas para não embolar
@@ -1258,7 +1258,7 @@ const styles = StyleSheet.create({
     },
 
     cardCatalogueImageContainerSério: {
-        height: 160, 
+        height: 160,
         width: '100%',
         backgroundColor: colors.backGroundPage,
         overflow: 'hidden',
@@ -1318,7 +1318,7 @@ const styles = StyleSheet.create({
 
     // Botão de adicionar - Verde oficial da marca
     btnAddCardNewSério: {
-        backgroundColor: colors.verdeColheita, 
+        backgroundColor: colors.verdeColheita,
         width: 32,
         height: 32,
         borderRadius: 16,
@@ -1400,7 +1400,7 @@ const styles = StyleSheet.create({
         marginBottom: -1, // Faz a linha verde ficar por cima da cinza
     },
 
-    
+
 
     // Texto das abas: Ajustado para o tamanho e estilo do design
     pedidosTabText: {
@@ -1461,7 +1461,7 @@ const styles = StyleSheet.create({
         marginTop: 100,
     },
 
-  // =======================================================
+    // =======================================================
     // 🏷️ ESTILOS DA TELA "MINHAS OFERTAS" (CORREÇÃO TOTAL PROFISSIONAL)
     // =======================================================
 
@@ -1523,20 +1523,20 @@ const styles = StyleSheet.create({
 
     // 🟢 Etiqueta de Status Antiga (Mantida para o "Esgotando")
     badgeStatusOfertaSério: {
-        flexDirection: 'row', 
-        alignItems: 'center', 
+        flexDirection: 'row',
+        alignItems: 'center',
         alignSelf: 'flex-start',
-        paddingHorizontal: 8, 
-        paddingVertical: 3, 
+        paddingHorizontal: 8,
+        paddingVertical: 3,
         borderRadius: 6,
         marginBottom: 4,
     },
 
     // 🟢 Texto da Etiqueta Antiga
     badgeStatusTextoOfertaSério: {
-        fontSize: 10, 
-        fontWeight: 'bold', 
-        marginLeft: 4, 
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginLeft: 4,
         textTransform: 'uppercase',
     },
 
@@ -1623,6 +1623,103 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: 'bold',
         textTransform: 'uppercase',
+    },
+
+    
+    // =======================================================
+    // 💳 ESTILOS DA TELA "MÉTODOS DE PAGAMENTO"
+    // =======================================================
+
+    containerPagamentoSério: {
+        flex: 1,
+        backgroundColor: colors.branco,
+    },
+    headerPagamentoSério: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 60,
+        paddingBottom: 20,
+        backgroundColor: '#FFF',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.backGroundPage,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+    },
+    cartaoCreditoSério: {
+        width: '100%',
+        height: 190,
+        borderRadius: 16,
+        padding: 20,
+        justifyContent: 'space-between',
+        marginBottom: 20,
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+    },
+    linhaTopCartaoSério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    textoBandeiraSério: {
+        color: '#FFF',
+        fontSize: 22,
+        fontWeight: '900',
+        fontStyle: 'italic',
+    },
+    numeroCartaoSério: {
+        color: '#FFF',
+        fontSize: 22,
+        letterSpacing: 3,
+        textAlign: 'center',
+        marginTop: 10,
+        fontFamily: 'monospace', // Dá aquela cara de número de cartão
+    },
+    linhaBottomCartaoSério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    blocoTextoCartaoSério: {
+        flexDirection: 'column',
+    },
+    textoLabelCartaoSério: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 10,
+        textTransform: 'uppercase',
+        marginBottom: 2,
+    },
+    textoValorCartaoSério: {
+        color: '#FFF',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    btnAdicionarCartaoSério: {
+        backgroundColor: colors.verdeColheita,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        borderRadius: 12,
+        marginTop: 10,
+        marginBottom: 30,
+    },
+    btnRemoverCartaoSério: {
+        position: 'absolute',
+        top: -10,
+        right: -10,
+        backgroundColor: '#FFE5E5',
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
     },
 });
 

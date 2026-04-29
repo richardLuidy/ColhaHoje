@@ -5,9 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../styles';
 import { colors } from '../../colors';
+
+// 📂 Importação das Telas Secundárias
 import DadosPessoais from './DadosPessoais';
 import Enderecos from './Enderecos';
 import QueroVender from './QueroVender';
+import MetodosPagamento from '../components/MetodosPagamento';
 
 // 📂 Importação dos Ícones SVG
 const iconDados = Image.resolveAssetSource(require('../assets/icon-dados.svg')).uri;
@@ -17,11 +20,11 @@ const iconPagamento = Image.resolveAssetSource(require('../assets/icon-pagamento
 const iconConfig = Image.resolveAssetSource(require('../assets/icon-config.svg')).uri;
 const iconVender = Image.resolveAssetSource(require('../assets/icon-vender.svg')).uri;
 
-// 🟢 2. Interface atualizada para aceitar 'enderecos'
+// 🟢 2. Interface atualizada para aceitar 'pagamento'
 interface PerfilProps {
   onLogout: () => void;
-  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender';
-  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender') => void;
+  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'; 
+  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento') => void;
 }
 
 export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProps) {
@@ -54,7 +57,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
     }
   };
 
-  // 🟢 3. Lógica para mostrar as sub-telas
+  // 🟢 3. Roteamento: Lógica para mostrar as sub-telas
   if (telaAtual === 'dados') {
     return <DadosPessoais onVoltar={() => setTelaAtual('menu')} />;
   }
@@ -65,6 +68,11 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
 
   if (telaAtual === 'vender') {
     return <QueroVender onVoltar={() => setTelaAtual('menu')} />;
+  }
+
+  // 🟢 NOVA ROTA: Quando clicar no botão, carrega a tela do cartão
+  if (telaAtual === 'pagamento') {
+    return <MetodosPagamento onVoltar={() => setTelaAtual('menu')} />;
   }
 
   return (
@@ -88,7 +96,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 2. Endereços - 🟢 4. Agora com ação! */}
+      {/* 🔘 2. Endereços */}
       <TouchableOpacity
         style={styles.inputContainer}
         onPress={() => setTelaAtual('enderecos')}
@@ -105,8 +113,11 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 4. Métodos de Pagamento */}
-      <TouchableOpacity style={styles.inputContainer}>
+      {/* 🔘 4. Métodos de Pagamento - 🟢 4. AGORA COM AÇÃO! */}
+      <TouchableOpacity 
+        style={styles.inputContainer}
+        onPress={() => setTelaAtual('pagamento')} 
+      >
         <SvgUri width={24} height={24} uri={iconPagamento} />
         <Text style={styles.inputLabel}>Métodos de Pagamento</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
@@ -122,7 +133,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
       {/* 🟢 Quero Vender */}
       <TouchableOpacity 
         style={[styles.inputContainer, styles.buttonSeller]}
-        onPress={() => setTelaAtual('vender')} // 👈 A MÁGICA DA NAVEGAÇÃO AQUI!
+        onPress={() => setTelaAtual('vender')} 
       >
         <SvgUri width={24} height={24} uri={iconVender} />
         <Text style={styles.inputLabelSeller}>Quero Vender</Text>

@@ -247,16 +247,35 @@ app.get('/produtos', async (req, res) => {
     }
 });
 
+// 🟢 ROTA DE CONTAGEM INTELIGENTE (ATUALIZADA)
 app.get('/produtos/contar/:produtor_id', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     try {
         const produtor_id = parseInt(req.params.produtor_id);
-        if (isNaN(produtor_id)) return res.status(400).json({ error: "ID inválido" });
+        const agora = new Date();
 
-        const total = await prisma.produtos.count({ where: { produtor_id: produtor_id } });
-        res.status(200).json({ total });
+        const produtos = await prisma.produtos.findMany({
+            where: { produtor_id: produtor_id },
+            include: {
+                ofertas_relampago: {
+                    orderBy: { criado_em: 'desc' },
+                    take: 1 
+                }
+            }
+        });
+
+        const produtosAtivos = produtos.filter(p => {
+            const oferta = p.ofertas_relampago[0];
+            if (!oferta) return true;
+            const dataExpiracao = new Date(new Date(oferta.criado_em).getTime() + (oferta.duracao_minutos * 60 * 1000));
+            const expirou = dataExpiracao <= agora;
+            const vendido = p.quantidade <= 0;
+            return !expirou && !vendido;
+        });
+
+        res.status(200).json({ total: produtosAtivos.length });
     } catch (error) {
-        console.error("❌ Erro GET /produtos/contar:", error);
+        console.error("❌ Erro ao contar produtos inteligentes:", error);
         res.status(500).json({ error: "Erro ao contar produtos" });
     }
 });
@@ -386,7 +405,6 @@ app.get('/ofertas/destaque', async (req, res) => {
 // 💳 ROTAS DE MÉTODOS DE PAGAMENTO (CARTÕES)
 // =======================================================
 
-// 1. Listar cartões do utilizador
 app.get('/cartoes/:usuario_id', async (req, res) => {
   try {
     const { usuario_id } = req.params;
@@ -401,19 +419,13 @@ app.get('/cartoes/:usuario_id', async (req, res) => {
   }
 });
 
-// 2. Adicionar um novo cartão
 app.post('/cartoes', async (req, res) => {
   try {
     const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
-
     if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
         return res.status(400).json({ error: "Dados incompletos" });
     }
-
-    // SEGURANÇA: Extrai apenas os últimos 4 dígitos do número completo
     const numero_final = numero_cartao.slice(-4);
-
-    // SIMULAÇÃO DE TOKEN: Numa app real, isto seria gerado por um gateway (Stripe/Pagar.me)
     const token_pagamento = `tok_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
 
     const novoCartao = await prisma.cartoes.create({
@@ -426,31 +438,23 @@ app.post('/cartoes', async (req, res) => {
         token_pagamento
       }
     });
-
     res.status(201).json(novoCartao);
   } catch (error) {
     console.error("Erro ao guardar cartão:", error);
-    res.status(500).json({ error: "Erro ao guardar o cartão na base de dados" });
+    res.status(500).json({ error: "Erro ao guardar o cartão" });
   }
 });
 
-// 3. Remover um cartão
 app.delete('/cartoes/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.cartoes.delete({
-      where: { id: parseInt(id) }
-    });
+    await prisma.cartoes.delete({ where: { id: parseInt(id) } });
     res.json({ message: "Cartão removido com sucesso" });
   } catch (error) {
     console.error("Erro ao apagar cartão:", error);
     res.status(500).json({ error: "Erro ao remover cartão" });
   }
 });
-
-// ==========================================
-// 🚀 INICIALIZAÇÃO DO SERVIDOR (Sempre no final)
-// ==========================================
 
 console.log('📝 Endpoints registrados')
 
