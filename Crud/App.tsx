@@ -6,7 +6,7 @@ import styles from './styles';
 import Header from './src/components/Header';
 
 // 🟢 IMPORTAÇÕES DO CARRINHO
-import { CartProvider } from './src/context/CartContext'; 
+import { CartProvider } from './src/context/CartContext';
 import CarrinhoModal from './src/components/CarrinhoModal';
 
 // 🚀 TELAS
@@ -17,8 +17,9 @@ import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
 import SplashScreen from './src/pages/SplashScreen';
+import ConfirmarPedido from './src/pages/ConfirmarPedido';
 
-// Importar SVGs diretamente
+// Importar SVGs
 import MapaCinza from './src/assets/mapa_cinza.svg';
 import MapaVerde from './src/assets/mapa_verde.svg';
 import OfertasCinza from './src/assets/ofertas_cinza.svg';
@@ -41,9 +42,10 @@ const queryClient = new QueryClient({
   },
 });
 
-type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
+// 🟢 ADICIONADO 'confirmar_pedido' ÀS CHAVES
+type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login' | 'confirmar_pedido';
 
-const tabConfig: Record<Exclude<TabKey, 'login' | 'splash'>, { label: string; iconInactive: any; iconActive: any }> = {
+const tabConfig: Record<Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: { label: 'Mapa', iconInactive: MapaCinza, iconActive: MapaVerde },
   ofertas: { label: 'Ofertas', iconInactive: OfertasCinza, iconActive: OfertasVerde },
   inicio: { label: 'Início', iconInactive: HomeCinza, iconActive: HomeVerde },
@@ -53,9 +55,9 @@ const tabConfig: Record<Exclude<TabKey, 'login' | 'splash'>, { label: string; ic
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
-  const [carrinhoAberto, setCarrinhoAberto] = useState(false); 
-  
-  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash'>[];
+  const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+
+  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido'>[];
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'>('menu');
 
   if (activeTab === 'splash') {
@@ -73,22 +75,19 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider> 
+      <CartProvider>
         <View style={styles.container}>
-          
-          <Header 
-            activeTab={activeTab} 
-            onAbrirCarrinho={() => setCarrinhoAberto(true)}
-            forceShowBack={activeTab === 'perfil' && ['dados', 'enderecos', 'pagamento', 'vender'].includes(subTelaPerfil)} 
-            esconderSetaForçado={false} 
-            onBackPress={() => {
-              let cliqueFoiInterceptado = false;
-              DeviceEventEmitter.emit('onHeaderBackPress', (handled: boolean) => {
-                cliqueFoiInterceptado = handled;
-              });
 
-              if (!cliqueFoiInterceptado) {
-                if (activeTab === 'perfil') setSubTelaPerfil('menu');
+          <Header
+            activeTab={activeTab as any} // 👈 Adicione o 'as any' para silenciar o erro de tipo
+            onAbrirCarrinho={() => setCarrinhoAberto(true)}
+            forceShowBack={activeTab === 'confirmar_pedido' || (activeTab === 'perfil' && subTelaPerfil !== 'menu')}
+            esconderSetaForçado={false}
+            onBackPress={() => {
+              if (activeTab === 'confirmar_pedido') {
+                setActiveTab('inicio');
+              } else if (activeTab === 'perfil') {
+                setSubTelaPerfil('menu');
               }
             }}
           />
@@ -98,49 +97,55 @@ export default function App() {
             {activeTab === 'ofertas' && <Ofertas />}
             {activeTab === 'inicio' && <Inicio />}
             {activeTab === 'pedidos' && <Pedidos />}
-            
+
+            {/* 🟢 NOVA TELA DE CONFIRMAÇÃO */}
+            {activeTab === 'confirmar_pedido' && (
+              <ConfirmarPedido onFinalizado={() => setActiveTab('pedidos')} />
+            )}
+
             {activeTab === 'perfil' && (
-              <Perfil 
-                onLogout={() => setActiveTab('login')} 
+              <Perfil
+                onLogout={() => setActiveTab('login')}
                 telaAtual={subTelaPerfil}
                 setTelaAtual={setSubTelaPerfil}
               />
             )}
           </View>
 
-          {/* 1. O FOOTER VEM ANTES DO MODAL NO CÓDIGO AGORA */}
-          <View style={styles.footer}>
-            {tabs.map((key) => {
-              const isActive = key === activeTab;
-              const tabData = tabConfig[key];
-              const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
+          {/* O FOOTER NÃO APARECE NA TELA DE CONFIRMAÇÃO PARA DAR FOCO NO PAGAMENTO */}
+          {activeTab !== 'confirmar_pedido' && (
+            <View style={styles.footer}>
+              {tabs.map((key) => {
+                const isActive = key === activeTab;
+                const tabData = tabConfig[key];
+                const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
 
-              return (
-                <TouchableOpacity
-                  key={key}
-                  style={styles.tabButton}
-                  onPress={() => {
-                    setActiveTab(key);
-                    if (key !== 'perfil') setSubTelaPerfil('menu');
-                  }}
-                  activeOpacity={0.75}
-                >
-                  <IconComponent width={31} height={31} />
-                  <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                    {tabData.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={styles.tabButton}
+                    onPress={() => {
+                      setActiveTab(key);
+                      if (key !== 'perfil') setSubTelaPerfil('menu');
+                    }}
+                    activeOpacity={0.75}
+                  >
+                    <IconComponent width={31} height={31} />
+                    <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                      {tabData.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
 
-          {/* 2. O MODAL POR ÚLTIMO PARA FICAR NA FRENTE DO MENU DE ABAS */}
-          <CarrinhoModal 
-            visivel={carrinhoAberto} 
+          <CarrinhoModal
+            visivel={carrinhoAberto}
             onFechar={() => setCarrinhoAberto(false)}
             onFinalizar={() => {
               setCarrinhoAberto(false);
-              Alert.alert("ColhaHoje", "Pedido enviado com sucesso!");
+              setActiveTab('confirmar_pedido'); // 👈 AGORA LEVA PARA A TELA DE CONFIRMAÇÃO
             }}
           />
 

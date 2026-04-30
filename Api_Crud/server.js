@@ -247,7 +247,6 @@ app.get('/produtos', async (req, res) => {
     }
 });
 
-// 🟢 ROTA DE CONTAGEM INTELIGENTE (ATUALIZADA)
 app.get('/produtos/contar/:produtor_id', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     try {
@@ -370,7 +369,7 @@ app.get('/ofertas', async (req, res) => {
         console.error("❌ Erro GET /ofertas:", error);
         res.status(500).json({ error: "Erro ao buscar lista de ofertas" });
     }
-});
+})
 
 app.delete('/ofertas/:id', async (req, res) => {
     try {
@@ -385,7 +384,7 @@ app.delete('/ofertas/:id', async (req, res) => {
         console.error("❌ Erro DELETE /ofertas/:id:", error);
         res.status(500).json({ error: "Erro ao remover oferta" });
     }
-});
+})
 
 app.get('/ofertas/destaque', async (req, res) => {
     try {
@@ -454,6 +453,77 @@ app.delete('/cartoes/:id', async (req, res) => {
     console.error("Erro ao apagar cartão:", error);
     res.status(500).json({ error: "Erro ao remover cartão" });
   }
+});
+
+// =======================================================
+// 🛒 ROTAS DE PEDIDOS (NOVO & INTEGRADO)
+// =======================================================
+
+app.post('/pedidos', async (req, res) => {
+    try {
+        const { usuario_id, total, metodo_pagamento, itens } = req.body;
+
+        if (!usuario_id || !itens || itens.length === 0) {
+            return res.status(400).json({ error: "Dados do pedido incompletos" });
+        }
+
+        // Transação para criar pedido e atualizar estoque
+        const resultado = await prisma.$transaction(async (tx) => {
+            // 1. Criar o pedido
+            const pedido = await tx.pedidos.create({
+                data: {
+                    usuario_id: parseInt(usuario_id),
+                    total: parseFloat(total),
+                    metodo_pagamento,
+                    status: 'pendente',
+                    itens: {
+                        create: itens.map(item => ({
+                            produto_id: parseInt(item.produto_id),
+                            quantidade: parseInt(item.quantidade),
+                            preco_unitario: parseFloat(item.preco_unitario)
+                        }))
+                    }
+                }
+            });
+
+            // 2. Dar baixa no estoque
+            for (const item of itens) {
+                await tx.produtos.update({
+                    where: { id: parseInt(item.produto_id) },
+                    data: {
+                        quantidade: {
+                            decrement: parseInt(item.quantidade)
+                        }
+                    }
+                });
+            }
+            return pedido;
+        });
+
+        res.status(201).json(resultado);
+    } catch (error) {
+        console.error("❌ Erro ao processar pedido:", error);
+        res.status(500).json({ error: "Erro interno ao processar pedido" });
+    }
+});
+
+app.get('/pedidos/usuario/:usuario_id', async (req, res) => {
+    try {
+        const usuario_id = parseInt(req.params.usuario_id);
+        const listaPedidos = await prisma.pedidos.findMany({
+            where: { usuario_id: usuario_id },
+            include: {
+                itens: {
+                    include: { produto: true }
+                }
+            },
+            orderBy: { created_at: 'desc' }
+        });
+        res.json(listaPedidos);
+    } catch (error) {
+        console.error("❌ Erro ao buscar histórico de pedidos:", error);
+        res.status(500).json({ error: "Erro ao buscar histórico" });
+    }
 });
 
 console.log('📝 Endpoints registrados')

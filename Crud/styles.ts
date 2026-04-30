@@ -1529,6 +1529,86 @@ const styles = StyleSheet.create({
         marginTop: 100,
     },
 
+
+    // =======================================================
+    // 💳 ESTILOS DA TELA DE CONFIRMAR PEDIDO
+    // =======================================================
+
+    // Container principal que envolve a tela de revisão
+    confirmarPedidoContainer: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
+        padding: 20,
+    },
+
+    // Títulos de seção (Revisão, Forma de Pagamento)
+    confirmarPedidoTitulo: {
+        fontSize: 20, 
+        fontWeight: 'bold', 
+        color: colors.cinzaTecnico,
+        marginBottom: 15,
+        marginTop: 10,
+    },
+
+    // Card que lista os produtos selecionados
+    cardRevisaoItens: {
+        backgroundColor: colors.branco,
+        borderRadius: 15,
+        padding: 15,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        marginBottom: 20,
+    },
+
+    // Linha de cada produto dentro da revisão
+    linhaProdutoRevisao: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        marginBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        paddingBottom: 5,
+    },
+
+    // Botão de seleção de método de pagamento (Pix, Cartão, etc)
+    metodoPagamentoBotao: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        padding: 16, 
+        backgroundColor: colors.branco, 
+        borderRadius: 12, 
+        marginBottom: 12,
+        elevation: 2,
+        borderWidth: 2, // Usado para destacar o selecionado via lógica no arquivo .tsx
+    },
+
+    // Texto descritivo do método de pagamento
+    metodoPagamentoTexto: {
+        marginLeft: 12,
+        fontSize: 16,
+        fontWeight: '500',
+        color: colors.cinzaTecnico,
+    },
+
+    // Rodapé fixo ou final da tela com o valor total
+    totalConfirmacaoContainer: {
+        borderTopWidth: 1, 
+        borderColor: '#EEE', 
+        paddingTop: 15, 
+        marginTop: 10,
+        alignItems: 'flex-end',
+    },
+
+    // Texto do valor total em destaque
+    totalConfirmacaoValor: {
+        fontWeight: 'bold', 
+        fontSize: 22, 
+        color: colors.verdeColheita,
+    },
+
     // =======================================================
     // 🏷️ ESTILOS DA TELA "MINHAS OFERTAS" (CORREÇÃO TOTAL PROFISSIONAL)
     // =======================================================
