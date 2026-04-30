@@ -1,9 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Text, TouchableOpacity, View, DeviceEventEmitter, Alert } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import styles from './styles';
 import Header from './src/components/Header';
+
+// 🟢 IMPORTAÇÕES DO CARRINHO
+import { CartProvider } from './src/context/CartContext'; 
+import CarrinhoModal from './src/components/CarrinhoModal';
 
 // 🚀 TELAS
 import Inicio from './src/pages/Inicio';
@@ -49,8 +53,9 @@ const tabConfig: Record<Exclude<TabKey, 'login' | 'splash'>, { label: string; ic
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
+  const [carrinhoAberto, setCarrinhoAberto] = useState(false); 
+  
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash'>[];
-
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'>('menu');
 
   if (activeTab === 'splash') {
@@ -68,60 +73,80 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <View style={styles.container}>
-        
-        {/* 🟢 HEADER CONFIGURADO PARA MOSTRAR SETA NO 'VENDER' TAMBÉM */}
-        <Header 
-          activeTab={activeTab} 
-          forceShowBack={activeTab === 'perfil' && ['dados', 'enderecos', 'pagamento', 'vender'].includes(subTelaPerfil)} 
-          esconderSetaForçado={false} 
-          onBackPress={() => {
-            if (activeTab === 'perfil') setSubTelaPerfil('menu');
-          }}
-        />
-
-        <View style={styles.content}>
-          {activeTab === 'mapa' && <Mapa />}
-          {activeTab === 'ofertas' && <Ofertas />}
-          {activeTab === 'inicio' && <Inicio />}
-          {activeTab === 'pedidos' && <Pedidos />}
+      <CartProvider> 
+        <View style={styles.container}>
           
-          {activeTab === 'perfil' && (
-            <Perfil 
-              onLogout={() => setActiveTab('login')} 
-              telaAtual={subTelaPerfil}
-              setTelaAtual={setSubTelaPerfil}
-            />
-          )}
+          <Header 
+            activeTab={activeTab} 
+            onAbrirCarrinho={() => setCarrinhoAberto(true)}
+            forceShowBack={activeTab === 'perfil' && ['dados', 'enderecos', 'pagamento', 'vender'].includes(subTelaPerfil)} 
+            esconderSetaForçado={false} 
+            onBackPress={() => {
+              let cliqueFoiInterceptado = false;
+              DeviceEventEmitter.emit('onHeaderBackPress', (handled: boolean) => {
+                cliqueFoiInterceptado = handled;
+              });
+
+              if (!cliqueFoiInterceptado) {
+                if (activeTab === 'perfil') setSubTelaPerfil('menu');
+              }
+            }}
+          />
+
+          <View style={styles.content}>
+            {activeTab === 'mapa' && <Mapa />}
+            {activeTab === 'ofertas' && <Ofertas />}
+            {activeTab === 'inicio' && <Inicio />}
+            {activeTab === 'pedidos' && <Pedidos />}
+            
+            {activeTab === 'perfil' && (
+              <Perfil 
+                onLogout={() => setActiveTab('login')} 
+                telaAtual={subTelaPerfil}
+                setTelaAtual={setSubTelaPerfil}
+              />
+            )}
+          </View>
+
+          {/* 1. O FOOTER VEM ANTES DO MODAL NO CÓDIGO AGORA */}
+          <View style={styles.footer}>
+            {tabs.map((key) => {
+              const isActive = key === activeTab;
+              const tabData = tabConfig[key];
+              const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
+
+              return (
+                <TouchableOpacity
+                  key={key}
+                  style={styles.tabButton}
+                  onPress={() => {
+                    setActiveTab(key);
+                    if (key !== 'perfil') setSubTelaPerfil('menu');
+                  }}
+                  activeOpacity={0.75}
+                >
+                  <IconComponent width={31} height={31} />
+                  <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                    {tabData.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* 2. O MODAL POR ÚLTIMO PARA FICAR NA FRENTE DO MENU DE ABAS */}
+          <CarrinhoModal 
+            visivel={carrinhoAberto} 
+            onFechar={() => setCarrinhoAberto(false)}
+            onFinalizar={() => {
+              setCarrinhoAberto(false);
+              Alert.alert("ColhaHoje", "Pedido enviado com sucesso!");
+            }}
+          />
+
+          <StatusBar style="light" />
         </View>
-
-        <View style={styles.footer}>
-          {tabs.map((key) => {
-            const isActive = key === activeTab;
-            const tabData = tabConfig[key];
-            const IconComponent = isActive ? tabData.iconActive : tabData.iconInactive;
-
-            return (
-              <TouchableOpacity
-                key={key}
-                style={styles.tabButton}
-                onPress={() => {
-                  setActiveTab(key);
-                  if (key !== 'perfil') setSubTelaPerfil('menu');
-                }}
-                activeOpacity={0.75}
-              >
-                <IconComponent width={31} height={31} />
-                <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
-                  {tabData.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <StatusBar style="light" />
-      </View>
+      </CartProvider>
     </QueryClientProvider>
   );
 }

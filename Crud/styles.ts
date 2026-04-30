@@ -154,6 +154,74 @@ const styles = StyleSheet.create({
     },
 
     // =======================================================
+    // 🏷️ ESTILOS DO CONTADOR (BADGE) DA SACOLA NO HEADER
+    // =======================================================
+
+    // Círculo vermelho que fica sobreposto ao ícone da sacola
+    badgeSacola: {
+        position: 'absolute',
+        right: -2,                // Ajuste fino para não cortar o ícone
+        top: -2,                  // Alinhado ao topo do ícone
+        backgroundColor: '#FF4444', // Vermelho vibrante para destaque
+        borderRadius: 10,         // Deixa o fundo redondo
+        minWidth: 18,             // Largura mínima para números com 1 dígito
+        height: 18,               // Altura fixa para manter o círculo
+        justifyContent: 'center', // Centraliza o número verticalmente
+        alignItems: 'center',     // Centraliza o número horizontalmente
+        paddingHorizontal: 4,     // Espaço lateral para números maiores (ex: 10)
+        borderWidth: 1.5,         // Borda para destacar do fundo do header
+        borderColor: colors.verdeColheita, // Cor do header para dar efeito de recorte
+        zIndex: 10,               // Garante que fique em cima de tudo
+    },
+
+    // Texto com a quantidade total de itens dentro do badge
+    badgeText: {
+        color: '#FFFFFF',         // Branco para contraste no fundo vermelho
+        fontSize: 10,             // Tamanho pequeno para caber no círculo
+        fontWeight: 'bold',       // Negrito para facilitar a leitura rápida
+    },
+
+
+    // =======================================================
+    // 🏷️ ESTILOS DA TELA DE CARRINHO (MODAL)
+    // =======================================================
+
+    // Item individual na lista da sacola
+    itemCarrinhoSério: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        borderRadius: 12,
+        padding: 10,
+        marginBottom: 10,
+        elevation: 2,
+    },
+
+    // Miniatura da imagem do produto no carrinho
+    imagemItemCarrinhoSério: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+    },
+
+    // Container do resumo de valores no rodapé do modal
+    footerCarrinhoSério: {
+        borderTopWidth: 1,
+        borderTopColor: '#EEE',
+        paddingTop: 15,
+        marginTop: 10,
+    },
+
+    // Botão grande de finalizar pedido
+    btnFinalizarCarrinhoSério: {
+        backgroundColor: colors.verdeColheita,
+        padding: 15,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginTop: 15,
+    },
+
+    // =======================================================
     // 🔑 ESTILOS DA TELA DE LOGIN (Login.tsx) - LIMPO E CENTRALIZADO
     // =======================================================
 

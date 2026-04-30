@@ -8,11 +8,11 @@ import * as ImagePicker from 'expo-image-picker';
 
 import styles from '../../styles';
 import { colors } from '../../colors';
-import { API_URL } from '../api'; 
+import { API_URL } from '../api';
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;
-  produtoEditando?: any; 
+  produtoEditando?: any;
 }
 
 export default function CadastrarProduto({ onVoltar, produtoEditando }: CadastrarProdutoProps) {
@@ -69,16 +69,17 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
     }
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, 
-      aspect: [4, 3], 
-      quality: 0.7, 
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
     });
-    if (!resultado.canceled) setImagemUri(resultado.assets[0].uri); 
+    if (!resultado.canceled) setImagemUri(resultado.assets[0].uri);
   };
 
   const aumentarQuantidade = () => setQuantidade(quantidade + 1);
   const diminuirQuantidade = () => quantidade > 1 && setQuantidade(quantidade - 1);
 
+  // 🟢 LÓGICA DE UPLOAD USANDO AXIOS COM O TRUQUE DE POST
   const finalizarCadastro = async () => {
     if (!nomeProduto || !preco || !produtorId) {
       Alert.alert("Erro", "Preencha os campos obrigatórios.");
@@ -110,30 +111,47 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
       if (imagemUri && !imagemUri.startsWith('http')) {
         const filename = imagemUri.split('/').pop() || 'foto.jpg';
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-        formData.append('imagem', { uri: imagemUri, name: filename, type } as any); 
+        let type = 'image/jpeg';
+        if (filename.toLowerCase().endsWith('.png')) {
+          type = 'image/png';
+        }
+        formData.append('imagem', { 
+          uri: imagemUri, 
+          name: filename, 
+          type: type 
+        } as any);
+      }
+
+      // 🟢 O truque do Laravel/PHP para aceitar edição de imagem sem barrar a requisição
+      if (produtoEditando) {
+        formData.append('_method', 'PUT');
       }
 
       const config = {
-        method: produtoEditando ? 'put' : 'post',
-        url: produtoEditando ? `${API_URL}/produtos/${produtoEditando.id}` : `${API_URL}/produtos`,
+        method: 'post', // 🟢 Para imagens com FormData, sempre usamos POST
+        url: produtoEditando 
+          ? `${API_URL}/produtos/${produtoEditando.id}` 
+          : `${API_URL}/produtos`,
         data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
       };
 
       const response = await axios(config);
 
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 200 || response.status === 201 || response.status === 204) {
         Alert.alert(
-          "Sucesso!", 
+          "Sucesso!",
           produtoEditando ? "Produto atualizado com sucesso!" : "Produto cadastrado com sucesso!",
           [{ text: "OK", onPress: () => onVoltar() }]
         );
       }
-    } catch (error) {
-      console.error("Erro ao salvar:", error);
-      Alert.alert("Erro", "Não foi possível salvar os dados.");
+
+    } catch (error: any) {
+      console.error("Erro de conexão ao salvar:", error);
+      Alert.alert("Erro", "Não foi possível se conectar ao servidor.");
     } finally {
       setLoading(false);
     }
@@ -141,19 +159,14 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
   return (
     <View style={styles.telaTodaCadastrar}>
-      
-      {/* 🟢 HEADER INTERNO (Seta + Título Alinhados) */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 10 }}>
-        <TouchableOpacity onPress={onVoltar} style={{ padding: 5 }}>
-          <Ionicons name="arrow-back" size={28} color={colors.verdeColheita} />
-        </TouchableOpacity>
-        <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.cinzaTecnico, marginLeft: 15 }}>
-            {produtoEditando ? "Editar Produto" : "Cadastrar Produto"}
+
+      <View style={{ marginBottom: 20 }}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.verdeColheita, marginLeft: 15, marginTop: 10 }}>
+          Cadastrar Produto
         </Text>
       </View>
-
       <ScrollView style={styles.containerScrollCadastrar} showsVerticalScrollIndicator={false}>
-        
+
         <View style={styles.areaFotosCadastrar}>
           <TouchableOpacity style={styles.fotoPrincipalCadastrar} onPress={escolherFoto}>
             {imagemUri ? (
@@ -213,7 +226,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
             <ActivityIndicator color={colors.branco} />
           ) : (
             <Text style={styles.textoBtnCadastrarFinal}>
-                {produtoEditando ? "Salvar Alterações" : "Cadastrar Produto"}
+              {produtoEditando ? "Salvar Alterações" : "Cadastrar Produto"}
             </Text>
           )}
         </TouchableOpacity>

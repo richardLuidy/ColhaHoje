@@ -6,26 +6,28 @@ import styles from '../../styles';
 
 import api, { API_URL } from '../api';
 
+// 🟢 ACESSANDO O CONTEXTO DA SACOLA
+import { useCart } from '../context/CartContext';
+
 export default function Inicio() {
+    const { adicionarAoCarrinho } = useCart();
+
     const [tempoRestante, setTempoRestante] = useState("");
     const [produtos, setProdutos] = useState<any[]>([]);
-    const [todasAsOfertas, setTodasAsOfertas] = useState<any[]>([]); // 🟢 Novo: guarda todas as ofertas
+    const [todasAsOfertas, setTodasAsOfertas] = useState<any[]>([]);
     const [ofertaDestaque, setOfertaDestaque] = useState<any>(null);
     const [carregando, setCarregando] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [agora, setAgora] = useState(new Date().getTime()); // 🟢 Relógio interno para filtros
+    const [agora, setAgora] = useState(new Date().getTime());
 
     const buscarDadosFresquinhos = async () => {
         try {
-            // Busca produtos
             const resProdutos = await api.get('/produtos');
             setProdutos(resProdutos.data);
 
-            // Busca todas as ofertas para podermos filtrar a lista geral
             const resTodasOfertas = await api.get('/ofertas');
             setTodasAsOfertas(resTodasOfertas.data);
 
-            // Busca a oferta de destaque
             const resOferta = await api.get('/ofertas/destaque');
             setOfertaDestaque(resOferta.data || null);
             
@@ -44,11 +46,11 @@ export default function Inicio() {
         buscarDadosFresquinhos().finally(() => setRefreshing(false));
     }, []);
 
-    // 🟢 LÓGICA DO RELÓGIO ATUALIZADA
+    // 🟢 LÓGICA DO CRONÔMETRO
     useEffect(() => {
         const interval = setInterval(() => {
             const timeAgora = new Date().getTime();
-            setAgora(timeAgora); // Atualiza o "agora" para os filtros
+            setAgora(timeAgora);
 
             if (ofertaDestaque) {
                 const criacao = new Date(ofertaDestaque.criado_em).getTime();
@@ -78,25 +80,17 @@ export default function Inicio() {
         );
     }
 
-    // 🧠 INTELIGÊNCIA: Filtra produtos para não mostrar os expirados
+    // 🧠 FILTRO DE PRODUTOS E OFERTAS
     const produtosVisiveis = produtos.filter(produto => {
-        // Se o produto está em oferta, checamos se ela ainda é válida
         const ofertaDeste = todasAsOfertas.find(o => o.produto_id === produto.id);
         if (ofertaDeste) {
             const limite = new Date(ofertaDeste.criado_em).getTime() + (ofertaDeste.duracao_minutos * 60 * 1000);
             const expirou = limite <= agora;
-            if (expirou) return false; // Se expirou, tchau!
+            if (expirou) return false;
         }
-        
-        // Se for o produto do destaque, não mostra na lista de baixo (para não repetir)
         if (produto.id === ofertaDestaque?.produto_id && tempoRestante !== "Expirado") return false;
-
         return true;
     });
-
-    const imagemDestaque = ofertaDestaque?.produto.imagem_url
-        ? { uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }
-        : { uri: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&h=400' };
 
     return (
         <ScrollView
@@ -106,26 +100,47 @@ export default function Inicio() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.verdeColheita]} />}
         >
 
-            {/* 🔴 BANNER INTELIGENTE: Só aparece se não expirou */}
+            {/* 🔴 BANNER OFERTA DESTAQUE */}
             {ofertaDestaque && tempoRestante !== "Expirado" && (
                 <View style={styles.bannerDestaqueSério}>
-                    <ImageBackground source={imagemDestaque} style={styles.bannerImageBackgroundSério} resizeMode="cover">
+                    <ImageBackground 
+                        source={{ uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }} 
+                        style={styles.bannerImageBackgroundSério} 
+                        resizeMode="cover"
+                    >
                         <View style={styles.bannerTopOverlaySério}>
                             <Text style={styles.bannerTitleOverSério}>OFERTA RELÂMPAGO!</Text>
                             <View style={styles.bannerTimerBlockSério}>
                                 <Text style={styles.bannerTimerTextSério}>{tempoRestante}</Text>
                             </View>
                         </View>
+
+                        {/* 🟡 BADGE DE ESTOQUE NO BANNER */}
+                        <View style={{ position: 'absolute', top: 50, right: 15, backgroundColor: '#FFF9C4', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 5 }}>
+                            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FBC02D' }}>
+                                {ofertaDestaque.produto.quantidade_estoque || ofertaDestaque.produto.quantidade} unid.
+                            </Text>
+                        </View>
+
                         <View style={styles.bannerBottomInfoOverlaySério}>
-                            <Text style={styles.bannerBottomNameSério}>{ofertaDestaque.produto.nome_produto}</Text>
-                            <View style={styles.bannerBottomPricesSério}>
-                                <Text style={styles.bannerBottomPriceRiscadoSério}>
-                                    R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
-                                </Text>
-                                <Text style={styles.bannerBottomPriceNovoSério}>
-                                    R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
-                                </Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.bannerBottomNameSério}>{ofertaDestaque.produto.nome_produto}</Text>
+                                <View style={styles.bannerBottomPricesSério}>
+                                    <Text style={styles.bannerBottomPriceRiscadoSério}>
+                                        R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
+                                    </Text>
+                                    <Text style={styles.bannerBottomPriceNovoSério}>
+                                        R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
+                                    </Text>
+                                </View>
                             </View>
+                            
+                            <TouchableOpacity 
+                                style={[styles.btnAddCardNewSério, { width: 45, height: 45 }]}
+                                onPress={() => adicionarAoCarrinho({...ofertaDestaque.produto, preco: ofertaDestaque.preco_promocional})}
+                            >
+                                <Ionicons name="add" size={28} color="#FFF" />
+                            </TouchableOpacity>
                         </View>
                     </ImageBackground>
                 </View>
@@ -143,6 +158,14 @@ export default function Inicio() {
                                 ) : (
                                     <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
                                 )}
+
+                                {/* 🟡 BADGE DE ESTOQUE NO CARD */}
+                                <View style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: '#FFF9C4', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FBC02D' }}>
+                                        {produto.quantidade_estoque || produto.quantidade} unid.
+                                    </Text>
+                                </View>
+
                                 <View style={styles.badgeOrganicoSério}>
                                     <Text style={styles.badgeOrganicoTextSério}>{produto.categoria || "Produto"}</Text>
                                 </View>
@@ -155,7 +178,11 @@ export default function Inicio() {
                                     <Text style={styles.cardCataloguePriceSério}>
                                         R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
                                     </Text>
-                                    <TouchableOpacity style={styles.btnAddCardNewSério}>
+                                    
+                                    <TouchableOpacity 
+                                        style={styles.btnAddCardNewSério}
+                                        onPress={() => adicionarAoCarrinho(produto)}
+                                    >
                                         <Ionicons name="add" size={20} color="#FFF" />
                                     </TouchableOpacity>
                                 </View>

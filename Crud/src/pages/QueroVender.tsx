@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native'; // 🟢 IMPORT DA COMUNICAÇÃO
 import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
@@ -23,54 +24,61 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
 
-  // 🟢 VOLTAMOS O "..." PARA O ESTADO INICIAL DO CONTADOR
   const [totalProdutos, setTotalProdutos] = useState<number | string>('...');
-
   const [filtroAtivo, setFiltroAtivo] = useState<'Todos' | 'Catálogo' | 'Ofertas'>('Todos');
   const [ofertasBrutas, setOfertasBrutas] = useState<any[]>([]);
   const [agora, setAgora] = useState(new Date().getTime());
 
+  const fecharTudoEAtualizar = useCallback(() => {
+    setAbrindoCadastro(false);
+    setVendoMinhasOfertas(false);
+    setProdutoParaEditar(null);
+    setTotalProdutos('...'); 
+    setListaProdutosEstoque([]);
+    setTimeout(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 500);
+  }, []);
+
+  // 🟢 A MÁGICA ACONTECE AQUI: O QueroVender escuta o clique na seta do Header
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAgora(new Date().getTime());
-    }, 60000);
+    const subscription = DeviceEventEmitter.addListener('onHeaderBackPress', (callback) => {
+      if (abrindoCadastro || vendoMinhasOfertas) {
+        // Se estiver dentro de Cadastrar Produto ou Minhas Ofertas, fecha eles!
+        fecharTudoEAtualizar();
+        callback(true); // Diz pro App.tsx: "Deixa comigo, eu já fechei a tela interna!"
+      } else {
+        // Se estiver na tela normal do QueroVender, não faz nada e deixa o App voltar pro Perfil.
+        callback(false); 
+      }
+    });
+
+    return () => subscription.remove();
+  }, [abrindoCadastro, vendoMinhasOfertas, fecharTudoEAtualizar]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setAgora(new Date().getTime()), 60000);
     return () => clearInterval(interval);
   }, []);
 
   const buscarDadosEstoque = useCallback(async () => {
     try {
       const idSalvo = await AsyncStorage.getItem('user_id');
-      if (!idSalvo) {
-        setTotalProdutos(0);
-        setListaProdutosEstoque([]);
-        return;
-      }
+      if (!idSalvo) return;
 
-      // 🟢 BUSCA A CONTAGEM INTELIGENTE DO BACKEND (JÁ FILTRADA)
-      const responseContar = await axios.get(`${API_URL}/produtos/contar/${idSalvo}`, {
-        params: { _cache: Date.now() }
-      });
-      if (responseContar.status === 200) {
-        setTotalProdutos(responseContar.data.total);
-      }
+      const responseContar = await axios.get(`${API_URL}/produtos/contar/${idSalvo}`, { params: { _cache: Date.now() } });
+      if (responseContar.status === 200) setTotalProdutos(responseContar.data.total);
 
-      const responseLista = await axios.get(`${API_URL}/produtos?produtor_id=${idSalvo}`, {
-        params: { _cache: Date.now() }
-      });
+      const responseLista = await axios.get(`${API_URL}/produtos?produtor_id=${idSalvo}`, { params: { _cache: Date.now() } });
       if (responseLista.status === 200) setListaProdutosEstoque(responseLista.data);
 
-      try {
-        const responseOfertas = await axios.get(`${API_URL}/ofertas`);
-        const minhasOft = responseOfertas.data.filter((o: any) => o.produto.produtor_id === parseInt(idSalvo));
-        setOfertasBrutas(minhasOft);
-      } catch (e) {
-        console.log("Erro ao buscar ofertas", e);
-      }
+      const responseOfertas = await axios.get(`${API_URL}/ofertas`);
+      const minhasOft = responseOfertas.data.filter((o: any) => o.produto.produtor_id === parseInt(idSalvo));
+      setOfertasBrutas(minhasOft);
 
     } catch (error) {
-      console.error("Erro ao buscar dados do estoque:", error);
+      console.error("Erro ao buscar dados:", error);
       setTotalProdutos(0);
-      setListaProdutosEstoque([]);
     }
   }, []);
 
@@ -78,86 +86,42 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     buscarDadosEstoque();
   }, [refreshKey, buscarDadosEstoque]);
 
-  const abrirMenuOpcoes = (produto: any) => {
-    const ofertaExistente = ofertasBrutas.find(o => o.produto.id === produto.id);
-    const taEmOferta = !!ofertaExistente;
-
+  const confirmarExclusao = (id: number, nome: string) => {
     Alert.alert(
-      "Gerenciar Produto",
-      `O que deseja fazer com "${produto.nome_produto}"?`,
+      "Confirmar Exclusão",
+      `Deseja apagar o produto "${nome}"? Esta ação não pode ser desfeita.`,
       [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: taEmOferta ? "Gerenciar Oferta ⚡" : "Criar Oferta ⚡",
-          onPress: () => {
-            setProdutoParaEditar(produto);
-            setModalOfertaAberto(true);
-          }
-        },
-        {
-          text: "Editar Produto 📦",
-          onPress: () => {
-            setProdutoParaEditar(produto);
-            setAbrindoCadastro(true);
-          }
-        },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => confirmarExclusao(produto.id, produto.nome_produto)
+        { text: "Não", style: "cancel" },
+        { 
+          text: "Sim, Excluir", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await axios.delete(`${API_URL}/produtos/${id}`);
+              setRefreshKey(prev => prev + 1);
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível excluir.");
+            }
+          } 
         }
       ]
     );
   };
 
-  const confirmarExclusao = (id: number, nome: string) => {
-    Alert.alert(
-      "Confirmar Exclusão",
-      `Deseja realmente apagar o produto "${nome}"? Esta ação não pode ser desfeita.`,
-      [
-        { text: "Não", style: "cancel" },
-        { text: "Sim, Excluir", style: "destructive", onPress: () => deletarProduto(id) }
-      ]
-    );
+  const abrirMenuOpcoes = (produto: any) => {
+    const taEmOferta = ofertasBrutas.some(o => o.produto.id === produto.id);
+    Alert.alert("Opções do Produto", produto.nome_produto, [
+      { text: "Cancelar", style: "cancel" },
+      { text: taEmOferta ? "Gerenciar Oferta ⚡" : "Criar Oferta ⚡", onPress: () => { setProdutoParaEditar(produto); setModalOfertaAberto(true); } },
+      { text: "Editar Detalhes 📦", onPress: () => { setProdutoParaEditar(produto); setAbrindoCadastro(true); } }
+    ]);
   };
 
-  const deletarProduto = async (id: number) => {
-    try {
-      const response = await axios.delete(`${API_URL}/produtos/${id}`);
-      if (response.status === 200) {
-        Alert.alert("Sucesso", "Produto removido com sucesso!");
-        setRefreshKey(prev => prev + 1);
-      }
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível excluir o produto.");
-    }
-  };
-
-  const fecharTudoEAtualizar = () => {
-    setAbrindoCadastro(false);
-    setVendoMinhasOfertas(false);
-    setProdutoParaEditar(null);
-    setTotalProdutos('...'); // Reseta para os pontinhos ao atualizar
-    setListaProdutosEstoque([]);
-    setTimeout(() => {
-      setRefreshKey(prev => prev + 1);
-    }, 500);
-  };
-
-  if (abrindoCadastro) {
-    return <CadastrarProduto key={`cad-${refreshKey}`} onVoltar={fecharTudoEAtualizar} produtoEditando={produtoParaEditar} />;
-  }
-
-  if (vendoMinhasOfertas) {
-    return <MinhasOfertas onVoltar={fecharTudoEAtualizar} />;
-  }
-
-  // 🟢 FILTRO DE INTERFACE (Apenas para esconder da lista o que expirou)
   const produtosFiltrados = listaProdutosEstoque.filter((produto) => {
     const ofertaDesteProduto = ofertasBrutas.find(o => o.produto.id === produto.id);
     if (ofertaDesteProduto) {
-      const dataExpiracao = new Date(ofertaDesteProduto.criado_em).getTime() + (ofertaDesteProduto.duracao_minutos * 60 * 1000);
-      if (dataExpiracao <= agora) return false;
+      const limite = new Date(ofertaDesteProduto.criado_em).getTime() + (ofertaDesteProduto.duracao_minutos * 60 * 1000);
+      if (limite <= agora) return false;
       if (filtroAtivo === 'Catálogo') return false;
     } else {
       if (filtroAtivo === 'Ofertas') return false;
@@ -165,14 +129,13 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     return true; 
   });
 
+  if (abrindoCadastro) return <CadastrarProduto key={`cad-${refreshKey}`} onVoltar={fecharTudoEAtualizar} produtoEditando={produtoParaEditar} />;
+  if (vendoMinhasOfertas) return <MinhasOfertas onVoltar={fecharTudoEAtualizar} />;
+
   return (
-    <ScrollView key={`dash-${refreshKey}`} contentContainerStyle={styles.containerQueroVenderSério} showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={styles.containerQueroVenderSério} showsVerticalScrollIndicator={false}>
       
-      {/* 🟢 HEADER COM SETA */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 20 }}>
-        <TouchableOpacity onPress={onVoltar} style={{ padding: 5, marginRight: 10 }}>
-            <Ionicons name="arrow-back" size={28} color={colors.verdeColheita} />
-        </TouchableOpacity>
+      <View style={{ marginTop: 10, marginBottom: 20, marginLeft: 5 }}>
         <Text style={styles.tituloSessaoItalicoSério}>Painel de Vendas</Text>
       </View>
 
@@ -180,29 +143,13 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Vendas do Dia</Text>
           <Text style={styles.cardValorSério}>R$ 0,00</Text>
-          <View style={styles.areaInfoVendasSério}>
-            <View style={styles.areaGreyDotsSério}>
-              {[...Array(6)].map((_, i) => <View key={i} style={styles.greyDotSério} />)}
-            </View>
-            <View style={styles.badgeVerdeSério}>
-              <Text style={styles.badgeTextoSério}>+0%</Text>
-            </View>
-          </View>
         </View>
-
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Produtos Ativos</Text>
-          {/* 🟢 EXIBE O TOTAL VINDO DA API (QUE JÁ É INTELIGENTE) OU OS PONTINHOS */}
           <Text style={styles.cardValorSério}>{totalProdutos}</Text>
-          <View style={styles.areaPlantIconsSério}>
-            <Ionicons name="nutrition-outline" size={20} color="#999" />
-            <Ionicons name="leaf-outline" size={20} color="#999" />
-            <Ionicons name="flower-outline" size={20} color="#999" />
-          </View>
         </View>
       </View>
 
-      {/* ... Resto do código (Destaque, Cadastrar, Central) igual ao anterior ... */}
       <View style={styles.cardDestaqueBrancaoSério}>
         <View style={styles.headerDestaqueSério}>
           <Text style={styles.tituloSessaoSério}>Destaque seu Produto!</Text>
@@ -250,13 +197,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
           <TouchableOpacity
             key={filtro}
             onPress={() => setFiltroAtivo(filtro as any)}
-            style={{
-              paddingHorizontal: 16,
-              paddingVertical: 6,
-              borderRadius: 20,
-              backgroundColor: filtroAtivo === filtro ? colors.verdeColheita : '#F0F0F0',
-              marginRight: 10,
-            }}
+            style={{ paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20, backgroundColor: filtroAtivo === filtro ? colors.verdeColheita : '#F0F0F0', marginRight: 10 }}
           >
             <Text style={{ color: filtroAtivo === filtro ? '#FFF' : colors.placeholder, fontWeight: 'bold', fontSize: 12 }}>{filtro}</Text>
           </TouchableOpacity>
@@ -295,9 +236,15 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
                 <Text style={styles.quantidadeEstoqueSério}>{produto.quantidade} unid.</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.btnOpcoesEstoqueSério} onPress={() => abrirMenuOpcoes(produto)}>
-              <Ionicons name="ellipsis-vertical" size={20} color={colors.placeholder} />
-            </TouchableOpacity>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity style={{ padding: 10 }} onPress={() => abrirMenuOpcoes(produto)}>
+                    <Ionicons name="ellipsis-vertical" size={20} color={colors.placeholder} />
+                </TouchableOpacity>
+                <TouchableOpacity style={{ padding: 10 }} onPress={() => confirmarExclusao(produto.id, produto.nome_produto)}>
+                    <Ionicons name="trash-outline" size={22} color="#D32F2F" />
+                </TouchableOpacity>
+            </View>
           </View>
         );
       })}

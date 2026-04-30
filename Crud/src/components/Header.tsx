@@ -4,13 +4,15 @@ import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { colors } from '../../colors';
 import styles from '../../styles';
 
+// 🟢 Hook para acessar as informações globais do carrinho
+import { useCart } from '../context/CartContext';
+
 // Importar SVGs diretamente
 import LupaBranca from '../../src/assets/Lupa_Branca.svg';
 import LupaPreta from '../../src/assets/Lupa_Preta.svg';
 import SacolaBranca from '../../src/assets/Sacola_Branca.svg';
 import SetaVoltarBranca from '../../src/assets/Seta_Voltar_Branca.svg';
 
-// 🟢 Definindo o tipo TabKey para matar o erro do VS Code
 type TabKey = 'inicio' | 'mapa' | 'ofertas' | 'pedidos' | 'perfil' | 'login' | 'cadastro';
 
 const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActions?: boolean }> = {
@@ -26,20 +28,42 @@ const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActi
 interface HeaderProps {
     activeTab: TabKey;
     onBackPress?: () => void;
+    onAbrirCarrinho?: () => void; // 🟢 Nova prop para abrir a sacola
     forceShowBack?: boolean;
-    esconderSetaForçado?: boolean; // 🟢 Nova prop para sumir com a seta quando quisermos
+    esconderSetaForçado?: boolean;
 }
 
-export default function Header({ activeTab, onBackPress, forceShowBack, esconderSetaForçado }: HeaderProps) {
+export default function Header({ 
+    activeTab, 
+    onBackPress, 
+    onAbrirCarrinho, // 🟢 Recebendo a prop
+    forceShowBack, 
+    esconderSetaForçado 
+}: HeaderProps) {
     const [isSearching, setIsSearching] = useState(false);
+    
+    // 🟢 Puxando a quantidade de itens do contexto global
+    const { quantidadeTotal } = useCart();
 
-    // Se for login ou cadastro, o header nem aparece
     if (activeTab === 'login' || activeTab === 'cadastro') return null;
     
     const currentHeader = headerConfig[activeTab];
-
-    // 🟢 Lógica de botão de voltar: se 'esconderSetaForçado' for true, a seta NUNCA aparece
     const showBackButton = esconderSetaForçado ? false : (currentHeader?.showBack || forceShowBack);
+
+    // 🟢 Componente auxiliar atualizado para disparar a abertura do modal
+    const BotaoSacola = () => (
+        <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={onAbrirCarrinho} // 🟢 Acionando a função ao clicar
+        >
+            <SacolaBranca width={28} height={28} />
+            {quantidadeTotal > 0 && (
+                <View style={styles.badgeSacola}>
+                    <Text style={styles.badgeText}>{quantidadeTotal}</Text>
+                </View>
+            )}
+        </TouchableOpacity>
+    );
 
     if (isSearching) {
         return (
@@ -61,9 +85,7 @@ export default function Header({ activeTab, onBackPress, forceShowBack, esconder
                         />
                     </View>
 
-                    <TouchableOpacity style={styles.iconButton}>
-                        <SacolaBranca width={28} height={28} />
-                    </TouchableOpacity>
+                    <BotaoSacola />
                 </View>
             </View>
         );
@@ -90,9 +112,7 @@ export default function Header({ activeTab, onBackPress, forceShowBack, esconder
                             <LupaBranca width={28} height={28} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.iconButton}>
-                            <SacolaBranca width={28} height={28} />
-                        </TouchableOpacity>
+                        <BotaoSacola />
                     </>
                 )}
             </View>

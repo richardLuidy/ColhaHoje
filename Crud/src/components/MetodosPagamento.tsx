@@ -117,12 +117,46 @@ export default function MetodosPagamento({ onVoltar }: MetodosPagamentoProps) {
                 contentContainerStyle={{ paddingHorizontal: 15, paddingVertical: 20, flexGrow: 1 }} 
                 showsVerticalScrollIndicator={false}
             >
-                {/* 🟢 TÍTULO LIMPO (SEM HEADER INTERNO) */}
-                <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.cinzaTecnico, marginBottom: 25 }}>
-                    Meus Cartões
+                {/* 🟢 TÍTULO PRINCIPAL */}
+                <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.cinzaTecnico, marginBottom: 5 }}>
+                    Opções de Pagamento
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.placeholder, marginBottom: 25 }}>
+                    Gerencie como você paga suas cestas no ColhaHoje.
                 </Text>
 
-                {/* 🟢 LISTA OCUPANDO 100% DA LARGURA */}
+                {/* 🟢 SESSÃO 1: PAGAMENTO NA ENTREGA E PIX (NOVOS CARDS) */}
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.cinzaTecnico, marginBottom: 15 }}>
+                    Outros Métodos (Na finalização do pedido)
+                </Text>
+
+                <View style={{ backgroundColor: '#FFF', borderRadius: 15, padding: 15, marginBottom: 10, elevation: 2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: '#E0F2F1', padding: 10, borderRadius: 10, marginRight: 15 }}>
+                        <Ionicons name="qr-code-outline" size={28} color="#00BFA5" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.cinzaTecnico }}>PIX</Text>
+                        <Text style={{ fontSize: 12, color: colors.placeholder, marginTop: 2 }}>Código gerado na finalização da compra.</Text>
+                    </View>
+                    <Ionicons name="checkmark-circle" size={24} color="#00BFA5" />
+                </View>
+
+                <View style={{ backgroundColor: '#FFF', borderRadius: 15, padding: 15, marginBottom: 30, elevation: 2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: '#FFF3E0', padding: 10, borderRadius: 10, marginRight: 15 }}>
+                        <Ionicons name="cash-outline" size={28} color="#FF9800" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.cinzaTecnico }}>Pagar na Entrega</Text>
+                        <Text style={{ fontSize: 12, color: colors.placeholder, marginTop: 2 }}>Dinheiro ou Maquininha com o produtor.</Text>
+                    </View>
+                    <Ionicons name="checkmark-circle" size={24} color="#FF9800" />
+                </View>
+
+                {/* 🟢 SESSÃO 2: CARTÕES SALVOS */}
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.cinzaTecnico, marginBottom: 15 }}>
+                    Pagar pelo App (Cartões Salvos)
+                </Text>
+
                 {cartoes.map((cartao) => {
                     const estilo = obterEstiloBandeira(cartao.bandeira);
                     return (
@@ -155,14 +189,16 @@ export default function MetodosPagamento({ onVoltar }: MetodosPagamentoProps) {
                 })}
 
                 {cartoes.length === 0 && (
-                    <View style={{ alignItems: 'center', marginTop: 40, marginBottom: 40 }}>
-                        <Ionicons name="card-outline" size={80} color="#CCC" />
-                        <Text style={{ color: colors.placeholder, marginTop: 15 }}>Nenhum cartão salvo.</Text>
+                    <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 20, backgroundColor: '#FFF', padding: 20, borderRadius: 15, elevation: 1 }}>
+                        <Ionicons name="card-outline" size={50} color="#CCC" />
+                        <Text style={{ color: colors.placeholder, marginTop: 10, textAlign: 'center' }}>
+                            Nenhum cartão salvo.{'\n'}Adicione um cartão para compras rápidas.
+                        </Text>
                     </View>
                 )}
 
                 <TouchableOpacity 
-                    style={[styles.btnAdicionarCartaoSério, { width: '100%', height: 55, marginTop: 10 }]} 
+                    style={[styles.btnAdicionarCartaoSério, { width: '100%', height: 55, marginTop: 10, marginBottom: 30 }]} 
                     onPress={() => setModalAberto(true)}
                 >
                     <Ionicons name="add-circle-outline" size={24} color="#FFF" />
@@ -172,7 +208,7 @@ export default function MetodosPagamento({ onVoltar }: MetodosPagamentoProps) {
                 </TouchableOpacity>
             </ScrollView>
 
-            {/* 🟢 MODAL DE CADASTRO */}
+            {/* 🟢 MODAL DE CADASTRO (MANTIDO INTACTO) */}
             <Modal visible={modalAberto} animationType="slide" transparent={true}>
                 <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
                     <View style={{ backgroundColor: '#FFF', padding: 25, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
