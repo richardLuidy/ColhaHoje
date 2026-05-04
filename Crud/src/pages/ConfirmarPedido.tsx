@@ -11,11 +11,11 @@ export default function ConfirmarPedido({ onFinalizado }: { onFinalizado: () => 
     const [carregando, setCarregando] = useState(false);
     const [metodoPagamento, setMetodoPagamento] = useState('Pix');
 
-    const finalizarCompra = async () => {
+   const finalizarCompra = async () => {
         setCarregando(true);
         try {
             const dadosPedido = {
-                usuario_id: 1,
+                cliente_id: 1, // 🟢 CORREÇÃO: Antes estava usuario_id
                 total: valorTotal,
                 metodo_pagamento: metodoPagamento,
                 itens: items.map(item => ({
@@ -26,10 +26,10 @@ export default function ConfirmarPedido({ onFinalizado }: { onFinalizado: () => 
             };
 
             await api.post('/pedidos', dadosPedido);
-
+            
             Alert.alert("Sucesso!", "Seu pedido foi enviado para o produtor!");
             limparCarrinho();
-            onFinalizado();
+            onFinalizado(); 
         } catch (error) {
             console.error(error);
             Alert.alert("Erro", "Não foi possível enviar seu pedido.");

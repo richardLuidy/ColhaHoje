@@ -1430,105 +1430,210 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
 
-    // =======================================================
-    // 📦 ESTILOS DA TELA DE PEDIDOS
+   // =======================================================
+    // 📦 ESTILOS DA TELA DE PEDIDOS 
     // =======================================================
 
-    // Container das Abas: Força a largura total e alinha os itens na base
-    // Container das Abas: Ocupa a largura toda e tira qualquer recuo lateral
     pedidosTabContainer: {
         flexDirection: 'row',
         backgroundColor: colors.branco,
         width: '100%',
         borderBottomWidth: 1,
-        borderColor: '#E0E0E0', // Linha cinza de fundo
+        borderColor: '#E0E0E0', 
     },
-
-    // Botão da aba: flex: 1 garante que cada um ocupe exatamente 50% da tela
     pedidosTabButton: {
         flex: 1,
         paddingVertical: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        // A mágica: se estiver ativo, a borda verde aparece aqui e cobre a cinza
         borderBottomWidth: 0,
     },
-
-    // Estilo extra para quando a aba estiver ativa (adiciona a borda verde  ("pedidos em andamento"))
     pedidosTabActive: {
         borderBottomWidth: 3,
         borderColor: colors.verdeColheita,
-        marginBottom: -1, // Faz a linha verde ficar por cima da cinza
+        marginBottom: -1, 
     },
-
-    // Estilo extra para quando a aba estiver ativa (adiciona a borda verde("Histórico"))
     pedidosTabActiveIndicator: {
         borderBottomWidth: 3,
         borderColor: colors.verdeColheita,
-        marginBottom: -1, // Faz a linha verde ficar por cima da cinza
+        marginBottom: -1, 
     },
-
-
-
-    // Texto das abas: Ajustado para o tamanho e estilo do design
     pedidosTabText: {
         fontWeight: 'bold',
         fontSize: 12,
         letterSpacing: 0.5,
         textAlign: 'center',
     },
-
-    // Container do Cartão de Pedido (Mantendo o seu padrão)
-    pedidoCard: {
-        backgroundColor: colors.branco,
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 15,
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 20,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-    },
-
-    // Espaço para imagem/ícone dentro do cartão
-    pedidoIconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 8,
-        backgroundColor: '#f0f0f0',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    // Informações de texto do pedido (Nome, Valor)
-    pedidoInfoContainer: {
-        flex: 1,
-        marginLeft: 15,
-    },
-
-    // Badge de Status (Pendente, Entregue, etc)
-    pedidoStatusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-
-    // Texto dentro do Badge de Status
-    pedidoStatusText: {
-        fontSize: 11,
-        fontWeight: 'bold',
-        textTransform: 'uppercase', // Garante que fique em caixa alta
-    },
-
-    // Estilo para quando a lista está vazia
     pedidosEmptyContainer: {
         alignItems: 'center',
         marginTop: 100,
     },
 
+    // 🟢 ESTILOS DO NOVO CARD DO FIGMA
+    pedidoCardFigma: {
+        backgroundColor: colors.branco,
+        borderRadius: 12,
+        padding: 15,
+        marginBottom: 15,
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        marginHorizontal: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        borderWidth: 1.5,
+        borderColor: '#2F5233', 
+    },
+    pedidoHeader: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 20 
+    },
+    pedidoIdText: {
+        fontSize: 16, 
+        fontWeight: 'bold', 
+        color: '#374151' 
+    },
+    pedidoBadgeStatus: {
+        flexDirection: 'row', 
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+    pedidoBadgeText: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        marginLeft: 4,
+    },
+    
+    // LINHA DO TEMPO (STEPPER)
+    pedidoStepperContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: 20 
+    },
+    pedidoStep: {
+        alignItems: 'center', 
+        flex: 1 
+    },
+    pedidoStepCircle: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2,
+    },
+    pedidoStepLine: {
+        height: 2,
+        flex: 1,
+        position: 'relative',
+        top: -8, 
+        marginHorizontal: -15, 
+        zIndex: 1,
+    },
+    pedidoStepLabel: {
+        fontSize: 10,
+        marginTop: 6,
+        textAlign: 'center',
+    },
+    pedidoDivisor: {
+        height: 1, 
+        backgroundColor: '#F3F4F6', 
+        marginBottom: 16 
+    },
+
+    // INFO DO PRODUTO
+    pedidoProdutoContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        marginBottom: 16 
+    },
+    pedidoIconContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        backgroundColor: '#E5E7EB',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    pedidoProdutoImagem: {
+        width: '100%', 
+        height: '100%', 
+        borderRadius: 8 
+    },
+    pedidoInfoContainer: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    pedidoProdutoTitulo: {
+        fontWeight: 'bold', 
+        fontSize: 16, 
+        color: '#111827' 
+    },
+    pedidoProdutoSub: {
+        color: '#6B7280', 
+        fontSize: 12, 
+        marginTop: 2 
+    },
+
+    // PREVISÃO
+    pedidoPrevisaoContainer: {
+        marginBottom: 16 
+    },
+    pedidoPrevisaoLabel: {
+        fontSize: 14, 
+        color: '#F59E0B' 
+    },
+    pedidoPrevisaoData: {
+        fontSize: 14, 
+        color: '#F59E0B', 
+        fontWeight: 'bold' 
+    },
+
+    // BOTÕES DE AÇÃO
+    pedidoBotoesContainer: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between' 
+    },
+    pedidoBtnRastrear: {
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#2F5233',
+        paddingVertical: 10,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    pedidoBtnRastrearTexto: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 12,
+        marginLeft: 6,
+    },
+    pedidoBtnFalar: {
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#FFF',
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        paddingVertical: 10,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    pedidoBtnFalarTexto: {
+        color: '#4B5563',
+        fontWeight: 'bold',
+        fontSize: 12,
+        marginLeft: 6,
+    },
 
     // =======================================================
     // 💳 ESTILOS DA TELA DE CONFIRMAR PEDIDO

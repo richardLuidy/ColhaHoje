@@ -456,23 +456,22 @@ app.delete('/cartoes/:id', async (req, res) => {
 });
 
 // =======================================================
-// 🛒 ROTAS DE PEDIDOS (NOVO & INTEGRADO)
+// 🛒 ROTAS DE PEDIDOS (TOTALMENTE ATUALIZADO)
 // =======================================================
 
 app.post('/pedidos', async (req, res) => {
     try {
-        const { usuario_id, total, metodo_pagamento, itens } = req.body;
+        // 🟢 MUDANÇA AQUI: Recebendo cliente_id do frontend
+        const { cliente_id, total, metodo_pagamento, itens } = req.body;
 
-        if (!usuario_id || !itens || itens.length === 0) {
+        if (!cliente_id || !itens || itens.length === 0) {
             return res.status(400).json({ error: "Dados do pedido incompletos" });
         }
 
-        // Transação para criar pedido e atualizar estoque
         const resultado = await prisma.$transaction(async (tx) => {
-            // 1. Criar o pedido
             const pedido = await tx.pedidos.create({
                 data: {
-                    usuario_id: parseInt(usuario_id),
+                    cliente_id: parseInt(cliente_id), // 🟢 MUDANÇA AQUI: usando cliente_id
                     total: parseFloat(total),
                     metodo_pagamento,
                     status: 'pendente',
@@ -480,13 +479,12 @@ app.post('/pedidos', async (req, res) => {
                         create: itens.map(item => ({
                             produto_id: parseInt(item.produto_id),
                             quantidade: parseInt(item.quantidade),
-                            preco_unitario: parseFloat(item.preco_unitario)
+                            preco_unit: parseFloat(item.preco_unitario) // 🟢 MUDANÇA AQUI: usando preco_unit
                         }))
                     }
                 }
             });
 
-            // 2. Dar baixa no estoque
             for (const item of itens) {
                 await tx.produtos.update({
                     where: { id: parseInt(item.produto_id) },
@@ -507,17 +505,18 @@ app.post('/pedidos', async (req, res) => {
     }
 });
 
-app.get('/pedidos/usuario/:usuario_id', async (req, res) => {
+// 🟢 MUDANÇA AQUI: Rota usando cliente_id
+app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
     try {
-        const usuario_id = parseInt(req.params.usuario_id);
+        const cliente_id = parseInt(req.params.cliente_id);
         const listaPedidos = await prisma.pedidos.findMany({
-            where: { usuario_id: usuario_id },
+            where: { cliente_id: cliente_id }, // 🟢 MUDANÇA AQUI
             include: {
                 itens: {
                     include: { produto: true }
                 }
             },
-            orderBy: { created_at: 'desc' }
+            orderBy: { data_pedido: 'desc' } // 🟢 MUDANÇA AQUI: usando data_pedido
         });
         res.json(listaPedidos);
     } catch (error) {
