@@ -31,7 +31,9 @@ export default function Mapa() {
                 return;
             }
 
-            const location = await Location.getCurrentPositionAsync({});
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Low, // 🟢 Força uma busca mais rápida
+            });
             const region: Region = {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -65,6 +67,7 @@ export default function Mapa() {
     return (
         <View style={styles.container}>
             <MapView
+                provider="google" // 🟢 ADICIONE ESTA LINHA AQUI
                 style={styles.map}
                 initialRegion={localizacaoUsuario || {
                     latitude: -23.5505,
@@ -75,12 +78,13 @@ export default function Mapa() {
                 showsUserLocation={true}
                 showsMyLocationButton={true}
             >
-                {produtores.map((produtor) => (
+                {/* 🟢 O código dos marcadores deve ficar DENTRO do MapView */}
+                {produtores.map((produtor: any) => (
                     <Marker
                         key={produtor.id}
                         coordinate={{
-                            latitude: produtor.latitude,
-                            longitude: produtor.longitude,
+                            latitude: parseFloat(produtor.latitude),
+                            longitude: parseFloat(produtor.longitude),
                         }}
                         title={produtor.nome_produtor}
                         description={`${produtor.nome_produto} - R$ ${produtor.preco}`}
