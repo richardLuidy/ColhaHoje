@@ -1208,98 +1208,76 @@ const styles = StyleSheet.create({
         letterSpacing: -0.5, // Títulos mais juntos parecem mais profissionais
     },
 
-    // =======================================================
-    // ⚡ DESTAQUE BANNER (OFERTA RELÂMPAGO) - REFINADO
-    // =======================================================
-
+   // ⚡ ESTILOS DO BANNER OFERTA RELÂMPAGO CORRIGIDOS
     bannerDestaqueSério: {
-        height: 210,
-        borderRadius: 24, // Bordas mais arredondadas (estilo iOS/Premium)
+        width: '100%', // Agora ocupa toda a largura disponível
+        height: 220,
+        borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 10,
-        backgroundColor: '#000',
-        // Sombra mais suave e espalhada
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
+        backgroundColor: '#FFF', 
+        flexDirection: 'row', 
+        elevation: 4,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        marginBottom: 15,
     },
-
-    bannerImageBackgroundSério: {
+    bannerEsquerdaSério: {
+        flex: 1.2,
+        padding: 16,
+        justifyContent: 'space-between',
+    },
+    bannerDireitaSério: {
         flex: 1,
     },
-
-    bannerTopOverlaySério: {
+    bannerImageSério: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    bannerBadgesRowSério: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 20,
     },
-
-    bannerTitleOverSério: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: '900',
-        textTransform: 'uppercase', // Estilo etiqueta de destaque
-        letterSpacing: 1,
-        textShadowColor: 'rgba(0, 0, 0, 0.3)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4,
-    },
-
-    bannerTimerBlockSério: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)', // Quase opaco para ser o foco
-        paddingHorizontal: 14,
-        paddingVertical: 6,
-        borderRadius: 12,
-    },
-
-    bannerTimerTextSério: {
-        color: '#1A1A1A',
-        fontSize: 15,
-        fontWeight: 'bold',
-        fontVariant: ['tabular-nums'], // Garante que os números não fiquem sambando
-    },
-
-    bannerBottomInfoOverlaySério: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        // Gradiente simulado: fundo escuro suave para leitura do texto branco
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        padding: 18,
-        paddingTop: 30, // Mais espaço pro texto respirar
-    },
-
-    bannerBottomNameSério: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 20,
-        marginBottom: 4,
-    },
-
-    bannerBottomPricesSério: {
+    badgeRelampagoSério: {
+        backgroundColor: '#2E7D32',
         flexDirection: 'row',
-        alignItems: 'baseline',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
     },
-
-    bannerBottomPriceRiscadoSério: {
-        color: 'rgba(255, 255, 255, 0.6)',
-        textDecorationLine: 'line-through',
-        marginRight: 10,
-        fontSize: 14,
+    badgeTimerSério: {
+        backgroundColor: '#FFB800',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+        marginTop: 5, // Espaço entre as etiquetas
     },
-
-    bannerBottomPriceNovoSério: {
-        color: '#FFB800', // Um amarelo/laranja mais sofisticado (Gold)
-        fontWeight: '900',
-        fontSize: 22,
+    badgeTextBrancoSério: {
+        color: '#FFF',
+        fontSize: 11,
+        fontWeight: 'bold',
+        marginLeft: 4,
+    },
+    bannerPorApenasSério: {
+        fontSize: 12,
+        color: '#888',
+        marginVertical: 2,
+    },
+    bannerBotaoAdicionarSério: {
+        backgroundColor: '#2E7D32',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+        borderRadius: 20,
+        width: '100%',
     },
 
     // =======================================================
-    // 🛒 CATÁLOGO DE PRODUTOS (ESTILO FIGMA + PALETA OFICIAL)
+    // 🛒CARD CATÁLOGO DE PRODUTOS Inicio.tsx 
     // =======================================================
 
 
@@ -1547,7 +1525,7 @@ const styles = StyleSheet.create({
         marginBottom: 16 
     },
 
-    // INFO DO PRODUTO
+    // INFO DO PRODUTO ORIGINAL (Mantido para compatibilidade, mas o layout novo usa as classes abaixo)
     pedidoProdutoContainer: {
         flexDirection: 'row', 
         alignItems: 'center', 
@@ -1572,7 +1550,7 @@ const styles = StyleSheet.create({
     },
     pedidoProdutoTitulo: {
         fontWeight: 'bold', 
-        fontSize: 16, 
+        fontSize: 14, 
         color: '#111827' 
     },
     pedidoProdutoSub: {
@@ -1633,6 +1611,99 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
         marginLeft: 6,
+    },
+
+    // ==========================================
+    // 🆕 NOVOS ESTILOS (LISTA DE ITENS E ENDEREÇO)
+    // ==========================================
+    
+    pedidoSecaoHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    pedidoSecaoTitulo: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#374151',
+        marginLeft: 8,
+    },
+    pedidoListaItens: {
+        marginBottom: 8,
+    },
+    pedidoItemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    pedidoItemIconContainer: {
+        width: 50,
+        height: 50,
+        borderRadius: 8,
+        backgroundColor: '#E5E7EB',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden', 
+    },
+    pedidoItemInfoCenter: {
+        flex: 1,
+        marginLeft: 12,
+        justifyContent: 'center',
+    },
+    pedidoItemInfoRight: {
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    pedidoItemQtdBadge: {
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        backgroundColor: '#F9FAFB',
+        borderRadius: 4,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        marginBottom: 4,
+    },
+    pedidoItemQtdText: {
+        fontSize: 10,
+        color: '#4B5563',
+        fontWeight: '600',
+    },
+    pedidoItemTotalText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#111827',
+    },
+    
+    // INFO FORNECEDOR
+    pedidoFornecedorContainer: {
+        marginBottom: 12,
+        paddingLeft: 4,
+    },
+    pedidoFornecedorLabel: {
+        fontSize: 13,
+        color: '#4B5563',
+        marginBottom: 6,
+        fontWeight: '600',
+    },
+    pedidoFornecedorNome: {
+        color: '#2F5233', 
+    },
+    pedidoEnderecoLinha: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginBottom: 2,
+    },
+    pedidoEnderecoTexto: {
+        fontSize: 12,
+        color: '#6B7280',
+        marginLeft: 6,
+        flex: 1,
+    },
+    pedidoEnderecoTextoSemIcone: {
+        fontSize: 12,
+        color: '#6B7280',
+        marginLeft: 20, 
+        marginBottom: 2,
     },
 
     // =======================================================

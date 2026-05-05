@@ -115,22 +115,18 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
         if (filename.toLowerCase().endsWith('.png')) {
           type = 'image/png';
         }
-        formData.append('imagem', { 
-          uri: imagemUri, 
-          name: filename, 
-          type: type 
+        formData.append('imagem', {
+          uri: imagemUri,
+          name: filename,
+          type: type
         } as any);
       }
 
-      // 🟢 O truque do Laravel/PHP para aceitar edição de imagem sem barrar a requisição
-      if (produtoEditando) {
-        formData.append('_method', 'PUT');
-      }
-
+      // 🟢 Define o método correto para o Node.js: PUT para editar, POST para criar novo
       const config = {
-        method: 'post', // 🟢 Para imagens com FormData, sempre usamos POST
-        url: produtoEditando 
-          ? `${API_URL}/produtos/${produtoEditando.id}` 
+        method: produtoEditando ? 'put' : 'post',
+        url: produtoEditando
+          ? `${API_URL}/produtos/${produtoEditando.id}`
           : `${API_URL}/produtos`,
         data: formData,
         headers: {

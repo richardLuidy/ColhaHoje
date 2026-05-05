@@ -19,7 +19,7 @@ app.use(cors())
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dir = './uploads/';
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir); 
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
         cb(null, dir);
     },
     filename: (req, file, cb) => {
@@ -89,18 +89,18 @@ app.put('/usuarios/:id', async (req, res) => {
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
         const { nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj } = req.body
-        
+
         const updatedUser = await prisma.usuarios.update({
             where: { id: id },
-            data: { 
-                nome, 
-                email, 
-                senha, 
-                tipo_usuario, 
-                whatsapp, 
-                url_foto, 
-                cpf_cnpj, 
-                data_atual_izacao: new Date() 
+            data: {
+                nome,
+                email,
+                senha,
+                tipo_usuario,
+                whatsapp,
+                url_foto,
+                cpf_cnpj,
+                data_atual_izacao: new Date()
             }
         })
         res.status(200).json(updatedUser)
@@ -145,16 +145,16 @@ app.post('/enderecos', async (req, res) => {
         if (!usuario_id) return res.status(400).json({ error: "ID do usuário é obrigatório!" });
 
         const novoEndereco = await prisma.enderecos.create({
-            data: { 
-                cep, 
-                rua, 
-                numero: String(numero), 
-                bairro, 
-                cidade, 
-                estado, 
+            data: {
+                cep,
+                rua,
+                numero: String(numero),
+                bairro,
+                cidade,
+                estado,
                 latitude: latitude ? parseFloat(latitude) : null,
                 longitude: longitude ? parseFloat(longitude) : null,
-                usuario_id: parseInt(usuario_id) 
+                usuario_id: parseInt(usuario_id)
             }
         })
         res.status(201).json(novoEndereco)
@@ -202,21 +202,26 @@ app.get('/produtor/dados/:id', async (req, res) => {
 // 🍏 ROTAS DE PRODUTOS
 // ==========================================
 
+// ==========================================
+// 🍏 ROTAS DE PRODUTOS
+// ==========================================
+
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
         const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
-        
+
         const novoProduto = await prisma.produtos.create({
             data: {
-                nome_produto, 
+                nome_produto,
                 categoria,
-                preco: parseFloat(preco) || 0, 
-                unidade, 
+                preco: parseFloat(preco) || 0,
+                unidade,
                 quantidade: parseInt(quantidade) || 0,
-                produtor_id: parseInt(produtor_id) || 0, 
-                endereco_id: parseInt(endereco_id) || 0, 
-                imagem_url
+                produtor_id: parseInt(produtor_id) || 0,
+                endereco_id: parseInt(endereco_id) || 0,
+                imagem_url,
+                status: 'ativo'
             }
         });
         res.status(201).json(novoProduto);
@@ -226,18 +231,21 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
     }
 });
 
+// 🟢 ESSA É A ROTA QUE ESTAVA FALTANDO PARA A TELA DE INÍCIO:
 app.get('/produtos', async (req, res) => {
     try {
         const listaProdutos = await prisma.produtos.findMany({
+            where: { status: 'ativo' }, // Só mostra o que não foi "deletado"
             orderBy: { id: 'desc' },
             include: {
                 produtor: { select: { nome: true } },
                 endereco: { select: { cidade: true, estado: true } }
             }
         });
+
         const produtosMapeados = listaProdutos.map(produto => ({
             ...produto,
-            nome_produtor: produto.produtor.nome,
+            nome_produtor: produto.produtor?.nome || "Produtor Local",
             localizacao: produto.endereco ? `${produto.endereco.cidade}, ${produto.endereco.estado}` : null
         }));
         res.status(200).json(produtosMapeados);
@@ -248,36 +256,22 @@ app.get('/produtos', async (req, res) => {
 });
 
 app.get('/produtos/contar/:produtor_id', async (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     try {
         const produtor_id = parseInt(req.params.produtor_id);
-        const agora = new Date();
-
-        const produtos = await prisma.produtos.findMany({
-            where: { produtor_id: produtor_id },
-            include: {
-                ofertas_relampago: {
-                    orderBy: { criado_em: 'desc' },
-                    take: 1 
-                }
+        const total = await prisma.produtos.count({
+            where: { 
+                produtor_id: produtor_id,
+                status: 'ativo' 
             }
         });
-
-        const produtosAtivos = produtos.filter(p => {
-            const oferta = p.ofertas_relampago[0];
-            if (!oferta) return true;
-            const dataExpiracao = new Date(new Date(oferta.criado_em).getTime() + (oferta.duracao_minutos * 60 * 1000));
-            const expirou = dataExpiracao <= agora;
-            const vendido = p.quantidade <= 0;
-            return !expirou && !vendido;
-        });
-
-        res.status(200).json({ total: produtosAtivos.length });
+        res.status(200).json({ total });
     } catch (error) {
-        console.error("❌ Erro ao contar produtos inteligentes:", error);
+        console.error("❌ Erro ao contar produtos:", error);
         res.status(500).json({ error: "Erro ao contar produtos" });
     }
 });
+
+
 
 app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
     try {
@@ -294,10 +288,10 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         }
 
         const dadosParaAtualizar = {
-            nome_produto, 
-            categoria, 
-            preco: parseFloat(preco) || 0, 
-            unidade, 
+            nome_produto,
+            categoria,
+            preco: parseFloat(preco) || 0,
+            unidade,
             quantidade: parseInt(quantidade) || 0,
         };
         if (req.file) dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
@@ -318,17 +312,15 @@ app.delete('/produtos/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        const produto = await prisma.produtos.findUnique({ where: { id: id } });
-        if (!produto) return res.status(404).json({ error: "Produto não encontrado" });
-        
-        if (produto.imagem_url) {
-            const caminhoImagem = path.join('uploads', path.basename(produto.imagem_url));
-            if (fs.existsSync(caminhoImagem)) fs.unlinkSync(caminhoImagem);
-        }
-        await prisma.produtos.delete({ where: { id: id } });
-        res.status(200).json({ message: "Produto excluído com sucesso!" });
+        // 🟢 Em vez de deletar, apenas mudamos o status para 'inativo'
+        await prisma.produtos.update({
+            where: { id: id },
+            data: { status: 'inativo' }
+        });
+
+        res.status(200).json({ message: "Produto removido do catálogo (Soft Delete)!" });
     } catch (error) {
-        console.error("❌ Erro DELETE /produtos/:id:", error);
+        console.error("❌ Erro ao desativar produto:", error);
         res.status(500).json({ error: "Erro ao excluir produto" });
     }
 });
@@ -360,7 +352,7 @@ app.get('/ofertas', async (req, res) => {
     try {
         const listaOfertas = await prisma.ofertas_relampago.findMany({
             include: {
-                produto: true 
+                produto: true
             },
             orderBy: { criado_em: 'desc' }
         });
@@ -388,15 +380,38 @@ app.delete('/ofertas/:id', async (req, res) => {
 
 app.get('/ofertas/destaque', async (req, res) => {
     try {
-        const ofertaDestaque = await prisma.ofertas_relampago.findFirst({
+        // 1. Puxa todas as ofertas que constam como 'ativa' no banco
+        const ofertasAtivas = await prisma.ofertas_relampago.findMany({
             where: { status: 'ativa' },
             orderBy: { criado_em: 'desc' },
             include: { produto: true }
         });
-        res.status(200).json(ofertaDestaque || null);
+
+        const agora = new Date().getTime();
+        let ofertaValida = null;
+
+        // 2. Passa um "pente fino" para achar a primeira que realmente é válida
+        for (const oferta of ofertasAtivas) {
+            const limite = new Date(oferta.criado_em).getTime() + (oferta.duracao_minutos * 60 * 1000);
+            const estoque = oferta.produto.quantidade_estoque || oferta.produto.quantidade;
+
+            if (limite > agora && estoque > 0) {
+                // Achou! O tempo não acabou e ainda tem estoque.
+                ofertaValida = oferta;
+                break; // Para a busca, já achamos o destaque.
+            } else {
+                // 3. O PULO DO GATO: Se passou do tempo ou zerou, o servidor já "mata" a oferta no banco!
+                await prisma.ofertas_relampago.update({
+                    where: { id: oferta.id },
+                    data: { status: 'inativa' }
+                });
+            }
+        }
+
+        res.status(200).json(ofertaValida);
     } catch (error) {
         console.error("❌ Erro GET /ofertas/destaque:", error);
-        res.status(500).json({ error: "Erro ao buscar destaque" });
+        res.status(500).json({ error: "Erro ao buscar destaque inteligente" });
     }
 });
 
@@ -405,54 +420,54 @@ app.get('/ofertas/destaque', async (req, res) => {
 // =======================================================
 
 app.get('/cartoes/:usuario_id', async (req, res) => {
-  try {
-    const { usuario_id } = req.params;
-    const cartoes = await prisma.cartoes.findMany({
-      where: { usuario_id: parseInt(usuario_id) },
-      orderBy: { criado_em: 'desc' } 
-    });
-    res.json(cartoes);
-  } catch (error) {
-    console.error("Erro ao buscar cartões:", error);
-    res.status(500).json({ error: "Erro ao procurar cartões" });
-  }
+    try {
+        const { usuario_id } = req.params;
+        const cartoes = await prisma.cartoes.findMany({
+            where: { usuario_id: parseInt(usuario_id) },
+            orderBy: { criado_em: 'desc' }
+        });
+        res.json(cartoes);
+    } catch (error) {
+        console.error("Erro ao buscar cartões:", error);
+        res.status(500).json({ error: "Erro ao procurar cartões" });
+    }
 });
 
 app.post('/cartoes', async (req, res) => {
-  try {
-    const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
-    if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
-        return res.status(400).json({ error: "Dados incompletos" });
-    }
-    const numero_final = numero_cartao.slice(-4);
-    const token_pagamento = `tok_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
+    try {
+        const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
+        if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
+            return res.status(400).json({ error: "Dados incompletos" });
+        }
+        const numero_final = numero_cartao.slice(-4);
+        const token_pagamento = `tok_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
 
-    const novoCartao = await prisma.cartoes.create({
-      data: {
-        usuario_id: parseInt(usuario_id),
-        numero_final,
-        bandeira,
-        nome_titular,
-        validade,
-        token_pagamento
-      }
-    });
-    res.status(201).json(novoCartao);
-  } catch (error) {
-    console.error("Erro ao guardar cartão:", error);
-    res.status(500).json({ error: "Erro ao guardar o cartão" });
-  }
+        const novoCartao = await prisma.cartoes.create({
+            data: {
+                usuario_id: parseInt(usuario_id),
+                numero_final,
+                bandeira,
+                nome_titular,
+                validade,
+                token_pagamento
+            }
+        });
+        res.status(201).json(novoCartao);
+    } catch (error) {
+        console.error("Erro ao guardar cartão:", error);
+        res.status(500).json({ error: "Erro ao guardar o cartão" });
+    }
 });
 
 app.delete('/cartoes/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await prisma.cartoes.delete({ where: { id: parseInt(id) } });
-    res.json({ message: "Cartão removido com sucesso" });
-  } catch (error) {
-    console.error("Erro ao apagar cartão:", error);
-    res.status(500).json({ error: "Erro ao remover cartão" });
-  }
+    try {
+        const { id } = req.params;
+        await prisma.cartoes.delete({ where: { id: parseInt(id) } });
+        res.json({ message: "Cartão removido com sucesso" });
+    } catch (error) {
+        console.error("Erro ao apagar cartão:", error);
+        res.status(500).json({ error: "Erro ao remover cartão" });
+    }
 });
 
 // =======================================================
@@ -510,13 +525,25 @@ app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
     try {
         const cliente_id = parseInt(req.params.cliente_id);
         const listaPedidos = await prisma.pedidos.findMany({
-            where: { cliente_id: cliente_id }, // 🟢 MUDANÇA AQUI
+            where: { cliente_id: cliente_id },
             include: {
+                // 🟢 1. Traz os dados do Cliente e o endereço de entrega dele
+                cliente: {
+                    include: { enderecos: true }
+                },
+                // 🟢 2. Entra nos itens do pedido para buscar os dados do Produto
                 itens: {
-                    include: { produto: true }
+                    include: {
+                        produto: {
+                            include: {
+                                produtor: true,
+                                endereco: true
+                            }
+                        }
+                    }
                 }
             },
-            orderBy: { data_pedido: 'desc' } // 🟢 MUDANÇA AQUI: usando data_pedido
+            orderBy: { data_pedido: 'desc' }
         });
         res.json(listaPedidos);
     } catch (error) {

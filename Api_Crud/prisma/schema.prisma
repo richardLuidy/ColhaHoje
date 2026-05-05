@@ -55,14 +55,16 @@ model produtos {
   unidade           String
   quantidade        Int                 @default(1)
   imagem_url        String?
+  
+  // 🟢 ADICIONE ESTA LINHA:
+  status            String              @default("ativo") 
+  
   produtor_id       Int
   endereco_id       Int?
   produtor          usuarios            @relation("ProdutosProdutor", fields: [produtor_id], references: [id], onDelete: Cascade)
   endereco          enderecos?          @relation(fields: [endereco_id], references: [id], onDelete: SetNull)
   ofertas_relampago ofertas_relampago[]
-
-  // 🟢 ADICIONE ESTA LINHA ABAIXO:
-  itens_pedido itens_pedido[]
+  itens_pedido      itens_pedido[]
 
   data_criacao      DateTime @default(now())
   data_atual_izacao DateTime @default(now())

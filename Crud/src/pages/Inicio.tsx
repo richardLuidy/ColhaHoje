@@ -100,49 +100,66 @@ export default function Inicio() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.verdeColheita]} />}
         >
 
-            {/* 🔴 BANNER OFERTA DESTAQUE */}
+          {/* 🔴 BANNER OFERTA DESTAQUE - ATUALIZADO */}
             {ofertaDestaque && tempoRestante !== "Expirado" && (
                 <View style={styles.bannerDestaqueSério}>
-                    <ImageBackground 
-                        source={{ uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }} 
-                        style={styles.bannerImageBackgroundSério} 
-                        resizeMode="cover"
-                    >
-                        <View style={styles.bannerTopOverlaySério}>
-                            <Text style={styles.bannerTitleOverSério}>OFERTA RELÂMPAGO!</Text>
-                            <View style={styles.bannerTimerBlockSério}>
-                                <Text style={styles.bannerTimerTextSério}>{tempoRestante}</Text>
+                    
+                    {/* LADO ESQUERDO: INFORMAÇÕES */}
+                    <View style={styles.bannerEsquerdaSério}>
+                        
+                        {/* 1. Etiquetas de Tempo */}
+                        <View>
+                            <View style={styles.bannerBadgesRowSério}>
+                                <View style={styles.badgeRelampagoSério}>
+                                    <Ionicons name="flash" size={12} color="#FFF" />
+                                    <Text style={styles.badgeTextBrancoSério}>OFERTA RELÂMPAGO</Text>
+                                </View>
+                            </View>
+                            <View style={[styles.badgeTimerSério, { alignSelf: 'flex-start', marginTop: 6 }]}>
+                                <Ionicons name="time-outline" size={12} color="#FFF" />
+                                <Text style={styles.badgeTextBrancoSério}>{tempoRestante}</Text>
                             </View>
                         </View>
 
-                        {/* 🟡 BADGE DE ESTOQUE NO BANNER */}
-                        <View style={{ position: 'absolute', top: 50, right: 15, backgroundColor: '#FFF9C4', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 5 }}>
-                            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FBC02D' }}>
-                                {ofertaDestaque.produto.quantidade_estoque || ofertaDestaque.produto.quantidade} unid.
+                        {/* 2. Nome e Preços */}
+                        <View style={{ marginTop: 4 }}>
+                            <Text style={{ color: '#1A1A1A', fontSize: 20, fontWeight: 'bold' }} numberOfLines={1}>
+                                {ofertaDestaque.produto.nome_produto}
+                            </Text>
+                            <Text style={{ color: '#999', fontSize: 13, textDecorationLine: 'line-through' }}>
+                                De R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
+                            </Text>
+                            <Text style={styles.bannerPorApenasSério}>Por apenas</Text>
+                            <Text style={{ color: '#2E7D32', fontSize: 26, fontWeight: 'bold' }}>
+                                R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
                             </Text>
                         </View>
 
-                        <View style={styles.bannerBottomInfoOverlaySério}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.bannerBottomNameSério}>{ofertaDestaque.produto.nome_produto}</Text>
-                                <View style={styles.bannerBottomPricesSério}>
-                                    <Text style={styles.bannerBottomPriceRiscadoSério}>
-                                        R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
-                                    </Text>
-                                    <Text style={styles.bannerBottomPriceNovoSério}>
-                                        R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
-                                    </Text>
-                                </View>
+                        {/* 3. Estoque e Ação */}
+                        <View>
+                            <View style={{ backgroundColor: '#FFF9C4', alignSelf: 'flex-start', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginBottom: 5 }}>
+                                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FBC02D' }}>
+                                   📦 {ofertaDestaque.produto.quantidade_estoque || ofertaDestaque.produto.quantidade} unidades
+                                </Text>
                             </View>
-                            
-                            <TouchableOpacity 
-                                style={[styles.btnAddCardNewSério, { width: 45, height: 45 }]}
-                                onPress={() => adicionarAoCarrinho({...ofertaDestaque.produto, preco: ofertaDestaque.preco_promocional})}
+
+                            <TouchableOpacity
+                                style={styles.bannerBotaoAdicionarSério}
+                                onPress={() => adicionarAoCarrinho({ ...ofertaDestaque.produto, preco: ofertaDestaque.preco_promocional })}
                             >
-                                <Ionicons name="add" size={28} color="#FFF" />
+                                <Ionicons name="add" size={20} color="#FFF" />
+                                <Text style={[styles.badgeTextBrancoSério, {fontSize: 15}]}>Adicionar</Text>
                             </TouchableOpacity>
                         </View>
-                    </ImageBackground>
+                    </View>
+
+                    {/* LADO DIREITO: IMAGEM */}
+                    <View style={styles.bannerDireitaSério}>
+                        <Image 
+                            source={{ uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }} 
+                            style={styles.bannerImageSério}
+                        />
+                    </View>
                 </View>
             )}
 

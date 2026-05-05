@@ -6,16 +6,32 @@ import { colors } from '../../colors';
 import styles from '../../styles';
 import api, { API_URL } from '../api';
 
+// 🕒 FUNÇÃO PARA FORMATAR A DATA NO TOPO DO CARD
 const formatarDataCurta = (dataString: string) => {
     if (!dataString) return '';
     const data = new Date(dataString);
     if (isNaN(data.getTime())) return 'Data não disponível';
-    
+
     const dia = String(data.getDate()).padStart(2, '0');
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const ano = String(data.getFullYear()).slice(-2);
-    
+
     return `${dia}/${mes}/${ano}`;
+};
+
+// 🕒 GERA O HORÁRIO DINÂMICO DE ENTREGA (Hora atual + 45 min)
+const gerarPrevisaoEntrega = (dataPedido: string) => {
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() + 45);
+
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = String(agora.getFullYear()).slice(-2);
+
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+
+    return `Hoje (${dia}/${mes}/${ano}), até as ${horas}:${minutos}`;
 };
 
 export default function Pedidos() {
@@ -26,6 +42,7 @@ export default function Pedidos() {
 
     const carregarPedidos = async () => {
         try {
+            // Buscando os pedidos do usuário Richard (ID 1)
             const response = await api.get('/pedidos/usuario/1');
             setPedidos(response.data);
         } catch (error) {
@@ -45,18 +62,17 @@ export default function Pedidos() {
         carregarPedidos();
     }, []);
 
-    const pedidosFiltrados = pedidos.filter(p => 
-        abaAtiva === 'andamento' 
-            ? ['pendente', 'preparacao', 'em_rota'].includes(p.status) 
+    const pedidosFiltrados = pedidos.filter(p =>
+        abaAtiva === 'andamento'
+            ? ['pendente', 'preparacao', 'em_rota'].includes(p.status)
             : ['entregue', 'cancelado'].includes(p.status)
     );
 
     const renderCardPedido = ({ item }: { item: any }) => {
         const primeiroItem = item.itens && item.itens.length > 0 ? item.itens[0] : null;
-        const maisItens = item.itens?.length > 1 ? ` + ${item.itens.length - 1} itens` : '';
 
-        const statusAtual = item.status || 'pendente'; 
-        const isConfirmado = true; 
+        const statusAtual = item.status || 'pendente';
+        const isConfirmado = true;
         const isPreparacao = ['preparacao', 'em_rota', 'entregue'].includes(statusAtual);
         const isEmRota = ['em_rota', 'entregue'].includes(statusAtual);
         const isEntregue = statusAtual === 'entregue';
@@ -72,22 +88,22 @@ export default function Pedidos() {
 
         return (
             <View style={styles.pedidoCardFigma}>
-                
-                {/* HEADER */}
+
+                {/* HEADER - ID E STATUS */}
                 <View style={styles.pedidoHeader}>
                     <Text style={styles.pedidoIdText}>
                         Pedido #{String(item.id).padStart(4, '0')}
                     </Text>
-                    
+
                     <View style={[styles.pedidoBadgeStatus, { backgroundColor: '#D1FAE5' }]}>
                         <Ionicons name={badgeIcon as any} size={14} color={corVerdeFigma} />
-                        <Text style={[styles.pedidoBadgeText, { color: corVerdeFigma }]}>
+                        <Text style={[styles.badgeText, { color: corVerdeFigma }]}>
                             {badgeText}
                         </Text>
                     </View>
                 </View>
 
-                {/* STEPPER DA LINHA DO TEMPO */}
+                {/* STEPPER - LINHA DO TEMPO */}
                 <View style={styles.pedidoStepperContainer}>
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isConfirmado ? corVerdeFigma : corCinzaFigma }]}>
@@ -126,34 +142,104 @@ export default function Pedidos() {
 
                 <View style={styles.pedidoDivisor} />
 
-                {/* INFO DO PRODUTO */}
-                <View style={styles.pedidoProdutoContainer}>
-                    <View style={styles.pedidoIconContainer}>
-                        {primeiroItem?.produto?.imagem_url ? (
-                            <Image 
-                                source={{ uri: `${API_URL}${primeiroItem.produto.imagem_url}` }} 
-                                style={styles.pedidoProdutoImagem}
-                            />
-                        ) : (
-                            <Ionicons name="image-outline" size={24} color="#9CA3AF" />
-                        )}
-                    </View>
-                    
-                    <View style={styles.pedidoInfoContainer}>
-                        <Text style={styles.pedidoProdutoTitulo}>
-                            {primeiroItem ? primeiroItem.produto.nome_produto : "Produto"}{maisItens}
-                        </Text>
-                        <Text style={styles.pedidoProdutoSub}>
-                            Fornecedor: {primeiroItem?.produto?.produtor?.nome || 'Sítio X'} (Registro, SP)
-                        </Text>
-                    </View>
+                {/* 🛒 LISTA DE TODOS OS ITENS COMPRADOS */}
+                <View style={styles.pedidoSecaoHeader}>
+                    <Ionicons name="cart-outline" size={16} color="#4B5563" />
+                    <Text style={styles.pedidoSecaoTitulo}>Itens do Pedido ({item.itens?.length || 0})</Text>
                 </View>
 
-                {/* PREVISÃO DE ENTREGA */}
+                <View style={styles.pedidoListaItens}>
+                    {item.itens?.map((subItem: any, index: number) => (
+                        <View key={index} style={styles.pedidoItemRow}>
+                            <View style={styles.pedidoItemIconContainer}>
+                                {subItem.produto?.imagem_url ? (
+                                    <Image
+                                        source={{ uri: `${API_URL}${subItem.produto.imagem_url}` }}
+                                        style={styles.pedidoProdutoImagem}
+                                    />
+                                ) : (
+                                    <Ionicons name="leaf-outline" size={24} color="#9CA3AF" />
+                                )}
+                            </View>
+
+                            <View style={styles.pedidoItemInfoCenter}>
+                                <Text style={styles.pedidoProdutoTitulo}>
+                                    {subItem.produto?.nome_produto || "Produto"}
+                                </Text>
+                                <Text style={styles.pedidoProdutoSub}>
+                                    R$ {parseFloat(subItem.preco_unit).toFixed(2).replace('.', ',')} / {subItem.produto?.unidade || 'unid'}
+                                </Text>
+                            </View>
+
+                            <View style={styles.pedidoItemInfoRight}>
+                                <View style={styles.pedidoItemQtdBadge}>
+                                    <Text style={styles.pedidoItemQtdText}>
+                                        {subItem.quantidade} {subItem.produto?.unidade === 'Kg' ? 'kg' : 'unid.'}
+                                    </Text>
+                                </View>
+                                <Text style={styles.pedidoItemTotalText}>
+                                    R$ {(subItem.quantidade * subItem.preco_unit).toFixed(2).replace('.', ',')}
+                                </Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.pedidoDivisor} />
+
+                {/* 📍 INFO DO FORNECEDOR E ENDEREÇO */}
+                <View style={styles.pedidoSecaoHeader}>
+                    <Ionicons name="storefront-outline" size={16} color="#4B5563" />
+                    <Text style={styles.pedidoSecaoTitulo}>Fornecedor e Entrega</Text>
+                </View>
+
+                {(() => {
+                    // 🧠 EXTRAINDO OS DADOS REAIS QUE VIERAM DO BANCO (PRISMA)
+                    const nomeProdutor = primeiroItem?.produto?.produtor?.nome || 'Produtor Local';
+
+                    // Aqui definimos qual endereço mostrar. 
+                    // Tenta pegar o endereço vinculado ao produto, se não tiver, pega o endereço do cliente (Bamburral)
+                    const endereco = primeiroItem?.produto?.endereco || item.cliente?.enderecos?.[0];
+
+                    const rua = endereco?.rua || 'Endereço não cadastrado';
+                    const numero = endereco?.numero ? `, ${endereco.numero}` : '';
+                    const bairro = endereco?.bairro ? `- ${endereco.bairro}` : '';
+                    const cidade = endereco?.cidade || 'Registro';
+                    const estado = endereco?.estado || 'SP';
+                    const cep = endereco?.cep || '00000-000';
+
+                    return (
+                        <View style={styles.pedidoFornecedorContainer}>
+                            <Text style={styles.pedidoFornecedorLabel}>
+                                Produtor: <Text style={styles.pedidoFornecedorNome}>{nomeProdutor}</Text>
+                            </Text>
+
+                            <View style={styles.pedidoEnderecoLinha}>
+                                <Ionicons name="location-outline" size={14} color="#6B7280" style={{ marginTop: 2 }} />
+                                <Text style={styles.pedidoEnderecoTexto}>
+                                    {rua}{numero} {bairro}
+                                </Text>
+                            </View>
+                            <Text style={styles.pedidoEnderecoTextoSemIcone}>
+                                {cidade} - {estado}
+                            </Text>
+                            <Text style={styles.pedidoEnderecoTextoSemIcone}>
+                                CEP: {cep}
+                            </Text>
+                        </View>
+                    );
+                })()}
+
+                <View style={styles.pedidoDivisor} />
+
+                {/* 🕒 PREVISÃO DE ENTREGA DINÂMICA */}
                 <View style={styles.pedidoPrevisaoContainer}>
-                    <Text style={styles.pedidoPrevisaoLabel}>Previsão de Entrega:</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                        <Ionicons name="time-outline" size={16} color="#F59E0B" />
+                        <Text style={[styles.pedidoPrevisaoLabel, { marginLeft: 6 }]}>Previsão de Entrega:</Text>
+                    </View>
                     <Text style={styles.pedidoPrevisaoData}>
-                        Hoje ({formatarDataCurta(item.data_pedido)}), até as 17:03
+                        {gerarPrevisaoEntrega(item.data_pedido)}
                     </Text>
                 </View>
 
@@ -178,8 +264,9 @@ export default function Pedidos() {
         <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
             <StatusBar style="dark" />
 
+            {/* ABAS DE NAVEGAÇÃO */}
             <View style={styles.pedidosTabContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => setAbaAtiva('andamento')}
                     style={[styles.pedidosTabButton, abaAtiva === 'andamento' && styles.pedidosTabActive]}
                 >
@@ -188,7 +275,7 @@ export default function Pedidos() {
                     </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => setAbaAtiva('historico')}
                     style={[styles.pedidosTabButton, abaAtiva === 'historico' && styles.pedidosTabActiveIndicator]}
                 >
