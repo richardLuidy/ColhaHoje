@@ -100,66 +100,61 @@ export default function Inicio() {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.verdeColheita]} />}
         >
 
-          {/* 🔴 BANNER OFERTA DESTAQUE - ATUALIZADO */}
+        {/* 🔴 BANNER OFERTA DESTAQUE - AGORA SIM COM IMAGEBACKGROUND */}
             {ofertaDestaque && tempoRestante !== "Expirado" && (
                 <View style={styles.bannerDestaqueSério}>
                     
-                    {/* LADO ESQUERDO: INFORMAÇÕES */}
-                    <View style={styles.bannerEsquerdaSério}>
-                        
-                        {/* 1. Etiquetas de Tempo */}
-                        <View>
-                            <View style={styles.bannerBadgesRowSério}>
+                    <ImageBackground 
+                        source={{ uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }} 
+                        style={styles.bannerImageBackground}
+                        resizeMode="cover"
+                    >
+                        {/* Camada escura para o texto não sumir se a foto for muito clara */}
+                        <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.2)', padding: 18, justifyContent: 'space-between' }}>
+                            
+                            <View style={styles.bannerHeaderSério}>
                                 <View style={styles.badgeRelampagoSério}>
-                                    <Ionicons name="flash" size={12} color="#FFF" />
-                                    <Text style={styles.badgeTextBrancoSério}>OFERTA RELÂMPAGO</Text>
+                                    <Ionicons name="flash" size={14} color="#FFF" />
+                                    <Text style={[styles.badgeTextBrancoSério, {marginLeft: 5}]}>OFERTA RELÂMPAGO</Text>
+                                </View>
+
+                                <View style={styles.badgeTimerSério}>
+                                    <Ionicons name="time-outline" size={14} color="#FFF" />
+                                    <Text style={[styles.badgeTextBrancoSério, {marginLeft: 5}]}>{tempoRestante}</Text>
                                 </View>
                             </View>
-                            <View style={[styles.badgeTimerSério, { alignSelf: 'flex-start', marginTop: 6 }]}>
-                                <Ionicons name="time-outline" size={12} color="#FFF" />
-                                <Text style={styles.badgeTextBrancoSério}>{tempoRestante}</Text>
-                            </View>
-                        </View>
 
-                        {/* 2. Nome e Preços */}
-                        <View style={{ marginTop: 4 }}>
-                            <Text style={{ color: '#1A1A1A', fontSize: 20, fontWeight: 'bold' }} numberOfLines={1}>
-                                {ofertaDestaque.produto.nome_produto}
-                            </Text>
-                            <Text style={{ color: '#999', fontSize: 13, textDecorationLine: 'line-through' }}>
-                                De R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
-                            </Text>
-                            <Text style={styles.bannerPorApenasSério}>Por apenas</Text>
-                            <Text style={{ color: '#2E7D32', fontSize: 26, fontWeight: 'bold' }}>
-                                R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
-                            </Text>
-                        </View>
-
-                        {/* 3. Estoque e Ação */}
-                        <View>
-                            <View style={{ backgroundColor: '#FFF9C4', alignSelf: 'flex-start', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginBottom: 5 }}>
-                                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FBC02D' }}>
-                                   📦 {ofertaDestaque.produto.quantidade_estoque || ofertaDestaque.produto.quantidade} unidades
+                            <View style={styles.bannerInfoSério}>
+                                <Text style={{ color: '#1A1A1A', fontSize: 28, fontWeight: 'bold' }}>
+                                    {ofertaDestaque.produto.nome_produto}
                                 </Text>
+                                
+                                <Text style={{ color: '#666', fontSize: 16, textDecorationLine: 'line-through' }}>
+                                    De R$ {parseFloat(ofertaDestaque.preco_original).toFixed(2).replace('.', ',')}
+                                </Text>
+                                
+                                <Text style={{ color: '#666', fontSize: 14, fontWeight: '500' }}>Por apenas</Text>
+                                
+                                <Text style={{ color: '#2E7D32', fontSize: 32, fontWeight: 'bold', marginBottom: 5 }}>
+                                    R$ {parseFloat(ofertaDestaque.preco_promocional).toFixed(2).replace('.', ',')}
+                                </Text>
+
+                                <View style={styles.bannerBadgeEstoqueSério}>
+                                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: 'rgb(51, 36, 36)' }}>
+                                       📦 {ofertaDestaque.produto.quantidade_estoque || ofertaDestaque.produto.quantidade} unidades
+                                    </Text>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.bannerBotaoAdicionarSério}
+                                    onPress={() => adicionarAoCarrinho({ ...ofertaDestaque.produto, preco: ofertaDestaque.preco_promocional })}
+                                >
+                                    <Ionicons name="add" size={22} color="#FFF" />
+                                    <Text style={[styles.badgeTextBrancoSério, {fontSize: 16, marginLeft: 8}]}>Adicionar</Text>
+                                </TouchableOpacity>
                             </View>
-
-                            <TouchableOpacity
-                                style={styles.bannerBotaoAdicionarSério}
-                                onPress={() => adicionarAoCarrinho({ ...ofertaDestaque.produto, preco: ofertaDestaque.preco_promocional })}
-                            >
-                                <Ionicons name="add" size={20} color="#FFF" />
-                                <Text style={[styles.badgeTextBrancoSério, {fontSize: 15}]}>Adicionar</Text>
-                            </TouchableOpacity>
                         </View>
-                    </View>
-
-                    {/* LADO DIREITO: IMAGEM */}
-                    <View style={styles.bannerDireitaSério}>
-                        <Image 
-                            source={{ uri: `${API_URL}${ofertaDestaque.produto.imagem_url}` }} 
-                            style={styles.bannerImageSério}
-                        />
-                    </View>
+                    </ImageBackground>
                 </View>
             )}
 
@@ -178,7 +173,7 @@ export default function Inicio() {
 
                                 {/* 🟡 BADGE DE ESTOQUE NO CARD */}
                                 <View style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: '#FFF9C4', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FBC02D' }}>
+                                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: 'rgb(51, 36, 36)' }}>
                                         {produto.quantidade_estoque || produto.quantidade} unid.
                                     </Text>
                                 </View>

@@ -1179,17 +1179,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    // =======================================================
-    // 🏠 ESTILOS DA TELA INÍCIO (VISUAL PREMIUM)
+   // =======================================================
+    // 🏠 ESTILOS DA TELA INÍCIO.tsx
     // =======================================================
 
     containerHomeSério: {
         flex: 1,
-        backgroundColor: '#F8F9FA', // Um cinza quase branco, mais moderno
+        backgroundColor: '#F8F9FA', 
     },
 
     contentContainerHomeSério: {
-        padding: 20, // Aumentei o respiro lateral para dar mais elegância
+        padding: 20, 
         paddingBottom: 100,
     },
 
@@ -1205,77 +1205,87 @@ const styles = StyleSheet.create({
         color: '#1A1A1A',
         marginTop: 25,
         marginBottom: 15,
-        letterSpacing: -0.5, // Títulos mais juntos parecem mais profissionais
+        letterSpacing: -0.5, 
     },
 
-   // ⚡ ESTILOS DO BANNER OFERTA RELÂMPAGO CORRIGIDOS
+
+   //oferta relampago tela de Inicio.tsx
     bannerDestaqueSério: {
-        width: '100%', // Agora ocupa toda a largura disponível
-        height: 220,
+        width: '98%', // 🟢 LARGURA: Aumentei para 98%. Pode colocar 100% se quiser tela cheia.
+        alignSelf: 'center',
+        height: 280, // 🟢 ALTURA: Aumentei para 280. Pode subir mais se a foto pedir.
         borderRadius: 24,
-        overflow: 'hidden',
-        backgroundColor: '#FFF', 
-        flexDirection: 'row', 
-        elevation: 4,
-        borderWidth: 1,
-        borderColor: '#F0F0F0',
-        marginBottom: 15,
+        overflow: 'hidden', 
+        marginTop: 20,
+        marginBottom: 10,
+        elevation: 8,
+        backgroundColor: colors.backGroundPage, // 🎨 Cor da paleta
     },
-    bannerEsquerdaSério: {
-        flex: 1.2,
-        padding: 16,
-        justifyContent: 'space-between',
-    },
-    bannerDireitaSério: {
-        flex: 1,
-    },
-    bannerImageSério: {
+
+    bannerImageBackground: {
         width: '100%',
         height: '100%',
-        resizeMode: 'cover',
-    },
-    bannerBadgesRowSério: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    badgeRelampagoSério: {
-        backgroundColor: '#2E7D32',
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
-    },
-    badgeTimerSério: {
-        backgroundColor: '#FFB800',
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
-        marginTop: 5, // Espaço entre as etiquetas
-    },
-    badgeTextBrancoSério: {
-        color: '#FFF',
-        fontSize: 11,
-        fontWeight: 'bold',
-        marginLeft: 4,
-    },
-    bannerPorApenasSério: {
-        fontSize: 12,
-        color: '#888',
-        marginVertical: 2,
-    },
-    bannerBotaoAdicionarSério: {
-        backgroundColor: '#2E7D32',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        borderRadius: 20,
-        width: '100%',
     },
 
+    bannerOverlaySério: {
+        flex: 1,
+        padding: 16,
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(255, 255, 255, 0.6)', 
+    },
+
+    bannerHeaderSério: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+
+    badgeRelampagoSério: {
+        backgroundColor: colors.verdeColheita, // 🎨 Cor da paleta
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+
+    badgeTimerSério: {
+        backgroundColor: colors.laranjaAlerta, // 🎨 Cor da paleta
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+
+    badgeTextBrancoSério: {
+        color: colors.branco, // 🎨 Cor da paleta
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+
+    bannerInfoSério: {
+        marginTop: 10,
+    },
+
+    bannerBadgeEstoqueSério: {
+        backgroundColor: colors.laranjaAlerta, // 🎨 Cor da paleta
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+        marginBottom: 8,
+    },
+
+    bannerBotaoAdicionarSério: {
+        backgroundColor: colors.verdeColheita, // 🎨 Cor da paleta
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20,
+        alignSelf: 'flex-start',
+    },
     // =======================================================
     // 🛒CARD CATÁLOGO DE PRODUTOS Inicio.tsx 
     // =======================================================
@@ -1919,7 +1929,7 @@ const styles = StyleSheet.create({
         height: 42,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFE5E5', // Fundo vermelho bem clarinho
+        backgroundColor: 'rgb(255, 255, 255)', // Fundo vermelho bem clarinho
         borderRadius: 12,
         alignSelf: 'flex-end',
     },
@@ -2045,6 +2055,81 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
+
+    // =======================================================
+    // 🏷️ ESTILOS DA TELA DE OFERTAS (CARDS HORIZONTAIS)
+    // =======================================================
+
+    containerOfertas: {
+        flex: 1,
+        backgroundColor: colors.branco,
+    },
+
+    scrollFiltrosOfertas: {
+        maxHeight: 50,
+        paddingHorizontal: 15,
+        marginTop: 15,
+        marginBottom: 10,
+    },
+
+    pilulaFiltroSério: {
+        backgroundColor: colors.backGroundPage,
+        paddingHorizontal: 18,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginRight: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    pilulaFiltroTexto: {
+        color: colors.cinzaTecnico,
+        fontWeight: '600',
+        fontSize: 14,
+    },
+
+    cardHorizontalOferta: {
+        flexDirection: 'row',
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        marginHorizontal: 15,
+        marginBottom: 15,
+        elevation: 4, // Dá aquela sombra bonita de app premium
+        overflow: 'hidden',
+        height: 150, 
+    },
+
+    imgCardHorizontalOferta: {
+        width: 130,
+        height: '100%',
+        backgroundColor: '#F5F5F5', // Fundo clarinho caso a foto demore a carregar
+    },
+
+    badgeDescontoHorizontal: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        backgroundColor: colors.laranjaAlerta,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+
+    infoCardHorizontalOferta: {
+        flex: 1,
+        padding: 12,
+        justifyContent: 'space-between',
+    },
+    
+    botaoAdicionarPequeno: {
+        backgroundColor: colors.verdeColheita,
+        paddingHorizontal: 15,
+        paddingVertical: 6,
+        borderRadius: 15,
+        alignSelf: 'flex-end', // Joga o botão pro cantinho direito
+    }
+
+
 });
 
 export default styles;
