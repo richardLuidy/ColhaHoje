@@ -11,6 +11,8 @@ import DadosPessoais from './DadosPessoais';
 import Enderecos from './Enderecos';
 import QueroVender from './QueroVender';
 import MetodosPagamento from '../components/MetodosPagamento';
+import HistoricoPedidos from './HistoricoPedidos'; 
+import Configuracoes from './Configuracoes'; // 🟢 1. IMPORTAMOS A NOVA TELA
 
 // 📂 Importação dos Ícones SVG
 const iconDados = Image.resolveAssetSource(require('../assets/icon-dados.svg')).uri;
@@ -20,11 +22,11 @@ const iconPagamento = Image.resolveAssetSource(require('../assets/icon-pagamento
 const iconConfig = Image.resolveAssetSource(require('../assets/icon-config.svg')).uri;
 const iconVender = Image.resolveAssetSource(require('../assets/icon-vender.svg')).uri;
 
-// 🟢 2. Interface atualizada para aceitar 'pagamento'
+// 🟢 2. ADICIONAMOS 'configuracoes' NA INTERFACE (Isso remove o erro do TypeScript)
 interface PerfilProps {
   onLogout: () => void;
-  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'; 
-  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento') => void;
+  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes'; 
+  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes') => void;
 }
 
 export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProps) {
@@ -34,11 +36,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
     const carregarDadosReais = async () => {
       try {
         const nomeSalvo = await AsyncStorage.getItem('user_name');
-        if (nomeSalvo) {
-          setNomeUsuario(nomeSalvo);
-        } else {
-          setNomeUsuario("Usuário");
-        }
+        setNomeUsuario(nomeSalvo || "Usuário");
       } catch (e) {
         console.error("Erro ao ler AsyncStorage:", e);
         setNomeUsuario("Usuário");
@@ -51,34 +49,26 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
     try {
       await AsyncStorage.clear();
       onLogout();
-      console.log("Usuário deslogado");
     } catch (e) {
       console.error("Erro ao deslogar:", e);
     }
   };
 
-  // 🟢 3. Roteamento: Lógica para mostrar as sub-telas
-  if (telaAtual === 'dados') {
-    return <DadosPessoais onVoltar={() => setTelaAtual('menu')} />;
-  }
-
-  if (telaAtual === 'enderecos') {
-    return <Enderecos onVoltar={() => setTelaAtual('menu')} />;
-  }
-
-  if (telaAtual === 'vender') {
-    return <QueroVender onVoltar={() => setTelaAtual('menu')} />;
-  }
-
-  // 🟢 NOVA ROTA: Quando clicar no botão, carrega a tela do cartão
-  if (telaAtual === 'pagamento') {
-    return <MetodosPagamento onVoltar={() => setTelaAtual('menu')} />;
+  // 🟢 3. LÓGICA DE EXIBIÇÃO (ROTEAMENTO)
+  if (telaAtual === 'dados') return <DadosPessoais onVoltar={() => setTelaAtual('menu')} />;
+  if (telaAtual === 'enderecos') return <Enderecos onVoltar={() => setTelaAtual('menu')} />;
+  if (telaAtual === 'vender') return <QueroVender onVoltar={() => setTelaAtual('menu')} />;
+  if (telaAtual === 'pagamento') return <MetodosPagamento onVoltar={() => setTelaAtual('menu')} />;
+  if (telaAtual === 'historico') return <HistoricoPedidos />; // Removi o onVoltar se o Historico usa o Header do App
+  
+  // 🟢 NOVA ROTA DE CONFIGURAÇÕES
+  if (telaAtual === 'configuracoes') {
+    return <Configuracoes onVoltar={() => setTelaAtual('menu')} />;
   }
 
   return (
     <ScrollView contentContainerStyle={styles.containerLogin} showsVerticalScrollIndicator={false}>
 
-      {/* 👤 Header */}
       <View style={{ alignItems: 'center', marginTop: 10 }}>
         <View style={styles.profileImageContainer}>
           <Ionicons name="person" size={70} color={colors.cinzaTecnico} />
@@ -86,61 +76,46 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         <Text style={styles.profileName}>Olá, {nomeUsuario}!</Text>
       </View>
 
-      {/* 🔘 1. Botão Meus Dados Pessoais */}
-      <TouchableOpacity
-        style={styles.inputContainer}
-        onPress={() => setTelaAtual('dados')}
-      >
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setTelaAtual('dados')}>
         <SvgUri width={24} height={24} uri={iconDados} />
         <Text style={styles.inputLabel}>Meus Dados Pessoais</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 2. Endereços */}
-      <TouchableOpacity
-        style={styles.inputContainer}
-        onPress={() => setTelaAtual('enderecos')}
-      >
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setTelaAtual('enderecos')}>
         <SvgUri width={24} height={24} uri={iconEndereco} />
         <Text style={styles.inputLabel}>Endereços</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 3. Histórico de Pedidos */}
-      <TouchableOpacity style={styles.inputContainer}>
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setTelaAtual('historico')}>
         <SvgUri width={24} height={24} uri={iconHistorico} />
         <Text style={styles.inputLabel}>Histórico de Pedidos</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 4. Métodos de Pagamento - 🟢 4. AGORA COM AÇÃO! */}
-      <TouchableOpacity 
-        style={styles.inputContainer}
-        onPress={() => setTelaAtual('pagamento')} 
-      >
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setTelaAtual('pagamento')}>
         <SvgUri width={24} height={24} uri={iconPagamento} />
         <Text style={styles.inputLabel}>Métodos de Pagamento</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🔘 5. Configurações */}
-      <TouchableOpacity style={styles.inputContainer}>
+      {/* 🟢 4. BOTÃO DE CONFIGURAÇÕES COM AÇÃO! */}
+      <TouchableOpacity 
+        style={styles.inputContainer} 
+        onPress={() => setTelaAtual('configuracoes')}
+      >
         <SvgUri width={24} height={24} uri={iconConfig} />
         <Text style={styles.inputLabel}>Configurações</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🟢 Quero Vender */}
-      <TouchableOpacity 
-        style={[styles.inputContainer, styles.buttonSeller]}
-        onPress={() => setTelaAtual('vender')} 
-      >
+      <TouchableOpacity style={[styles.inputContainer, styles.buttonSeller]} onPress={() => setTelaAtual('vender')}>
         <SvgUri width={24} height={24} uri={iconVender} />
         <Text style={styles.inputLabelSeller}>Quero Vender</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.verdeColheita} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🚪 Botão Sair */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Sair da conta</Text>
       </TouchableOpacity>

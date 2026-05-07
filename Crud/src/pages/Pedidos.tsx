@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../../colors';
 import styles from '../../styles';
 import api, { API_URL } from '../api';
@@ -42,8 +43,8 @@ export default function Pedidos() {
 
     const carregarPedidos = async () => {
         try {
-            // Buscando os pedidos do usuário Richard (ID 1)
-            const response = await api.get('/pedidos/usuario/1');
+            const userId = await AsyncStorage.getItem('user_id');
+            const response = await api.get(`/pedidos/usuario/${userId || '1'}`);
             setPedidos(response.data);
         } catch (error) {
             console.log("Erro ao buscar pedidos:", error);
@@ -62,34 +63,95 @@ export default function Pedidos() {
         carregarPedidos();
     }, []);
 
-    const pedidosFiltrados = pedidos.filter(p =>
-        abaAtiva === 'andamento'
-            ? ['pendente', 'preparacao', 'em_rota'].includes(p.status)
-            : ['entregue', 'cancelado'].includes(p.status)
-    );
+    const pedidosFiltrados = pedidos.filter(p => {
+        const status = p.status?.toLowerCase() || '';
+        const isFinalizado = status === 'entregue' || status === 'cancelado';
+        return abaAtiva === 'andamento' ? !isFinalizado : isFinalizado;
+    });
 
+    // 🟢 RENDERIZAÇÃO DO HISTÓRICO
+    const renderHistorico = (item: any) => {
+        const primeiroItem = item.itens && item.itens.length > 0 ? item.itens[0] : null;
+        const isCancelado = item.status === 'cancelado';
+
+        return (
+            <View style={styles.cardHistorico}>
+                <View style={styles.historicoHeaderCard}>
+                    <Text style={styles.historicoDataText}>
+                        {formatarDataCurta(item.data_pedido)} - Pedido #{String(item.id).padStart(4, '0')}
+                    </Text>
+                    <View style={[styles.historicoBadgeStatus, { backgroundColor: isCancelado ? '#FEE2E2' : '#D1FAE5' }]}>
+                        <Ionicons 
+                            name={isCancelado ? "close" : "checkmark"} 
+                            size={16} 
+                            color={isCancelado ? '#B91C1C' : '#065F46'} 
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.historicoConteudo}>
+                    <View style={styles.historicoImage}> 
+                        {primeiroItem?.produto?.imagem_url ? (
+                            <Image 
+                                source={{ uri: `${API_URL}${primeiroItem.produto.imagem_url}` }} 
+                                style={{ width: '100%', height: '100%', borderRadius: 12 }} 
+                            />
+                        ) : (
+                            <Ionicons name="leaf-outline" size={30} color="#9CA3AF" />
+                        )}
+                    </View>
+                    
+                    <View style={styles.historicoInfoText}>
+                        <Text style={styles.historicoTituloProduto} numberOfLines={1}>
+                            {primeiroItem?.quantidade}x {primeiroItem?.produto?.nome_produto || 'Produto'}
+                        </Text>
+                        <Text style={styles.historicoFornecedor}>
+                            Fornecedor: {primeiroItem?.produto?.produtor?.nome || 'Produtor Local'}
+                        </Text>
+                        <Text style={styles.historicoTotal}>
+                            Total: R$ {parseFloat(item.total).toFixed(2).replace('.', ',')}
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.historicoRowBotoes}>
+                    <TouchableOpacity style={styles.btnHistoricoDetalhes}>
+                        <Text style={{ color: colors.verdeColheita, fontWeight: 'bold' }}>Ver Detalhes</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={styles.btnHistoricoRefazer}>
+                        <Ionicons name="refresh-outline" size={16} color="#FFF" style={{marginRight: 5}} />
+                        <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Refazer Pedido</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    };
+
+    // 🔵 RENDERIZAÇÃO DE ANDAMENTO
     const renderCardPedido = ({ item }: { item: any }) => {
+        if (abaAtiva === 'historico') return renderHistorico(item);
+
         const primeiroItem = item.itens && item.itens.length > 0 ? item.itens[0] : null;
 
-        const statusAtual = item.status || 'pendente';
+        // 🛠️ AJUSTE NA LÓGICA DE STATUS: Aceitando com ou sem acentuação
+        const statusAtual = item.status?.toLowerCase() || 'pendente';
         const isConfirmado = true;
-        const isPreparacao = ['preparacao', 'em_rota', 'entregue'].includes(statusAtual);
-        const isEmRota = ['em_rota', 'entregue'].includes(statusAtual);
-        const isEntregue = statusAtual === 'entregue';
+        const isPreparacao = statusAtual.includes('prepara') || statusAtual.includes('rota') || statusAtual.includes('entregue');
+        const isEmRota = statusAtual.includes('rota') || statusAtual.includes('entregue');
+        const isEntregue = statusAtual.includes('entregue');
 
         const corVerdeFigma = '#2F5233';
         const corCinzaFigma = '#E5E7EB';
 
         let badgeText = "Confirmado";
         let badgeIcon = "checkmark-circle-outline";
-        if (statusAtual === 'preparacao') { badgeText = "Em Preparação"; badgeIcon = "cube-outline"; }
-        if (statusAtual === 'em_rota') { badgeText = "Em Rota de Entrega"; badgeIcon = "bus-outline"; }
-        if (statusAtual === 'entregue') { badgeText = "Entregue"; badgeIcon = "checkmark-done"; }
+        if (statusAtual.includes('prepara')) { badgeText = "Em Preparação"; badgeIcon = "cube-outline"; }
+        if (statusAtual.includes('rota')) { badgeText = "Em Rota de Entrega"; badgeIcon = "bus-outline"; }
+        if (statusAtual.includes('entregue')) { badgeText = "Entregue"; badgeIcon = "checkmark-done"; }
 
         return (
             <View style={styles.pedidoCardFigma}>
-
-                {/* HEADER - ID E STATUS */}
                 <View style={styles.pedidoHeader}>
                     <Text style={styles.pedidoIdText}>
                         Pedido #{String(item.id).padStart(4, '0')}
@@ -103,7 +165,6 @@ export default function Pedidos() {
                     </View>
                 </View>
 
-                {/* STEPPER - LINHA DO TEMPO */}
                 <View style={styles.pedidoStepperContainer}>
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isConfirmado ? corVerdeFigma : corCinzaFigma }]}>
@@ -142,7 +203,6 @@ export default function Pedidos() {
 
                 <View style={styles.pedidoDivisor} />
 
-                {/* 🛒 LISTA DE TODOS OS ITENS COMPRADOS */}
                 <View style={styles.pedidoSecaoHeader}>
                     <Ionicons name="cart-outline" size={16} color="#4B5563" />
                     <Text style={styles.pedidoSecaoTitulo}>Itens do Pedido ({item.itens?.length || 0})</Text>
@@ -187,20 +247,14 @@ export default function Pedidos() {
 
                 <View style={styles.pedidoDivisor} />
 
-                {/* 📍 INFO DO FORNECEDOR E ENDEREÇO */}
                 <View style={styles.pedidoSecaoHeader}>
                     <Ionicons name="storefront-outline" size={16} color="#4B5563" />
                     <Text style={styles.pedidoSecaoTitulo}>Fornecedor e Entrega</Text>
                 </View>
 
                 {(() => {
-                    // 🧠 EXTRAINDO OS DADOS REAIS QUE VIERAM DO BANCO (PRISMA)
                     const nomeProdutor = primeiroItem?.produto?.produtor?.nome || 'Produtor Local';
-
-                    // Aqui definimos qual endereço mostrar. 
-                    // Tenta pegar o endereço vinculado ao produto, se não tiver, pega o endereço do cliente (Bamburral)
                     const endereco = primeiroItem?.produto?.endereco || item.cliente?.enderecos?.[0];
-
                     const rua = endereco?.rua || 'Endereço não cadastrado';
                     const numero = endereco?.numero ? `, ${endereco.numero}` : '';
                     const bairro = endereco?.bairro ? `- ${endereco.bairro}` : '';
@@ -213,26 +267,20 @@ export default function Pedidos() {
                             <Text style={styles.pedidoFornecedorLabel}>
                                 Produtor: <Text style={styles.pedidoFornecedorNome}>{nomeProdutor}</Text>
                             </Text>
-
                             <View style={styles.pedidoEnderecoLinha}>
                                 <Ionicons name="location-outline" size={14} color="#6B7280" style={{ marginTop: 2 }} />
                                 <Text style={styles.pedidoEnderecoTexto}>
                                     {rua}{numero} {bairro}
                                 </Text>
                             </View>
-                            <Text style={styles.pedidoEnderecoTextoSemIcone}>
-                                {cidade} - {estado}
-                            </Text>
-                            <Text style={styles.pedidoEnderecoTextoSemIcone}>
-                                CEP: {cep}
-                            </Text>
+                            <Text style={styles.pedidoEnderecoTextoSemIcone}>{cidade} - {estado}</Text>
+                            <Text style={styles.pedidoEnderecoTextoSemIcone}>CEP: {cep}</Text>
                         </View>
                     );
                 })()}
 
                 <View style={styles.pedidoDivisor} />
 
-                {/* 🕒 PREVISÃO DE ENTREGA DINÂMICA */}
                 <View style={styles.pedidoPrevisaoContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
                         <Ionicons name="time-outline" size={16} color="#F59E0B" />
@@ -243,7 +291,6 @@ export default function Pedidos() {
                     </Text>
                 </View>
 
-                {/* BOTÕES DE AÇÃO */}
                 <View style={styles.pedidoBotoesContainer}>
                     <TouchableOpacity style={styles.pedidoBtnRastrear}>
                         <Ionicons name="location-outline" size={16} color="#FFF" />
@@ -255,7 +302,6 @@ export default function Pedidos() {
                         <Text style={styles.pedidoBtnFalarTexto}>Falar com Produtor</Text>
                     </TouchableOpacity>
                 </View>
-
             </View>
         );
     };
@@ -263,8 +309,6 @@ export default function Pedidos() {
     return (
         <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
             <StatusBar style="dark" />
-
-            {/* ABAS DE NAVEGAÇÃO */}
             <View style={styles.pedidosTabContainer}>
                 <TouchableOpacity
                     onPress={() => setAbaAtiva('andamento')}

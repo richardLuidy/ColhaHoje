@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DeviceEventEmitter } from 'react-native'; // 🟢 IMPORT DA COMUNICAÇÃO
+import { DeviceEventEmitter } from 'react-native';
 import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
@@ -20,6 +20,11 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [abrindoCadastro, setAbrindoCadastro] = useState(false);
   const [vendoMinhasOfertas, setVendoMinhasOfertas] = useState(false);
   const [modalOfertaAberto, setModalOfertaAberto] = useState(false);
+  
+  const [vendoPedidos, setVendoPedidos] = useState(false);
+  const [pedidosRecebidos, setPedidosRecebidos] = useState<any[]>([]);
+  const [faturamentoDia, setFaturamentoDia] = useState(0);
+
   const [listaProdutosEstoque, setListaProdutosEstoque] = useState<any[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
@@ -32,6 +37,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const fecharTudoEAtualizar = useCallback(() => {
     setAbrindoCadastro(false);
     setVendoMinhasOfertas(false);
+    setVendoPedidos(false);
     setProdutoParaEditar(null);
     setTotalProdutos('...'); 
     setListaProdutosEstoque([]);
@@ -40,21 +46,18 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     }, 500);
   }, []);
 
-  // 🟢 A MÁGICA ACONTECE AQUI: O QueroVender escuta o clique na seta do Header
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener('onHeaderBackPress', (callback) => {
-      if (abrindoCadastro || vendoMinhasOfertas) {
-        // Se estiver dentro de Cadastrar Produto ou Minhas Ofertas, fecha eles!
+      if (abrindoCadastro || vendoMinhasOfertas || vendoPedidos) {
         fecharTudoEAtualizar();
-        callback(true); // Diz pro App.tsx: "Deixa comigo, eu já fechei a tela interna!"
+        callback(true);
       } else {
-        // Se estiver na tela normal do QueroVender, não faz nada e deixa o App voltar pro Perfil.
         callback(false); 
       }
     });
 
     return () => subscription.remove();
-  }, [abrindoCadastro, vendoMinhasOfertas, fecharTudoEAtualizar]);
+  }, [abrindoCadastro, vendoMinhasOfertas, vendoPedidos, fecharTudoEAtualizar]);
 
   useEffect(() => {
     const interval = setInterval(() => setAgora(new Date().getTime()), 60000);
@@ -66,6 +69,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const idSalvo = await AsyncStorage.getItem('user_id');
       if (!idSalvo) return;
 
+      // 1. Busca Produtos
       const responseContar = await axios.get(`${API_URL}/produtos/contar/${idSalvo}`, { params: { _cache: Date.now() } });
       if (responseContar.status === 200) setTotalProdutos(responseContar.data.total);
 
@@ -75,6 +79,18 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const responseOfertas = await axios.get(`${API_URL}/ofertas`);
       const minhasOft = responseOfertas.data.filter((o: any) => o.produto.produtor_id === parseInt(idSalvo));
       setOfertasBrutas(minhasOft);
+
+      // 2. 🟢 Busca os Pedidos Recebidos REAL (SEM SIMULAÇÃO)
+      try {
+        const responsePedidos = await axios.get(`${API_URL}/pedidos/produtor/${idSalvo}`);
+        setPedidosRecebidos(responsePedidos.data);
+        const faturamento = responsePedidos.data.reduce((acc: number, p: any) => acc + (parseFloat(p.total) || 0), 0);
+        setFaturamentoDia(faturamento);
+      } catch (err) {
+        console.error("Erro ao buscar pedidos do backend:", err);
+        setPedidosRecebidos([]); 
+        setFaturamentoDia(0);
+      }
 
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
@@ -117,6 +133,17 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     ]);
   };
 
+  // 🟢 FUNÇÃO PARA ATUALIZAR STATUS DO PEDIDO (REAL)
+  const atualizarStatusPedido = async (pedidoId: number, novoStatus: string) => {
+    try {
+        await axios.put(`${API_URL}/pedidos/${pedidoId}/status`, { status: novoStatus });
+        buscarDadosEstoque(); // Recarrega os dados silenciosamente para atualizar a tela
+    } catch (error) {
+        Alert.alert("Erro", "Não foi possível atualizar o status no servidor.");
+        console.error("Erro no PUT status:", error);
+    }
+  };
+
   const produtosFiltrados = listaProdutosEstoque.filter((produto) => {
     const ofertaDesteProduto = ofertasBrutas.find(o => o.produto.id === produto.id);
     if (ofertaDesteProduto) {
@@ -131,6 +158,58 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
 
   if (abrindoCadastro) return <CadastrarProduto key={`cad-${refreshKey}`} onVoltar={fecharTudoEAtualizar} produtoEditando={produtoParaEditar} />;
   if (vendoMinhasOfertas) return <MinhasOfertas onVoltar={fecharTudoEAtualizar} />;
+  
+  if (vendoPedidos) {
+      return (
+          <ScrollView contentContainerStyle={{ padding: 15, backgroundColor: '#F4F6F8', flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.verdeColheita, marginBottom: 20, marginTop: 10 }}>Gerenciar Pedidos</Text>
+              
+              {pedidosRecebidos.length === 0 ? (
+                  <Text style={{ textAlign: 'center', color: '#999', marginTop: 50 }}>Nenhum pedido recebido ainda.</Text>
+              ) : (
+                  pedidosRecebidos.map((pedido) => {
+                      const status = pedido.status?.toLowerCase() || '';
+                      return (
+                          <View key={pedido.id} style={{ backgroundColor: '#FFF', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 2 }}>
+                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#EEE', paddingBottom: 10, marginBottom: 10 }}>
+                                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>👤 {pedido.cliente?.nome || 'Cliente ColhaHoje'}</Text>
+                                  <Text style={{ fontSize: 14, color: '#999', fontWeight: 'bold' }}>#{pedido.id}</Text>
+                              </View>
+                              
+                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                                  <Text style={{ fontSize: 15, color: '#555', flex: 1 }}>
+                                      {pedido.itens?.map((i: any) => `${i.quantidade}x ${i.produto?.nome_produto || 'Item'}`).join('\n')}
+                                  </Text>
+                                  <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.verdeColheita }}>R$ {parseFloat(pedido.total || 0).toFixed(2).replace('.', ',')}</Text>
+                              </View>
+
+                              <Text style={{ fontSize: 14, color: '#666', marginBottom: 10, fontStyle: 'italic', textAlign: 'center' }}>Status: {pedido.status}</Text>
+                              
+                              {status.includes('pendente') && (
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#FFC107' }]} onPress={() => atualizarStatusPedido(pedido.id, 'preparação')}>
+                                      <Text style={stylesLocal.btnTextoEscuro}>Aceitar e Preparar</Text>
+                                  </TouchableOpacity>
+                              )}
+                              {status.includes('prepar') && (
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#17A2B8' }]} onPress={() => atualizarStatusPedido(pedido.id, 'em rota')}>
+                                      <Text style={stylesLocal.btnTextoBranco}>Saiu para Entrega</Text>
+                                  </TouchableOpacity>
+                              )}
+                              {(status.includes('rota') || status.includes('caminho')) && (
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: colors.verdeColheita }]} onPress={() => atualizarStatusPedido(pedido.id, 'entregue')}>
+                                      <Text style={stylesLocal.btnTextoBranco}>Marcar como Entregue</Text>
+                                  </TouchableOpacity>
+                              )}
+                              {status.includes('entregue') && (
+                                  <Text style={{ color: colors.verdeColheita, fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>✅ Pedido Finalizado</Text>
+                              )}
+                          </View>
+                      )
+                  })
+              )}
+          </ScrollView>
+      )
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.containerQueroVenderSério} showsVerticalScrollIndicator={false}>
@@ -142,13 +221,28 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       <View style={styles.rowCardsSério}>
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Vendas do Dia</Text>
-          <Text style={styles.cardValorSério}>R$ 0,00</Text>
+          <Text style={styles.cardValorSério}>R$ {faturamentoDia.toFixed(2).replace('.', ',')}</Text>
         </View>
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Produtos Ativos</Text>
           <Text style={styles.cardValorSério}>{totalProdutos}</Text>
         </View>
       </View>
+
+      <Text style={[styles.tituloSessaoSério, { marginTop: 15, marginBottom: 10 }]}>Logística</Text>
+      <TouchableOpacity 
+        style={[styles.cardCadastrarNovoSério, { borderColor: '#FFC107', borderWidth: 1 }]} 
+        onPress={() => setVendoPedidos(true)}
+      >
+        <Ionicons name="cube-outline" size={40} color="#FFC107" />
+        <View style={styles.infoEstoqueSério}>
+          <Text style={styles.tituloEstoqueSério}>Gerenciar Pedidos</Text>
+          <Text style={styles.descEstoqueSério}>
+             Você tem {pedidosRecebidos.filter(p => p.status.toLowerCase().includes('pendente')).length} pedidos aguardando.
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color={colors.placeholder} />
+      </TouchableOpacity>
 
       <View style={styles.cardDestaqueBrancaoSério}>
         <View style={styles.headerDestaqueSério}>
@@ -254,3 +348,9 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     </ScrollView>
   );
 }
+
+const stylesLocal = StyleSheet.create({
+    btnAcao: { width: '100%', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
+    btnTextoBranco: { color: '#FFF', fontWeight: 'bold', fontSize: 15 },
+    btnTextoEscuro: { color: '#333', fontWeight: 'bold', fontSize: 15 }
+});

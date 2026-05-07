@@ -1207,27 +1207,33 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         letterSpacing: -0.5, // Títulos mais juntos parecem mais profissionais
     },
-
-   // ⚡ ESTILOS DO BANNER OFERTA RELÂMPAGO CORRIGIDOS
+// =======================================================
+    // ⚡ ESTILOS DO BANNER OFERTA RELÂMPAGO CORRIGIDOS
+    // =======================================================
     bannerDestaqueSério: {
-        width: '100%', // Agora ocupa toda a largura disponível
-        height: 220,
-        borderRadius: 24,
+        width: '100%', 
+        height: 230, // 🟢 A SOLUÇÃO ESTÁ AQUI! Altura fixa para não esticar!
+        borderRadius: 20,
         overflow: 'hidden',
         backgroundColor: '#FFF', 
         flexDirection: 'row', 
         elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         borderWidth: 1,
         borderColor: '#F0F0F0',
         marginBottom: 15,
     },
     bannerEsquerdaSério: {
-        flex: 1.2,
-        padding: 16,
+        flex: 1.4, 
+        padding: 15,
         justifyContent: 'space-between',
     },
     bannerDireitaSério: {
         flex: 1,
+        backgroundColor: '#F5F5F5',
     },
     bannerImageSério: {
         width: '100%',
@@ -1242,40 +1248,40 @@ const styles = StyleSheet.create({
         backgroundColor: '#2E7D32',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
     badgeTimerSério: {
         backgroundColor: '#FFB800',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
-        marginTop: 5, // Espaço entre as etiquetas
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        marginTop: 6,
     },
     badgeTextBrancoSério: {
         color: '#FFF',
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 'bold',
         marginLeft: 4,
     },
     bannerPorApenasSério: {
         fontSize: 12,
         color: '#888',
-        marginVertical: 2,
+        marginTop: 4,
     },
     bannerBotaoAdicionarSério: {
         backgroundColor: '#2E7D32',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
-        borderRadius: 20,
+        paddingVertical: 8, // 🟢 Ajustado para não cortar
+        borderRadius: 8,
         width: '100%',
+        marginTop: 5, // 🟢 Margem menor para caber bonito
     },
-
     // =======================================================
     // 🛒CARD CATÁLOGO DE PRODUTOS Inicio.tsx 
     // =======================================================
@@ -1613,6 +1619,97 @@ const styles = StyleSheet.create({
         marginLeft: 6,
     },
 
+// =======================================================
+    // 🏛️ ESTILOS DO HISTÓRICO (VISUAL COMPACTO)
+    // =======================================================
+    cardHistorico: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        padding: 15,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3.84,
+        elevation: 3,
+    },
+    historicoHeaderCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+        paddingBottom: 10,
+    },
+    historicoDataText: {
+        fontSize: 12,
+        color: '#9CA3AF',
+    },
+    historicoBadgeStatus: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    historicoConteudo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    historicoImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 12,
+        backgroundColor: '#F3F4F6',
+    },
+    historicoInfoText: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    historicoTituloProduto: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1F2937',
+    },
+    historicoFornecedor: {
+        fontSize: 12,
+        color: '#9CA3AF',
+        marginTop: 2,
+    },
+    historicoTotal: {
+        fontSize: 14,
+        color: '#1F2937',
+        marginTop: 5,
+    },
+    historicoRowBotoes: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+    btnHistoricoDetalhes: {
+        flex: 1,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.verdeColheita,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    btnHistoricoRefazer: {
+        flex: 1,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.verdeColheita,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    
     // ==========================================
     // 🆕 NOVOS ESTILOS (LISTA DE ITENS E ENDEREÇO)
     // ==========================================
@@ -2045,6 +2142,294 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
+
+   // =======================================================
+    // 📦 TELA DE HISTÓRICO DE PEDIDOS (VISUAL PREMIUM)
+    // =======================================================
+    historicoHeader: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 15,
+        backgroundColor: '#FFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        alignItems: 'center',
+    },
+    historicoTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#1A1A1A',
+    },
+    cardPedido: {
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        elevation: 3, // Sombra Android
+        shadowColor: '#000', // Sombra iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+    },
+    cardTopPedido: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerEsquerdaPedido: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconBoxPedido: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#E8F5E9', // Fundo verde clarinho
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    pedidoTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1A1A1A',
+    },
+    produtorNomePedido: {
+        fontSize: 13,
+        color: '#555',
+        marginTop: 2,
+    },
+    totalTextoPedido: {
+        fontSize: 16,
+        fontWeight: '900',
+        color: '#2E7D32', // Verde escuro destaque
+    },
+    dataTextoPedido: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 10,
+        marginBottom: 12,
+    },
+    // Caixa cinza clara que agrupa as fotos e itens
+    itensContainerPedido: {
+        backgroundColor: '#F8F9FA',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+    },
+    itemRowPedido: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    itemImagePedido: {
+        width: 45,
+        height: 45,
+        borderRadius: 8,
+        backgroundColor: '#E0E0E0',
+        marginRight: 12,
+    },
+    itemTextPedido: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        flex: 1,
+    },
+    footerPedido: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    badgeStatusPedido: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+    },
+    badgeTextoPedido: {
+        marginLeft: 6,
+        fontSize: 12,
+        fontWeight: 'bold',
+        textTransform: 'capitalize',
+    },
+    btnAcompanharPedido: {
+        backgroundColor: '#2D6A4F', // Fundo Verde Sólido do Figma
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    btnAcompanharTextoPedido: {
+        color: '#FFF', // Texto Branco
+        fontWeight: 'bold',
+        fontSize: 13,
+        marginLeft: 5,
+    },
+    // =======================================================
+    // ⚙️ TELA DE CONFIGURAÇÕES
+    // =======================================================
+    sectionTitle: { 
+        fontSize: 13, 
+        fontWeight: 'bold', 
+        color: '#999', 
+        marginBottom: 8, 
+        marginLeft: 5, 
+        marginTop: 15 
+    },
+    cardConfig: { 
+        backgroundColor: '#FFF', 
+        borderRadius: 15, 
+        paddingHorizontal: 15, 
+        elevation: 1 
+    },
+    itemRow: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        paddingVertical: 15 
+    },
+    iconLabel: { 
+        flexDirection: 'row', 
+        alignItems: 'center' 
+    },
+    itemText: { 
+        marginLeft: 15, 
+        fontSize: 16, 
+        color: '#333' 
+    },
+    divider: { 
+        height: 1, 
+        backgroundColor: '#F1F1F1' 
+    },
+
+
+    // =======================================================
+    // ⚡ ESTILOS EXCLUSIVOS: ABA OFERTAS (VISUAL FIGMA)
+    // =======================================================
+    gridOfertasFigma: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+        width: '100%',
+    },
+    cardOfertaFigma: {
+        width: '48%', // Garante dois cards por linha
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        marginBottom: 15,
+        overflow: 'hidden',
+        elevation: 3, 
+        shadowColor: '#000', 
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+    },
+    containerImagemOfertaFigma: {
+        width: '100%',
+        height: 130, 
+        backgroundColor: '#F5F5F5',
+        position: 'relative',
+    },
+    imagemOfertaFigma: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    badgeTempoOfertaFigma: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        backgroundColor: '#FFB800', 
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    textoTempoOfertaFigma: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginLeft: 3,
+    },
+    btnFavoritoOfertaFigma: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: '#FFF',
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+        elevation: 2,
+    },
+    badgeEstoqueOfertaFigma: {
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+        backgroundColor: '#FFF5E6', 
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        zIndex: 10,
+    },
+    textoEstoqueOfertaFigma: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: '#B78103', 
+    },
+    infoOfertaFigma: {
+        padding: 10,
+    },
+    nomeProdutoOfertaFigma: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#1A1A1A',
+    },
+    linhaPrecoOfertaFigma: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 6,
+    },
+    precoPromoOfertaFigma: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#2E7D32', 
+    },
+    precoOriginalOfertaFigma: {
+        fontSize: 11,
+        color: '#999',
+        textDecorationLine: 'line-through',
+        marginLeft: 6,
+    },
+    btnAdicionarOfertaFigma: {
+        backgroundColor: '#2E7D32',
+        paddingVertical: 8,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+    },
+    textoBtnAdicionarOfertaFigma: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 13,
+        marginLeft: 5,
+    },
 });
+
 
 export default styles;

@@ -552,6 +552,59 @@ app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
     }
 });
 
+
+// =======================================================
+// 📦 ROTAS EXCLUSIVAS DO PRODUTOR (GERENCIAR VENDAS)
+// =======================================================
+
+// 1. Busca todos os pedidos que têm produtos desse produtor
+app.get('/pedidos/produtor/:produtor_id', async (req, res) => {
+    try {
+        const produtor_id = parseInt(req.params.produtor_id);
+        const listaVendas = await prisma.pedidos.findMany({
+            where: {
+                itens: {
+                    some: {
+                        produto: {
+                            produtor_id: produtor_id
+                        }
+                    }
+                }
+            },
+            include: {
+                cliente: { select: { nome: true, whatsapp: true } }, // Traz os dados do cliente
+                itens: {
+                    include: {
+                        produto: { select: { nome_produto: true, preco: true } }
+                    }
+                }
+            },
+            orderBy: { data_pedido: 'desc' }
+        });
+        res.json(listaVendas);
+    } catch (error) {
+        console.error("❌ Erro ao buscar vendas do produtor:", error);
+        res.status(500).json({ error: "Erro ao buscar vendas" });
+    }
+});
+
+// 2. Atualiza o status do pedido (Pendente -> Preparação -> Entregue)
+app.put('/pedidos/:id/status', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { status } = req.body;
+
+        const pedidoAtualizado = await prisma.pedidos.update({
+            where: { id: id },
+            data: { status: status }
+        });
+
+        res.json({ message: "Status atualizado com sucesso", pedido: pedidoAtualizado });
+    } catch (error) {
+        console.error("❌ Erro ao atualizar status:", error);
+        res.status(500).json({ error: "Erro ao atualizar status" });
+    }
+});
 console.log('📝 Endpoints registrados')
 
 app.listen(3000, () => {

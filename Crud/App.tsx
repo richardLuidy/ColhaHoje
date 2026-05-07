@@ -18,6 +18,7 @@ import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
 import SplashScreen from './src/pages/SplashScreen';
 import ConfirmarPedido from './src/pages/ConfirmarPedido';
+import DetalhesProduto from './src/pages/DetalhesProduto';
 
 // Importar SVGs
 import MapaCinza from './src/assets/mapa_cinza.svg';
@@ -42,10 +43,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// 🟢 ADICIONADO 'confirmar_pedido' ÀS CHAVES
-type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login' | 'confirmar_pedido';
+type TabKey = 'splash' | 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login' | 'confirmar_pedido' | 'detalhes_produto';
 
-const tabConfig: Record<Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido'>, { label: string; iconInactive: any; iconActive: any }> = {
+const tabConfig: Record<Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido' | 'detalhes_produto'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: { label: 'Mapa', iconInactive: MapaCinza, iconActive: MapaVerde },
   ofertas: { label: 'Ofertas', iconInactive: OfertasCinza, iconActive: OfertasVerde },
   inicio: { label: 'Início', iconInactive: HomeCinza, iconActive: HomeVerde },
@@ -56,9 +56,20 @@ const tabConfig: Record<Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido'>
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('splash');
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+  
+  const [produtoSelecionado, setProdutoSelecionado] = useState<any>(null);
+  const [abaAnterior, setAbaAnterior] = useState<TabKey>('inicio');
 
-  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido'>[];
-  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento'>('menu');
+  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido' | 'detalhes_produto'>[];
+
+  // 🟢 ATUALIZADO: Adicionado 'configuracoes' na lista de tipos abaixo
+  const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes'>('menu');
+
+  const abrirDetalhes = (produto: any) => {
+    setProdutoSelecionado(produto);
+    setAbaAnterior(activeTab);
+    setActiveTab('detalhes_produto');
+  };
 
   if (activeTab === 'splash') {
     return <SplashScreen onFinish={() => setActiveTab('login')} />;
@@ -79,41 +90,56 @@ export default function App() {
         <View style={styles.container}>
 
           <Header
-            activeTab={activeTab as any} // 👈 Adicione o 'as any' para silenciar o erro de tipo
+            activeTab={activeTab as any}
             onAbrirCarrinho={() => setCarrinhoAberto(true)}
-            forceShowBack={activeTab === 'confirmar_pedido' || (activeTab === 'perfil' && subTelaPerfil !== 'menu')}
+            forceShowBack={activeTab === 'confirmar_pedido' || activeTab === 'detalhes_produto' || (activeTab === 'perfil' && subTelaPerfil !== 'menu')}
             esconderSetaForçado={false}
             onBackPress={() => {
               if (activeTab === 'confirmar_pedido') {
                 setActiveTab('inicio');
+              } else if (activeTab === 'detalhes_produto') {
+                setActiveTab(abaAnterior);
               } else if (activeTab === 'perfil') {
+                // 🟢 Volta para o menu principal do perfil
                 setSubTelaPerfil('menu');
               }
             }}
           />
 
-          <View style={styles.content}>
-            {activeTab === 'mapa' && <Mapa />}
-            {activeTab === 'ofertas' && <Ofertas />}
-            {activeTab === 'inicio' && <Inicio />}
-            {activeTab === 'pedidos' && <Pedidos />}
+          {/* 🟢 TELAS NORMAIS */}
+          {activeTab !== 'detalhes_produto' && (
+            <View style={styles.content}>
+              {activeTab === 'mapa' && <Mapa />}
+              {activeTab === 'ofertas' && <Ofertas onVerDetalhes={abrirDetalhes} />}
+              {activeTab === 'inicio' && <Inicio onVerDetalhes={abrirDetalhes} />}
+              {activeTab === 'pedidos' && <Pedidos />}
+              
+              {activeTab === 'confirmar_pedido' && (
+                <ConfirmarPedido onFinalizado={() => setActiveTab('pedidos')} />
+              )}
 
-            {/* 🟢 NOVA TELA DE CONFIRMAÇÃO */}
-            {activeTab === 'confirmar_pedido' && (
-              <ConfirmarPedido onFinalizado={() => setActiveTab('pedidos')} />
-            )}
+              {activeTab === 'perfil' && (
+                <Perfil
+                  onLogout={() => setActiveTab('login')}
+                  telaAtual={subTelaPerfil}
+                  setTelaAtual={setSubTelaPerfil}
+                />
+              )}
+            </View>
+          )}
 
-            {activeTab === 'perfil' && (
-              <Perfil
-                onLogout={() => setActiveTab('login')}
-                telaAtual={subTelaPerfil}
-                setTelaAtual={setSubTelaPerfil}
+          {/* 🔴 TELA DE DETALHES */}
+          {activeTab === 'detalhes_produto' && (
+            <View style={{ flex: 1, width: '100%', backgroundColor: '#FFF' }}>
+              <DetalhesProduto 
+                produto={produtoSelecionado} 
+                onVoltar={() => setActiveTab(abaAnterior)} 
               />
-            )}
-          </View>
+            </View>
+          )}
 
-          {/* O FOOTER NÃO APARECE NA TELA DE CONFIRMAÇÃO PARA DAR FOCO NO PAGAMENTO */}
-          {activeTab !== 'confirmar_pedido' && (
+          {/* FOOTER */}
+          {activeTab !== 'confirmar_pedido' && activeTab !== 'detalhes_produto' && (
             <View style={styles.footer}>
               {tabs.map((key) => {
                 const isActive = key === activeTab;
@@ -145,7 +171,7 @@ export default function App() {
             onFechar={() => setCarrinhoAberto(false)}
             onFinalizar={() => {
               setCarrinhoAberto(false);
-              setActiveTab('confirmar_pedido'); // 👈 AGORA LEVA PARA A TELA DE CONFIRMAÇÃO
+              setActiveTab('confirmar_pedido');
             }}
           />
 
