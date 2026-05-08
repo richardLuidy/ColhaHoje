@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles'; // 🟢 Puxando o CSS global limpo
 import axios from 'axios';
