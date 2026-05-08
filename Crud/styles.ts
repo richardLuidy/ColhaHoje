@@ -1179,17 +1179,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    // =======================================================
-    // 🏠 ESTILOS DA TELA INÍCIO (VISUAL PREMIUM)
+   // =======================================================
+    // 🏠 ESTILOS DA TELA INÍCIO.tsx
     // =======================================================
 
     containerHomeSério: {
         flex: 1,
-        backgroundColor: '#F8F9FA', // Um cinza quase branco, mais moderno
+        backgroundColor: '#F8F9FA', 
     },
 
     contentContainerHomeSério: {
-        padding: 20, // Aumentei o respiro lateral para dar mais elegância
+        padding: 20, 
         paddingBottom: 100,
     },
 
@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
         color: '#1A1A1A',
         marginTop: 25,
         marginBottom: 15,
-        letterSpacing: -0.5, // Títulos mais juntos parecem mais profissionais
+        letterSpacing: -0.5, 
     },
 // =======================================================
     // ⚡ ESTILOS DO BANNER OFERTA RELÂMPAGO CORRIGIDOS
@@ -1238,22 +1238,32 @@ const styles = StyleSheet.create({
     bannerImageSério: {
         width: '100%',
         height: '100%',
-        resizeMode: 'cover',
     },
-    bannerBadgesRowSério: {
+
+    bannerOverlaySério: {
+        flex: 1,
+        padding: 16,
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(255, 255, 255, 0.6)', 
+    },
+
+    bannerHeaderSério: {
         flexDirection: 'row',
-        alignItems: 'center',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
     },
+
     badgeRelampagoSério: {
-        backgroundColor: '#2E7D32',
+        backgroundColor: colors.verdeColheita, // 🎨 Cor da paleta
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 8,
     },
+
     badgeTimerSério: {
-        backgroundColor: '#FFB800',
+        backgroundColor: colors.laranjaAlerta, // 🎨 Cor da paleta
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 8,
@@ -1261,19 +1271,24 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 6,
     },
+
     badgeTextBrancoSério: {
         color: '#FFF',
         fontSize: 10,
         fontWeight: 'bold',
-        marginLeft: 4,
+    },
+
+    bannerInfoSério: {
+        marginTop: 10,
     },
     bannerPorApenasSério: {
         fontSize: 12,
         color: '#888',
         marginTop: 4,
     },
+
     bannerBotaoAdicionarSério: {
-        backgroundColor: '#2E7D32',
+        backgroundColor: colors.verdeColheita, // 🎨 Cor da paleta
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -2016,7 +2031,7 @@ const styles = StyleSheet.create({
         height: 42,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFE5E5', // Fundo vermelho bem clarinho
+        backgroundColor: 'rgb(255, 255, 255)', // Fundo vermelho bem clarinho
         borderRadius: 12,
         alignSelf: 'flex-end',
     },
