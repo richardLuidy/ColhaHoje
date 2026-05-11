@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,17 +29,21 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
 
-  const [totalProdutos, setTotalProdutos] = useState<number | string>('...');
+  // Removido o totalProdutos do state para usar o calculado via useMemo (mais preciso)
   const [filtroAtivo, setFiltroAtivo] = useState<'Todos' | 'Catálogo' | 'Ofertas'>('Todos');
   const [ofertasBrutas, setOfertasBrutas] = useState<any[]>([]);
   const [agora, setAgora] = useState(new Date().getTime());
+
+  // 🟢 LOGICA DE FILTRO PARA O CONTADOR (Ignora produtos fantasmas)
+  const produtosValidos = useMemo(() => {
+    return listaProdutosEstoque.filter(p => p.nome_produto && parseFloat(p.preco) > 0);
+  }, [listaProdutosEstoque]);
 
   const fecharTudoEAtualizar = useCallback(() => {
     setAbrindoCadastro(false);
     setVendoMinhasOfertas(false);
     setVendoPedidos(false);
     setProdutoParaEditar(null);
-    setTotalProdutos('...'); 
     setListaProdutosEstoque([]);
     setTimeout(() => {
       setRefreshKey(prev => prev + 1);
@@ -69,10 +73,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const idSalvo = await AsyncStorage.getItem('user_id');
       if (!idSalvo) return;
 
-      // 1. Busca Produtos
-      const responseContar = await axios.get(`${API_URL}/produtos/contar/${idSalvo}`, { params: { _cache: Date.now() } });
-      if (responseContar.status === 200) setTotalProdutos(responseContar.data.total);
-
+      // 1. Busca Produtos (Pegamos a lista completa e tratamos o total aqui)
       const responseLista = await axios.get(`${API_URL}/produtos?produtor_id=${idSalvo}`, { params: { _cache: Date.now() } });
       if (responseLista.status === 200) setListaProdutosEstoque(responseLista.data);
 
@@ -80,7 +81,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const minhasOft = responseOfertas.data.filter((o: any) => o.produto.produtor_id === parseInt(idSalvo));
       setOfertasBrutas(minhasOft);
 
-      // 2. 🟢 Busca os Pedidos Recebidos REAL (SEM SIMULAÇÃO)
+      // 2. Busca os Pedidos Recebidos
       try {
         const responsePedidos = await axios.get(`${API_URL}/pedidos/produtor/${idSalvo}`);
         setPedidosRecebidos(responsePedidos.data);
@@ -94,7 +95,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
 
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
-      setTotalProdutos(0);
     }
   }, []);
 
@@ -133,18 +133,17 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
     ]);
   };
 
-  // 🟢 FUNÇÃO PARA ATUALIZAR STATUS DO PEDIDO (REAL)
   const atualizarStatusPedido = async (pedidoId: number, novoStatus: string) => {
     try {
         await axios.put(`${API_URL}/pedidos/${pedidoId}/status`, { status: novoStatus });
-        buscarDadosEstoque(); // Recarrega os dados silenciosamente para atualizar a tela
+        buscarDadosEstoque();
     } catch (error) {
         Alert.alert("Erro", "Não foi possível atualizar o status no servidor.");
         console.error("Erro no PUT status:", error);
     }
   };
 
-  const produtosFiltrados = listaProdutosEstoque.filter((produto) => {
+  const produtosFiltrados = produtosValidos.filter((produto) => {
     const ofertaDesteProduto = ofertasBrutas.find(o => o.produto.id === produto.id);
     if (ofertaDesteProduto) {
       const limite = new Date(ofertaDesteProduto.criado_em).getTime() + (ofertaDesteProduto.duracao_minutos * 60 * 1000);
@@ -225,10 +224,12 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         </View>
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Produtos Ativos</Text>
-          <Text style={styles.cardValorSério}>{totalProdutos}</Text>
+          {/* 🟢 AGORA MOSTRA APENAS O TOTAL DE PRODUTOS REAIS */}
+          <Text style={styles.cardValorSério}>{produtosValidos.length}</Text>
         </View>
       </View>
 
+      {/* O RESTANTE DO CÓDIGO CONTINUA IGUAL... */}
       <Text style={[styles.tituloSessaoSério, { marginTop: 15, marginBottom: 10 }]}>Logística</Text>
       <TouchableOpacity 
         style={[styles.cardCadastrarNovoSério, { borderColor: '#FFC107', borderWidth: 1 }]} 
@@ -238,7 +239,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <View style={styles.infoEstoqueSério}>
           <Text style={styles.tituloEstoqueSério}>Gerenciar Pedidos</Text>
           <Text style={styles.descEstoqueSério}>
-             Você tem {pedidosRecebidos.filter(p => p.status.toLowerCase().includes('pendente')).length} pedidos aguardando.
+              Você tem {pedidosRecebidos.filter(p => p.status.toLowerCase().includes('pendente')).length} pedidos aguardando.
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color={colors.placeholder} />

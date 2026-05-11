@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
-import styles from '../../styles'; // 🟢 Usando o seu styles global
+import styles from '../../styles'; 
 
 export default function Configuracoes({ onVoltar }: { onVoltar: () => void }) {
     const [notificacoes, setNotificacoes] = useState(true);
@@ -14,101 +14,159 @@ export default function Configuracoes({ onVoltar }: { onVoltar: () => void }) {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+        <View style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
             
-            {/* Título centralizado sem a seta interna (já existe no Header global) */}
-            <View style={{ padding: 20, backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#EEE', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.cinzaTecnico }}>Configurações</Text>
-            </View>
-
-            <ScrollView contentContainerStyle={{ padding: 15 }}>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 
-                <Text style={styles.sectionTitle}>PREFERÊNCIAS</Text>
+                {/* CABEÇALHO GRANDÃO (HERO) */}
+                <View style={styles.headerConfigContainer}>
+                    <View>
+                        <Text style={styles.headerConfigTitle}>Configurações</Text>
+                        <Text style={styles.headerConfigSubtitle}>Personalize sua experiência no ColhaHoje</Text>
+                    </View>
+                    <View style={styles.headerConfigIcon}>
+                        <Ionicons name="settings" size={26} color={colors.verdeColheita} />
+                    </View>
+                </View>
+
+                {/* SESSÃO: PREFERÊNCIAS */}
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="leaf-outline" size={16} color={colors.verdeColheita} />
+                    <Text style={styles.sectionTitle}>PREFERÊNCIAS</Text>
+                </View>
                 
                 <View style={styles.cardConfig}>
-                    <View style={styles.itemRow}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="notifications-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Notificações Push</Text>
+                    <View style={styles.itemRowConfig}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="notifications-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Notificações Push</Text>
+                                <Text style={styles.itemSubtitleConfig}>Receba avisos e novidades</Text>
+                            </View>
                         </View>
                         <Switch 
                             value={notificacoes} 
                             onValueChange={setNotificacoes} 
-                            trackColor={{ false: "#767577", true: colors.verdeColheita }}
+                            trackColor={{ false: "#E0E0E0", true: colors.verdeColheita }}
                         />
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={styles.dividerConfig} />
 
-                    <View style={styles.itemRow}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="moon-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Modo Escuro</Text>
+                    <View style={styles.itemRowConfig}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="moon-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Modo Escuro</Text>
+                                <Text style={styles.itemSubtitleConfig}>Tema escuro do aplicativo</Text>
+                            </View>
                         </View>
                         <Switch 
                             value={darkMode} 
                             onValueChange={(val) => { setDarkMode(val); handleManutencao(); }} 
-                            trackColor={{ false: "#767577", true: colors.verdeColheita }}
+                            trackColor={{ false: "#E0E0E0", true: colors.verdeColheita }}
                         />
                     </View>
                 </View>
 
-                <Text style={styles.sectionTitle}>SEGURANÇA</Text>
+                {/* SESSÃO: SEGURANÇA */}
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="shield-checkmark-outline" size={16} color={colors.verdeColheita} />
+                    <Text style={styles.sectionTitle}>SEGURANÇA</Text>
+                </View>
                 
                 <View style={styles.cardConfig}>
-                    <TouchableOpacity style={styles.itemRow} onPress={handleManutencao}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="lock-closed-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Alterar Senha</Text>
+                    <TouchableOpacity style={styles.itemRowConfig} onPress={handleManutencao}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="lock-closed-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Alterar Senha</Text>
+                                <Text style={styles.itemSubtitleConfig}>Altere sua senha de acesso</Text>
+                            </View>
                         </View>
                         <Ionicons name="chevron-forward" size={18} color="#CCC" />
                     </TouchableOpacity>
 
-                    <View style={styles.divider} />
+                    <View style={styles.dividerConfig} />
 
-                    <View style={styles.itemRow}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="finger-print-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Usar Biometria</Text>
+                    <View style={styles.itemRowConfig}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="finger-print-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Usar Biometria</Text>
+                                <Text style={styles.itemSubtitleConfig}>Acesse com impressão digital</Text>
+                            </View>
                         </View>
                         <Switch 
                             value={biometria} 
                             onValueChange={setBiometria} 
-                            trackColor={{ false: "#767577", true: colors.verdeColheita }}
+                            trackColor={{ false: "#E0E0E0", true: colors.verdeColheita }}
                         />
                     </View>
                 </View>
 
-                <Text style={styles.sectionTitle}>SUPORTE</Text>
+                {/* SESSÃO: SUPORTE */}
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="headset-outline" size={16} color={colors.verdeColheita} />
+                    <Text style={styles.sectionTitle}>SUPORTE</Text>
+                </View>
                 
                 <View style={styles.cardConfig}>
-                    <TouchableOpacity style={styles.itemRow} onPress={handleManutencao}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="help-circle-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Central de Ajuda</Text>
+                    <TouchableOpacity style={styles.itemRowConfig} onPress={handleManutencao}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="help-circle-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Central de Ajuda</Text>
+                                <Text style={styles.itemSubtitleConfig}>Tire dúvidas e encontre soluções</Text>
+                            </View>
                         </View>
                         <Ionicons name="chevron-forward" size={18} color="#CCC" />
                     </TouchableOpacity>
 
-                    <View style={styles.divider} />
+                    <View style={styles.dividerConfig} />
 
-                    <TouchableOpacity style={styles.itemRow} onPress={handleManutencao}>
-                        <View style={styles.iconLabel}>
-                            <Ionicons name="document-text-outline" size={22} color={colors.verdeColheita} />
-                            <Text style={styles.itemText}>Termos de Privacidade</Text>
+                    <TouchableOpacity style={styles.itemRowConfig} onPress={handleManutencao}>
+                        <View style={styles.itemLeftConfig}>
+                            <View style={styles.iconBoxConfig}>
+                                <Ionicons name="document-text-outline" size={20} color={colors.verdeColheita} />
+                            </View>
+                            <View style={styles.textContainerConfig}>
+                                <Text style={styles.itemTitleConfig}>Termos de Privacidade</Text>
+                                <Text style={styles.itemSubtitleConfig}>Leia nossos termos e políticas</Text>
+                            </View>
                         </View>
                         <Ionicons name="chevron-forward" size={18} color="#CCC" />
                     </TouchableOpacity>
                 </View>
 
+                {/* BOTÃO EXCLUIR CONTA */}
                 <TouchableOpacity 
-                    style={[styles.cardConfig, { marginTop: 20, alignItems: 'center', paddingVertical: 15 }]}
+                    style={styles.deleteCardConfig}
                     onPress={() => Alert.alert("Atenção", "Deseja mesmo excluir sua conta? Esta ação é irreversível.")}
                 >
-                    <Text style={{ color: '#FF4444', fontSize: 13, fontWeight: '500' }}>Excluir minha conta permanentemente</Text>
+                    <View style={styles.itemLeftConfig}>
+                        <View style={styles.deleteIconBoxConfig}>
+                            <Ionicons name="log-out-outline" size={20} color="#DC2626" />
+                        </View>
+                        <View style={styles.textContainerConfig}>
+                            <Text style={styles.deleteTitleConfig}>Excluir minha conta permanentemente</Text>
+                            <Text style={styles.deleteSubtitleConfig}>Todos os seus dados serão apagados</Text>
+                        </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#DC2626" />
                 </TouchableOpacity>
 
-                <Text style={{ textAlign: 'center', color: '#CCC', fontSize: 11, marginTop: 15 }}>ColhaHoje v1.0.2 • Registro/SP</Text>
+                <Text style={styles.footerTextConfig}>ColhaHoje v1.0.2 • Registro/SP</Text>
 
             </ScrollView>
         </View>

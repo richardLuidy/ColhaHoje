@@ -2286,41 +2286,144 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginLeft: 5,
     },
+   // =======================================================
+    // ⚙️ TELA DE CONFIGURAÇÕES (VISUAL PREMIUM DA IA)
     // =======================================================
-    // ⚙️ TELA DE CONFIGURAÇÕES
-    // =======================================================
-    sectionTitle: { 
-        fontSize: 13, 
-        fontWeight: 'bold', 
-        color: '#999', 
-        marginBottom: 8, 
-        marginLeft: 5, 
-        marginTop: 15 
+    headerConfigContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 15,
     },
-    cardConfig: { 
-        backgroundColor: '#FFF', 
-        borderRadius: 15, 
-        paddingHorizontal: 15, 
-        elevation: 1 
+    headerConfigTitle: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: '#1A1A1A',
+        marginBottom: 4,
     },
-    itemRow: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        paddingVertical: 15 
+    headerConfigSubtitle: {
+        fontSize: 13,
+        color: '#888',
     },
-    iconLabel: { 
-        flexDirection: 'row', 
-        alignItems: 'center' 
+    headerConfigIcon: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#F0FDF4', // Verde bem clarinho
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#DCFCE7',
     },
-    itemText: { 
-        marginLeft: 15, 
-        fontSize: 16, 
-        color: '#333' 
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 25,
+        marginBottom: 10,
+        paddingHorizontal: 25,
     },
-    divider: { 
-        height: 1, 
-        backgroundColor: '#F1F1F1' 
+    sectionTitle: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+        marginLeft: 8,
+        letterSpacing: 0.5,
+    },
+    cardConfig: {
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        marginHorizontal: 20,
+        paddingHorizontal: 15,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        elevation: 1, // Sombra suave no Android
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+    },
+    itemRowConfig: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+    },
+    itemLeftConfig: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    iconBoxConfig: {
+        width: 42,
+        height: 42,
+        borderRadius: 12,
+        backgroundColor: '#F0FDF4', 
+        borderWidth: 1,
+        borderColor: '#DCFCE7',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    textContainerConfig: {
+        marginLeft: 15,
+        flex: 1,
+    },
+    itemTitleConfig: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 2,
+    },
+    itemSubtitleConfig: {
+        fontSize: 12,
+        color: '#888',
+    },
+    dividerConfig: {
+        height: 1,
+        backgroundColor: '#F5F5F5',
+        marginLeft: 55, // Faz a linha começar depois do ícone
+    },
+    deleteCardConfig: {
+        backgroundColor: '#FEF2F2', // Vermelho bem clarinho
+        borderRadius: 16,
+        marginHorizontal: 20,
+        marginTop: 25,
+        paddingHorizontal: 15,
+        paddingVertical: 16,
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    deleteIconBoxConfig: {
+        width: 42,
+        height: 42,
+        borderRadius: 12,
+        backgroundColor: '#FFF',
+        borderWidth: 1,
+        borderColor: '#FECACA',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    deleteTitleConfig: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#DC2626', // Vermelho forte
+        marginBottom: 2,
+    },
+    deleteSubtitleConfig: {
+        fontSize: 12,
+        color: '#DC2626',
+        opacity: 0.8,
+    },
+    footerTextConfig: {
+        textAlign: 'center',
+        color: '#BBB',
+        fontSize: 12,
+        marginTop: 30,
+        marginBottom: 40,
     },
 
 
@@ -2443,6 +2546,181 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 13,
         marginLeft: 5,
+    },
+
+    // =======================================================
+    // 👑 TELA DO PAINEL ADMIN (PainelAdmin.tsx)
+    // =======================================================
+    adminContainer: {
+        flex: 1,
+        backgroundColor: '#F4F6F8',
+    },
+    adminHeader: {
+        backgroundColor: '#1E1E1E', // Fundo escuro premium
+        paddingTop: 50,
+        paddingBottom: 25,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        elevation: 5,
+    },
+    adminBtnVoltar: {
+        padding: 8,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 12,
+    },
+    adminHeaderTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFF',
+    },
+    adminHeaderSubtitle: {
+        fontSize: 13,
+        color: '#D4AF37', // Dourado
+        marginTop: 2,
+    },
+    adminLoadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    adminAlertBox: {
+        backgroundColor: '#FFFDF0',
+        borderColor: '#FBEB8D',
+        borderWidth: 1,
+        borderRadius: 12,
+        padding: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 25,
+    },
+    adminAlertText: {
+        flex: 1,
+        marginLeft: 15,
+        color: '#8A6D3B',
+        fontSize: 13,
+    },
+    adminSectionTitle: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#888',
+        marginBottom: 12,
+        marginLeft: 5,
+        letterSpacing: 0.5,
+    },
+    adminRowCards: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 30,
+    },
+    adminKpiCard: {
+        backgroundColor: '#FFF',
+        width: '31%',
+        paddingVertical: 18,
+        borderRadius: 16,
+        alignItems: 'center',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+    },
+    adminIconCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    adminKpiValue: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    adminKpiLabel: {
+        fontSize: 11,
+        color: '#999',
+        marginTop: 2,
+    },
+    adminHeaderList: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingRight: 5,
+    },
+    adminListContainer: {
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+    },
+    adminListItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    adminItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    adminItemIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: '#F8F9FA',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    adminItemName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    adminItemCategory: {
+        fontSize: 12,
+        color: '#999',
+        marginTop: 2,
+    },
+    adminItemPrice: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: colors.verdeColheita,
+    },
+    adminItemUnit: {
+        fontSize: 11,
+        color: '#999',
+    },
+    adminEmptyText: {
+        textAlign: 'center',
+        padding: 20,
+        color: '#999',
+    },
+    adminBtnRelatorio: {
+        backgroundColor: '#1E1E1E',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 16,
+        borderRadius: 16,
+        marginTop: 25,
+    },
+    adminBtnRelatorioText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginLeft: 10,
     },
 });
 

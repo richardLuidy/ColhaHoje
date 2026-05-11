@@ -259,9 +259,9 @@ app.get('/produtos/contar/:produtor_id', async (req, res) => {
     try {
         const produtor_id = parseInt(req.params.produtor_id);
         const total = await prisma.produtos.count({
-            where: { 
+            where: {
                 produtor_id: produtor_id,
-                status: 'ativo' 
+                status: 'ativo'
             }
         });
         res.status(200).json({ total });
@@ -605,6 +605,69 @@ app.put('/pedidos/:id/status', async (req, res) => {
         res.status(500).json({ error: "Erro ao atualizar status" });
     }
 });
+
+// ==========================================
+// 👑 ROTA DO PAINEL ADMIN (COMPLETA)
+// ==========================================
+app.get('/admin/dashboard', async (req, res) => {
+    try {
+        const totalUsuarios = await prisma.usuarios.count(); 
+        const totalProdutos = await prisma.produtos.count();
+        const totalPedidos = await prisma.pedidos.count();
+
+        // 1. Puxando os últimos Usuários (para ver os emails)
+        const ultimosUsuarios = await prisma.usuarios.findMany({
+            take: 5,
+            orderBy: { id: 'desc' },
+            select: { id: true, nome: true, email: true, tipo_usuario: true }
+        });
+
+        // 2. Puxando os Produtos Normais (Catálogo)
+        const ultimosProdutos = await prisma.produtos.findMany({
+            take: 5,
+            orderBy: { id: 'desc' },
+            include: { produtor: { select: { nome: true } } }
+        });
+
+        // 3. Puxando as Ofertas Relâmpago
+        const ofertasAtivas = await prisma.ofertas_relampago.findMany({
+            take: 5,
+            orderBy: { id: 'desc' },
+            include: {
+                produto: {
+                    include: { produtor: { select: { nome: true } } }
+                }
+            }
+        });
+
+        // 4. Puxando os Pedidos (Transações)
+        const ultimosPedidos = await prisma.pedidos.findMany({
+            take: 5,
+            orderBy: { id: 'desc' },
+            include: {
+                cliente: { select: { nome: true } },
+                itens: {
+                    include: {
+                        produto: { include: { produtor: { select: { nome: true } } } }
+                    }
+                }
+            }
+        });
+
+        res.json({
+            totais: { usuarios: totalUsuarios, produtos: totalProdutos, pedidos: totalPedidos },
+            ultimosUsuarios,
+            ultimosProdutos,
+            ofertasAtivas,
+            ultimosPedidos 
+        });
+
+    } catch (error) {
+        console.error("❌ ERRO NO BACKEND ADMIN:", error);
+        res.status(500).json({ error: "Erro ao carregar dados", detalhe: error.message });
+    }
+});
+
 console.log('📝 Endpoints registrados')
 
 app.listen(3000, () => {

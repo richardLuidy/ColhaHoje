@@ -12,7 +12,8 @@ import Enderecos from './Enderecos';
 import QueroVender from './QueroVender';
 import MetodosPagamento from '../components/MetodosPagamento';
 import HistoricoPedidos from './HistoricoPedidos'; 
-import Configuracoes from './Configuracoes'; // 🟢 1. IMPORTAMOS A NOVA TELA
+import Configuracoes from './Configuracoes'; 
+import PainelAdmin from './PainelAdmin'; // 👑 1. IMPORTAMOS A NOVA TELA ADMIN
 
 // 📂 Importação dos Ícones SVG
 const iconDados = Image.resolveAssetSource(require('../assets/icon-dados.svg')).uri;
@@ -22,21 +23,25 @@ const iconPagamento = Image.resolveAssetSource(require('../assets/icon-pagamento
 const iconConfig = Image.resolveAssetSource(require('../assets/icon-config.svg')).uri;
 const iconVender = Image.resolveAssetSource(require('../assets/icon-vender.svg')).uri;
 
-// 🟢 2. ADICIONAMOS 'configuracoes' NA INTERFACE (Isso remove o erro do TypeScript)
+// 👑 2. ADICIONAMOS 'admin' NA INTERFACE
 interface PerfilProps {
   onLogout: () => void;
-  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes'; 
-  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes') => void;
+  telaAtual: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes' | 'admin'; 
+  setTelaAtual: (tela: 'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes' | 'admin') => void;
 }
 
 export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProps) {
   const [nomeUsuario, setNomeUsuario] = useState('Carregando...');
+  const [emailUsuario, setEmailUsuario] = useState(''); // 👑 3. NOVO ESTADO PARA O EMAIL
 
   useEffect(() => {
     const carregarDadosReais = async () => {
       try {
         const nomeSalvo = await AsyncStorage.getItem('user_name');
+        const emailSalvo = await AsyncStorage.getItem('user_email'); // 👑 Puxa o email do banco local
+        
         setNomeUsuario(nomeSalvo || "Usuário");
+        setEmailUsuario(emailSalvo || ""); // 👑 Salva o email para a verificação
       } catch (e) {
         console.error("Erro ao ler AsyncStorage:", e);
         setNomeUsuario("Usuário");
@@ -54,17 +59,16 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
     }
   };
 
-  // 🟢 3. LÓGICA DE EXIBIÇÃO (ROTEAMENTO)
+  // 🟢 LÓGICA DE EXIBIÇÃO (ROTEAMENTO)
   if (telaAtual === 'dados') return <DadosPessoais onVoltar={() => setTelaAtual('menu')} />;
   if (telaAtual === 'enderecos') return <Enderecos onVoltar={() => setTelaAtual('menu')} />;
   if (telaAtual === 'vender') return <QueroVender onVoltar={() => setTelaAtual('menu')} />;
   if (telaAtual === 'pagamento') return <MetodosPagamento onVoltar={() => setTelaAtual('menu')} />;
-  if (telaAtual === 'historico') return <HistoricoPedidos />; // Removi o onVoltar se o Historico usa o Header do App
+  if (telaAtual === 'historico') return <HistoricoPedidos />; 
+  if (telaAtual === 'configuracoes') return <Configuracoes onVoltar={() => setTelaAtual('menu')} />;
   
-  // 🟢 NOVA ROTA DE CONFIGURAÇÕES
-  if (telaAtual === 'configuracoes') {
-    return <Configuracoes onVoltar={() => setTelaAtual('menu')} />;
-  }
+  // 👑 NOVA ROTA DO PAINEL ADMIN
+  if (telaAtual === 'admin') return <PainelAdmin onVoltar={() => setTelaAtual('menu')} />;
 
   return (
     <ScrollView contentContainerStyle={styles.containerLogin} showsVerticalScrollIndicator={false}>
@@ -100,11 +104,7 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
       </TouchableOpacity>
 
-      {/* 🟢 4. BOTÃO DE CONFIGURAÇÕES COM AÇÃO! */}
-      <TouchableOpacity 
-        style={styles.inputContainer} 
-        onPress={() => setTelaAtual('configuracoes')}
-      >
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setTelaAtual('configuracoes')}>
         <SvgUri width={24} height={24} uri={iconConfig} />
         <Text style={styles.inputLabel}>Configurações</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.cinzaTecnico} style={styles.iconChevron} />
@@ -115,6 +115,18 @@ export default function Perfil({ onLogout, telaAtual, setTelaAtual }: PerfilProp
         <Text style={styles.inputLabelSeller}>Quero Vender</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.verdeColheita} style={styles.iconChevron} />
       </TouchableOpacity>
+
+      {/* 👑 4. BOTÃO SECRETO DO SUPER ADMIN (Só aparece para admin@colhahoje.com) */}
+      {emailUsuario === 'admin@colhahoje.com' && (
+        <TouchableOpacity 
+          style={[styles.inputContainer, { borderColor: '#FFD700', borderWidth: 2, backgroundColor: '#FFFDF0', marginTop: 10 }]} 
+          onPress={() => setTelaAtual('admin')}
+        >
+          <Ionicons name="shield-checkmark" size={24} color="#D4AF37" />
+          <Text style={[styles.inputLabel, { color: '#D4AF37', fontWeight: 'bold' }]}>Painel do Administrador</Text>
+          <Ionicons name="chevron-forward" size={20} color="#D4AF37" style={styles.iconChevron} />
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Sair da conta</Text>
