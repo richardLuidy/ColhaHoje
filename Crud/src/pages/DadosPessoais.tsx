@@ -9,7 +9,7 @@ import { colors } from '../../colors';
 
 
 // 🟢 2. Configurando o IP do servidor (confirme se é esse mesmo que você usa)
-const API_URL = 'http://10.0.2.2:3000'; 
+const API_URL = 'http://192.168.0.116:3000'; 
 
 interface DadosPessoaisProps {
   onVoltar: () => void;

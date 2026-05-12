@@ -31,57 +31,18 @@ interface HeaderProps {
     activeTab: TabKey;
     onBackPress?: () => void;
     forceShowBack?: boolean;
+    onSearchPress?: () => void;
 }
 
 // =======================================================
 // 🚀 COMPONENTE HEADER
 // =======================================================
-export default function Header({ activeTab, onBackPress, forceShowBack }: HeaderProps) {
-    const [isSearching, setIsSearching] = useState(false);
+export default function Header({ activeTab, onBackPress, forceShowBack, onSearchPress }: HeaderProps) {
 
     if (activeTab === 'login' || activeTab === 'cadastro') return null;
     
     const currentHeader = headerConfig[activeTab];
 
-    // ==========================================
-    // 🔍 MODO PESQUISA (Barra Branca Ativa)
-    // ==========================================
-    if (isSearching) {
-        return (
-            <View style={styles.headerContainer}>
-                <View style={styles.searchContainer}>
-
-                    {/* Seta de voltar: Aumentada para 28 */}
-                    <TouchableOpacity onPress={() => setIsSearching(false)} style={styles.iconButton}>
-                        <SvgUri width={28} height={28} uri={icons.voltar} />
-                    </TouchableOpacity>
-
-                    {/* Campo de Entrada Branco */}
-                    <View style={styles.searchInputFieldContainer}>
-                        <View style={{ marginRight: 10 }}>
-                            {/* Lupa Preta: Aumentada para 24 para destacar na barra */}
-                            <SvgUri width={24} height={24} uri={icons.lupaPreta} />
-                        </View>
-
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Morangos"
-                            placeholderTextColor={colors.placeholder}
-                            autoFocus={true} 
-                        />
-                    </View>
-
-                    {/* Sacola: Aumentada para 28 */}
-                    <TouchableOpacity style={styles.iconButton}>
-                        <SvgUri width={28} height={28} uri={icons.sacola} />
-                    </TouchableOpacity>
-
-                </View>
-            </View>
-        );
-    }
-    
-    // 🟢 AQUI ESTÁ A VARIÁVEL QUE VOCÊ CRIOU
     const showBackButton = currentHeader.showBack || forceShowBack;
 
     // ==========================================
@@ -92,7 +53,6 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
 
             {/* Lado Esquerdo (Seta no Perfil): Aumentada para 28 */}
             <View style={styles.headerSide}>
-                {/* 🟢A MUDANÇA ESTÁ AQUI: Troquei 'currentHeader.showBack' por 'showBackButton' */}
                 {showBackButton && (
                     <TouchableOpacity onPress={onBackPress} style={styles.iconButton}>
                         <SvgUri width={28} height={28} uri={icons.voltar} />
@@ -111,7 +71,7 @@ export default function Header({ activeTab, onBackPress, forceShowBack }: Header
                     <>
                         <TouchableOpacity
                             style={styles.iconButton}
-                            onPress={() => setIsSearching(true)}
+                            onPress={onSearchPress}
                         >
                             {/* Lupa Branca: Aumentada para 28 */}
                             <SvgUri width={28} height={28} uri={icons.lupaBranca} />

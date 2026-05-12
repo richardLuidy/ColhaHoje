@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colors.branco,
         paddingVertical: 8,
+        paddingBottom: 32,
     },
 
     // Botão de cada aba no footer
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flex: 1,
+        paddingVertical: 8,
     },
 
     // Texto da aba quando está inativa

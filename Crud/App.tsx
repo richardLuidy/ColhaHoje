@@ -12,6 +12,7 @@ import Ofertas from './src/pages/Ofertas';
 import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
+import Pesquisa from './src/pages/Pesquisa';
 
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
 
@@ -52,6 +53,8 @@ export default function App() {
   // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
 
+  const [isSearching, setIsSearching] = useState(false);
+
   // 2. Criamos o resolvedIcons
   const resolvedIcons = useMemo(() => {
     const result = {} as Record<Exclude<TabKey, 'login'>, { active: string; inactive: string }>;
@@ -79,6 +82,16 @@ export default function App() {
     );
   }
 
+  // 🟢 Lógica de Pesquisa (Full Screen)
+  if (isSearching) {
+    return (
+      <View style={styles.container}>
+        <Pesquisa onBack={() => setIsSearching(false)} />
+        <StatusBar style="light" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       
@@ -89,6 +102,7 @@ export default function App() {
         onBackPress={() => {
           if (activeTab === 'perfil') setSubTelaPerfil('menu');
         }}
+        onSearchPress={() => setIsSearching(true)}
       />
 
       <View style={styles.content}>

@@ -20,6 +20,7 @@ model usuarios {
   data_atualizacao DateTime    @default(now())
   enderecos        enderecos[] 
   produtos         produtos[]
+  pedidos          pedidos[]
 }
 
 model enderecos {
@@ -61,6 +62,7 @@ model produtos {
 
   // ⚡ RELAÇÃO NOVA: Permite que este produto tenha Ofertas Relâmpago
   ofertas_relampago ofertas_relampago[] 
+  pedidos           pedidos[]
 }
 
 model ofertas_relampago {
@@ -74,4 +76,17 @@ model ofertas_relampago {
 
   // Relacionamento: Liga a oferta ao produto selecionado
   produto           produtos @relation(fields: [produto_id], references: [id], onDelete: Cascade)
+}
+
+model pedidos {
+  id                Int      @id @default(autoincrement())
+  comprador_id      Int
+  produto_id        Int
+  quantidade        Int
+  preco_total       Decimal  @db.Decimal(10, 2)
+  status            String   @default("andamento") // andamento, concluido, cancelado
+  data_pedido       DateTime @default(now())
+  
+  comprador         usuarios @relation(fields: [comprador_id], references: [id])
+  produto           produtos @relation(fields: [produto_id], references: [id])
 }

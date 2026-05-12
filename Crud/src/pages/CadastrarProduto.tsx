@@ -77,7 +77,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       return;
     }
     const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images,
       allowsEditing: true, 
       aspect: [4, 3], 
       quality: 0.7, 
@@ -166,10 +166,10 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
         <TextInput style={styles.inputGeralCadastrar} value={nomeProduto} onChangeText={setNomeProduto} />
 
         <Text style={styles.labelGeralCadastrar}>Nome do Produtor:</Text>
-        <TextInput style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} value={nomeProdutor} editable={false} />
+        <TextInput style={styles.inputGeralCadastrar} value={nomeProdutor} onChangeText={setNomeProdutor} />
 
         <Text style={styles.labelGeralCadastrar}>Localização:</Text>
-        <TextInput style={[styles.inputGeralCadastrar, styles.inputDesativadoCadastrar]} value={localizacao} editable={false} />
+        <TextInput style={styles.inputGeralCadastrar} value={localizacao} onChangeText={setLocalizacao} />
 
         <Text style={styles.labelCategoriaCadastrar}>Categoria</Text>
         <View style={styles.categoriaContainerCadastrar}>

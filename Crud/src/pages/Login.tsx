@@ -11,8 +11,8 @@ const iconLogo = Image.resolveAssetSource(require('../assets/logo.svg')).uri;
 const iconEmail = Image.resolveAssetSource(require('../assets/icon-email.svg')).uri;
 const iconSenha = Image.resolveAssetSource(require('../assets/icon-senha.svg')).uri;
 
-// ⚠️ ATENÇÃO: Verifique se este é o IP atual do seu computador no Wi-Fi (ipconfig)
-const API_URL = 'http://192.168.56.1:3000'; 
+// ⚠️ ATENÇÃO: Use 'http://localhost:3000' para web, ou '192.168.0.116:3000' para emulador Android
+const API_URL = 'http://192.168.0.116:3000'; 
 
 interface LoginProps {
   onLoginSuccess: () => void;
