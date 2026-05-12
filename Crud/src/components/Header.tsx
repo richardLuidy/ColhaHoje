@@ -4,11 +4,12 @@ import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import { colors } from '../../colors';
 import styles from '../../styles'; 
+import { useCart } from '../contexts/CartContext';
 
 // =======================================================
 // 🗂️ TIPAGEM E CONFIGURAÇÃO
 // =======================================================
-type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login' | 'cadastro';
+type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'carrinho' | 'perfil' | 'login' | 'cadastro';
 
 const icons = {
     lupaBranca: Image.resolveAssetSource(require('../../src/assets/Lupa_Branca.svg')).uri,
@@ -32,12 +33,14 @@ interface HeaderProps {
     onBackPress?: () => void;
     forceShowBack?: boolean;
     onSearchPress?: () => void;
+    onCartPress?: () => void;
 }
 
 // =======================================================
 // 🚀 COMPONENTE HEADER
 // =======================================================
-export default function Header({ activeTab, onBackPress, forceShowBack, onSearchPress }: HeaderProps) {
+export default function Header({ activeTab, onBackPress, forceShowBack, onSearchPress, onCartPress }: HeaderProps) {
+    const { totalItems } = useCart();
 
     if (activeTab === 'login' || activeTab === 'cadastro') return null;
     
@@ -77,9 +80,14 @@ export default function Header({ activeTab, onBackPress, forceShowBack, onSearch
                             <SvgUri width={28} height={28} uri={icons.lupaBranca} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.iconButton}>
+                        <TouchableOpacity style={styles.iconButton} onPress={onCartPress}>
                             {/* Sacola Branca: Aumentada para 28 */}
                             <SvgUri width={28} height={28} uri={icons.sacola} />
+                            {totalItems > 0 && (
+                                <View style={styles.cartBadge}>
+                                    <Text style={styles.cartBadgeText}>{totalItems}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                     </>
                 )}

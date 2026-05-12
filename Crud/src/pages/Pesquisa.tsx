@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageBackground, FlatList, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageBackground, FlatList, Image, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SvgUri } from 'react-native-svg';
 import { colors } from '../../colors';
+import { useCart } from '../contexts/CartContext';
 
 export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -10,6 +11,8 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const [filteredProdutos, setFilteredProdutos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriaSelected, setCategoriaSelected] = useState<string | null>(null);
+  const { addToCart } = useCart();
+  const [selectedQuantity, setSelectedQuantity] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
     // Buscar todos os produtos da API
@@ -46,10 +49,6 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
 
     setFilteredProdutos(resultado);
   }, [searchQuery, categoriaSelected, produtos]);
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [filteredProdutos, setFilteredProdutos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [categoriaSelected, setCategoriaSelected] = useState<string | null>(null);
 
   const categorias = [
     { id: 1, nome: 'Ofertas Relâmpago', icone: 'flash', cor: '#FFA000' },
@@ -134,7 +133,7 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                     columnWrapperStyle={{ gap: 10 }}
                     renderItem={({ item }) => (
                       <View style={{ flex: 1 }}>
-                        <TouchableOpacity style={styles.produtoCard}>
+                        <View style={styles.produtoCard}>
                           <Image 
                             source={{ uri: item.imagem_url }} 
                             style={styles.produtoImage}
@@ -146,8 +145,18 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                               <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
                               <Text style={styles.unidade}>{item.unidade}</Text>
                             </View>
+                            <TouchableOpacity 
+                              style={styles.addToCartBtn}
+                              onPress={() => {
+                                addToCart(item, 1);
+                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
+                              }}
+                            >
+                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
+                              <Text style={styles.addToCartText}>Adicionar</Text>
+                            </TouchableOpacity>
                           </View>
-                        </TouchableOpacity>
+                        </View>
                       </View>
                     )}
                   />
@@ -249,7 +258,7 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                     columnWrapperStyle={{ gap: 10 }}
                     renderItem={({ item }) => (
                       <View style={{ flex: 1 }}>
-                        <TouchableOpacity style={styles.produtoCard}>
+                        <View style={styles.produtoCard}>
                           <Image 
                             source={{ uri: item.imagem_url }} 
                             style={styles.produtoImage}
@@ -261,15 +270,25 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                               <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
                               <Text style={styles.unidade}>{item.unidade}</Text>
                             </View>
+                            <TouchableOpacity 
+                              style={styles.addToCartBtn}
+                              onPress={() => {
+                                addToCart(item, 1);
+                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
+                              }}
+                            >
+                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
+                              <Text style={styles.addToCartText}>Adicionar</Text>
+                            </TouchableOpacity>
                           </View>
-                        </TouchableOpacity>
+                        </View>
                       </View>
                     )}
                   />
                 </>
               )}
 
-              {/* Todos os produtos (sem filtro) */}
+              {/* Todos os produtos (sem filtro) */
               {!searchQuery.trim() && !categoriaSelected && (
                 <>
                   <Text style={styles.searchResultTitle}>Produtos Disponíveis</Text>
@@ -281,7 +300,7 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                     columnWrapperStyle={{ gap: 10 }}
                     renderItem={({ item }) => (
                       <View style={{ flex: 1 }}>
-                        <TouchableOpacity style={styles.produtoCard}>
+                        <View style={styles.produtoCard}>
                           <Image 
                             source={{ uri: item.imagem_url }} 
                             style={styles.produtoImage}
@@ -293,8 +312,18 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                               <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
                               <Text style={styles.unidade}>{item.unidade}</Text>
                             </View>
+                            <TouchableOpacity 
+                              style={styles.addToCartBtn}
+                              onPress={() => {
+                                addToCart(item, 1);
+                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
+                              }}
+                            >
+                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
+                              <Text style={styles.addToCartText}>Adicionar</Text>
+                            </TouchableOpacity>
                           </View>
-                        </TouchableOpacity>
+                        </View>
                       </View>
                     )}
                   />
@@ -402,7 +431,16 @@ const styles = StyleSheet.create({
   produtoInfo: { padding: 10 },
   produtoNome: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 4 },
   produtoProdutor: { fontSize: 11, color: '#999', marginBottom: 8 },
-  precoContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  precoContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   preco: { fontSize: 14, fontWeight: '700', color: '#387C59' },
   unidade: { fontSize: 10, color: '#999', fontWeight: '500' },
+  addToCartBtn: {
+    backgroundColor: '#387C59',
+    borderRadius: 8,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addToCartText: { color: '#FFF', fontSize: 12, fontWeight: '600' },
 });

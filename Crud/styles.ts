@@ -1340,6 +1340,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    
+    // Estilos do Badge do Carrinho
+    cartBadge: {
+        position: 'absolute',
+        top: -6,
+        right: -6,
+        backgroundColor: '#FFA000',
+        borderRadius: 12,
+        minWidth: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cartBadgeText: {
+        color: '#FFF',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
 });
 
 export default styles;

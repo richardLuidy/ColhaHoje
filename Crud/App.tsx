@@ -4,6 +4,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import styles from './styles';
 import Header from './src/components/Header';
+import { CartProvider, useCart } from './src/contexts/CartContext';
 
 // 🚀 TELAS
 import Inicio from './src/pages/Inicio';
@@ -13,8 +14,9 @@ import Pedidos from './src/pages/Pedidos';
 import Perfil from './src/pages/Perfil';
 import Login from './src/pages/Login';
 import Pesquisa from './src/pages/Pesquisa';
+import Carrinho from './src/pages/Carrinho';
 
-type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'perfil' | 'login';
+type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'carrinho' | 'perfil' | 'login';
 
 const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
@@ -37,6 +39,11 @@ const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive:
     iconInactive: require('./src/assets/pedidos_cinza.svg'),
     iconActive: require('./src/assets/pedidos_verde.svg'),
   },
+  carrinho: {
+    label: 'Carrinho',
+    iconInactive: require('./src/assets/pedidos_cinza.svg'),
+    iconActive: require('./src/assets/pedidos_verde.svg'),
+  },
   perfil: {
     label: 'Perfil',
     iconInactive: require('./src/assets/perfil_cinza.svg'),
@@ -45,6 +52,14 @@ const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive:
 };
 
 export default function App() {
+  return (
+    <CartProvider>
+      <AppContent />
+    </CartProvider>
+  );
+}
+
+function AppContent() {
   const [activeTab, setActiveTab] = useState<TabKey>('login');
   
   // 1. Definimos as abas do footer
@@ -110,6 +125,7 @@ export default function App() {
         {activeTab === 'ofertas' && <Ofertas />}
         {activeTab === 'inicio' && <Inicio />}
         {activeTab === 'pedidos' && <Pedidos />}
+        {activeTab === 'carrinho' && <Carrinho />}
         
         {/* 🟢 PERFIL ATUALIZADO: Recebe as novas props de controle */}
         {activeTab === 'perfil' && (
