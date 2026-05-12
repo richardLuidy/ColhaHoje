@@ -23,7 +23,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   // 🟢 ESTADO PARA EDIÇÃO
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
 
-  const API_URL = 'http://10.0.2.2:3000';
+  const API_URL = 'http://192.168.0.116:3000';
 
   const buscarDadosEstoque = useCallback(async () => {
     try {
