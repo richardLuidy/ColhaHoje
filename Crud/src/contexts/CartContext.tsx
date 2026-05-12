@@ -13,7 +13,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (produto: any, quantidade: number) => void;
+  addToCart: (produto: any) => void;
   removeFromCart: (produto_id: number) => void;
   updateQuantity: (produto_id: number, quantidade: number) => void;
   clearCart: () => void;
@@ -33,16 +33,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalPrice = items.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
 
   // Adicionar ao carrinho
-  const addToCart = (produto: any, quantidade: number) => {
+  const addToCart = (produto: any) => {
     setItems((prevItems) => {
       // Verificar se o produto já existe no carrinho
-      const existingItem = prevItems.find((item) => item.produto_id === produto.id);
+      const existingItem = prevItems.find((item) => item.produto_id === produto.produto_id);
 
       if (existingItem) {
         // Se existe, aumentar a quantidade
         return prevItems.map((item) =>
-          item.produto_id === produto.id
-            ? { ...item, quantidade: item.quantidade + quantidade }
+          item.produto_id === produto.produto_id
+            ? { ...item, quantidade: item.quantidade + (produto.quantidade || 1) }
             : item
         );
       } else {
@@ -50,14 +50,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return [
           ...prevItems,
           {
-            id: produto.id,
-            produto_id: produto.id,
+            id: produto.produto_id,
+            produto_id: produto.produto_id,
             nome_produto: produto.nome_produto,
             imagem_url: produto.imagem_url,
             preco: parseFloat(produto.preco.toString()),
-            quantidade,
+            quantidade: produto.quantidade || 1,
             nome_produtor: produto.nome_produtor,
-            unidade: produto.unidade,
+            unidade: produto.unidade || '',
           },
         ];
       }

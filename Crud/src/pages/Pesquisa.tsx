@@ -12,11 +12,9 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(true);
   const [categoriaSelected, setCategoriaSelected] = useState<string | null>(null);
   const { addToCart } = useCart();
-  const [selectedQuantity, setSelectedQuantity] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
-    // Buscar todos os produtos da API
-    fetch('http://10.0.2.2:3000/produtos')
+    fetch('http://192.168.0.116:3000/produtos')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -31,24 +29,30 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
       });
   }, []);
 
-  // Filtrar produtos quando a busca ou categoria mudar
   useEffect(() => {
     let resultado = produtos;
-
-    // Filtro por busca
     if (searchQuery.trim()) {
       resultado = resultado.filter(p => 
         p.nome_produto.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filtro por categoria
     if (categoriaSelected) {
       resultado = resultado.filter(p => p.categoria === categoriaSelected);
     }
-
     setFilteredProdutos(resultado);
   }, [searchQuery, categoriaSelected, produtos]);
+
+  const handleAddToCart = (item: any) => {
+    addToCart({
+      produto_id: item.id,
+      nome_produto: item.nome_produto,
+      nome_produtor: item.nome_produtor,
+      preco: item.preco,
+      imagem_url: item.imagem_url,
+      quantidade: 1
+    });
+    Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
+  };
 
   const categorias = [
     { id: 1, nome: 'Ofertas Relâmpago', icone: 'flash', cor: '#FFA000' },
@@ -64,14 +68,32 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const maisBuscados = ['Banana Nanica', 'Ovo Caipira', 'Alface Americana', 'Tomate Italiano', 'Palmito'];
   const historicoPesquisa = ['Cebola pacote 20Kg', 'Cenoura 25 un', 'Abacaxi', 'Alface americano 200mg', 'Batata saco 200Kg'];
 
+  const renderProdutoCard = ({ item }: { item: any }) => (
+    <View style={{ flex: 1 }}>
+      <View style={styles.produtoCard}>
+        <Image source={{ uri: item.imagem_url }} style={styles.produtoImage} />
+        <View style={styles.produtoInfo}>
+          <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
+          <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
+          <View style={styles.precoContainer}>
+            <Text style={styles.preco}>R$ {parseFloat(item.preco || 0).toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.unidade}>{item.unidade || 'Un'}</Text>
+          </View>
+          <TouchableOpacity style={styles.addToCartBtn} onPress={() => handleAddToCart(item)}>
+            <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
+            <Text style={styles.addToCartText}>Adicionar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      {/* 🟢 HEADER CUSTOMIZADO DE PESQUISA */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
           <Ionicons name="arrow-back" size={28} color="#FFF" />
         </TouchableOpacity>
-        
         <View style={styles.searchInputContainer}>
           <Ionicons name="search" size={20} color="#333" style={{ marginRight: 8 }} />
           <TextInput
@@ -83,14 +105,12 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
             autoFocus
           />
         </View>
-        
         <TouchableOpacity style={styles.iconButton}>
           <Ionicons name="bag-outline" size={28} color="#FFF" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        {/* Lado Esquerdo - Categorias */}
         <View style={styles.sidebar}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <TouchableOpacity 
@@ -113,7 +133,6 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
           </ScrollView>
         </View>
 
-        {/* Lado Direito - Conteúdo da Pesquisa */}
         <View style={styles.mainContent}>
           {loading ? (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -121,7 +140,6 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Se há busca, mostrar resultados de busca */}
               {searchQuery.trim() && filteredProdutos.length > 0 && (
                 <View>
                   <Text style={styles.searchResultTitle}>Resultados para "{searchQuery}"</Text>
@@ -131,114 +149,53 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                     numColumns={2}
                     scrollEnabled={false}
                     columnWrapperStyle={{ gap: 10 }}
-                    renderItem={({ item }) => (
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.produtoCard}>
-                          <Image 
-                            source={{ uri: item.imagem_url }} 
-                            style={styles.produtoImage}
-                          />
-                          <View style={styles.produtoInfo}>
-                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
-                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
-                            <View style={styles.precoContainer}>
-                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
-                              <Text style={styles.unidade}>{item.unidade}</Text>
-                            </View>
-                            <TouchableOpacity 
-                              style={styles.addToCartBtn}
-                              onPress={() => {
-                                addToCart(item, 1);
-                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
-                              }}
-                            >
-                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
-                              <Text style={styles.addToCartText}>Adicionar</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      </View>
-                    )}
+                    renderItem={renderProdutoCard}
                   />
                 </View>
               )}
 
-              {/* Se não há busca, mostrar sugestões padrão */}
-              {!searchQuery.trim() && (
+              {!searchQuery.trim() && !categoriaSelected && produtos.length > 0 && (
                 <>
-                  {/* Oferta do Dia */}
-                  {produtos.length > 0 && (
-                    <TouchableOpacity style={styles.ofertaDiaCard} activeOpacity={0.8}>
-                      <ImageBackground 
-                        source={{ uri: produtos[0]?.imagem_url || 'https://images.unsplash.com/photo-1590502593747-422e15fb6f1c?q=80&w=400&auto=format&fit=crop' }} 
-                        style={styles.ofertaDiaImage}
-                        imageStyle={{ borderRadius: 12 }}
-                      >
-                        <View style={styles.promoBadge}>
-                          <Text style={styles.promoBadgeText}>Promo</Text>
-                        </View>
-                        <View style={styles.ofertaDiaInfo}>
-                          <Text style={styles.ofertaDiaLabel}>Oferta Do Dia:</Text>
-                          <Text style={styles.ofertaDiaTitle}>{produtos[0]?.nome_produto}</Text>
-                          <Text style={styles.ofertaDiaSub}>{produtos[0]?.nome_produtor}, R${produtos[0]?.preco.toFixed(2).replace('.', ',')}/{produtos[0]?.unidade}</Text>
-                        </View>
-                      </ImageBackground>
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity style={styles.ofertaDiaCard} activeOpacity={0.8}>
+                    <ImageBackground 
+                      source={{ uri: produtos[0]?.imagem_url }} 
+                      style={styles.ofertaDiaImage}
+                      imageStyle={{ borderRadius: 12 }}
+                    >
+                      <View style={styles.promoBadge}>
+                        <Text style={styles.promoBadgeText}>Promo</Text>
+                      </View>
+                      <View style={styles.ofertaDiaInfo}>
+                        <Text style={styles.ofertaDiaLabel}>Oferta Do Dia:</Text>
+                        <Text style={styles.ofertaDiaTitle}>{produtos[0]?.nome_produto}</Text>
+                        <Text style={styles.ofertaDiaSub}>{produtos[0]?.nome_produtor}, R${parseFloat(produtos[0]?.preco || 0).toFixed(2).replace('.', ',')}/{produtos[0]?.unidade}</Text>
+                      </View>
+                    </ImageBackground>
+                  </TouchableOpacity>
 
-                  {/* Mais Buscados */}
                   <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>🔥 Mais Buscados do Vale</Text>
                   </View>
                   <View style={styles.tagsContainer}>
                     {maisBuscados.map((item, index) => (
-                      <TouchableOpacity 
-                        key={index} 
-                        style={styles.tag}
-                        onPress={() => setSearchQuery(item)}
-                      >
+                      <TouchableOpacity key={index} style={styles.tag} onPress={() => setSearchQuery(item)}>
                         <Text style={styles.tagText}>{item}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
 
-                  {/* Histórico */}
-                  <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-                    <Ionicons name="time-outline" size={18} color="#666" style={{ marginRight: 6 }} />
-                    <Text style={[styles.sectionTitle, { fontSize: 15 }]}>Histórico De Pesquisa</Text>
-                  </View>
-                  <View style={styles.historyContainer}>
-                    {historicoPesquisa.map((item, index) => (
-                      <TouchableOpacity 
-                        key={index} 
-                        style={styles.historyTag}
-                        onPress={() => setSearchQuery(item)}
-                      >
-                        <Text style={styles.historyTagText}>{item}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  {/* Sugestões Orgânicas */}
-                  <View style={styles.sugestoesContainer}>
-                    {produtos.slice(0, 2).map((prod, index) => (
-                      <TouchableOpacity key={index} style={styles.sugestaoCard} activeOpacity={0.8}>
-                        <ImageBackground 
-                          source={{ uri: prod.imagem_url }} 
-                          style={styles.sugestaoImage}
-                          imageStyle={{ borderRadius: 16 }}
-                        >
-                          <View style={styles.sugestaoBadge}>
-                            <Text style={styles.sugestaoBadgeText}>{prod.categoria}</Text>
-                          </View>
-                        </ImageBackground>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  <Text style={styles.searchResultTitle}>Produtos Disponíveis</Text>
+                  <FlatList
+                    data={produtos.slice(0, 10)}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    scrollEnabled={false}
+                    columnWrapperStyle={{ gap: 10 }}
+                    renderItem={renderProdutoCard}
+                  />
                 </>
               )}
 
-              {/* Mensagem quando não há resultados */}
               {searchQuery.trim() && filteredProdutos.length === 0 && (
                 <View style={{ alignItems: 'center', marginTop: 40 }}>
                   <Ionicons name="search-outline" size={48} color="#CCC" />
@@ -246,7 +203,6 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                 </View>
               )}
 
-              {/* Produtos por categoria (se categoria selecionada) */}
               {categoriaSelected && filteredProdutos.length > 0 && (
                 <>
                   <Text style={styles.searchResultTitle}>Produtos em {categoriaSelected}</Text>
@@ -256,76 +212,7 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
                     numColumns={2}
                     scrollEnabled={false}
                     columnWrapperStyle={{ gap: 10 }}
-                    renderItem={({ item }) => (
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.produtoCard}>
-                          <Image 
-                            source={{ uri: item.imagem_url }} 
-                            style={styles.produtoImage}
-                          />
-                          <View style={styles.produtoInfo}>
-                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
-                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
-                            <View style={styles.precoContainer}>
-                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
-                              <Text style={styles.unidade}>{item.unidade}</Text>
-                            </View>
-                            <TouchableOpacity 
-                              style={styles.addToCartBtn}
-                              onPress={() => {
-                                addToCart(item, 1);
-                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
-                              }}
-                            >
-                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
-                              <Text style={styles.addToCartText}>Adicionar</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-                  />
-                </>
-              )}
-
-              {/* Todos os produtos (sem filtro) */
-              {!searchQuery.trim() && !categoriaSelected && (
-                <>
-                  <Text style={styles.searchResultTitle}>Produtos Disponíveis</Text>
-                  <FlatList
-                    data={produtos.slice(0, 10)}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={2}
-                    scrollEnabled={false}
-                    columnWrapperStyle={{ gap: 10 }}
-                    renderItem={({ item }) => (
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.produtoCard}>
-                          <Image 
-                            source={{ uri: item.imagem_url }} 
-                            style={styles.produtoImage}
-                          />
-                          <View style={styles.produtoInfo}>
-                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
-                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
-                            <View style={styles.precoContainer}>
-                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
-                              <Text style={styles.unidade}>{item.unidade}</Text>
-                            </View>
-                            <TouchableOpacity 
-                              style={styles.addToCartBtn}
-                              onPress={() => {
-                                addToCart(item, 1);
-                                Alert.alert('Sucesso!', `${item.nome_produto} adicionado ao carrinho`);
-                              }}
-                            >
-                              <Ionicons name="add-circle" size={16} color="#FFF" style={{ marginRight: 4 }} />
-                              <Text style={styles.addToCartText}>Adicionar</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      </View>
-                    )}
+                    renderItem={renderProdutoCard}
                   />
                 </>
               )}
@@ -360,9 +247,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   searchInput: { flex: 1, height: '100%', fontSize: 16, color: '#333' },
-  
   content: { flex: 1, flexDirection: 'row' },
-  
   sidebar: {
     width: 130,
     backgroundColor: '#FFF',
@@ -384,9 +269,7 @@ const styles = StyleSheet.create({
   },
   categoriaText: { fontSize: 13, color: '#333', marginLeft: 8, fontWeight: '500' },
   categoriaTextActive: { color: '#387C59', fontWeight: '600' },
-  
   mainContent: { flex: 1, padding: 12 },
-  
   ofertaDiaCard: { width: '100%', height: 120, borderRadius: 12, marginBottom: 20 },
   ofertaDiaImage: { width: '100%', height: '100%', justifyContent: 'space-between' },
   promoBadge: { alignSelf: 'flex-end', backgroundColor: '#FFA000', paddingHorizontal: 12, paddingVertical: 4, borderBottomLeftRadius: 10, borderTopRightRadius: 12 },
@@ -395,25 +278,11 @@ const styles = StyleSheet.create({
   ofertaDiaLabel: { color: '#FFF', fontSize: 11, fontWeight: '500' },
   ofertaDiaTitle: { color: '#FFF', fontSize: 14, fontWeight: 'bold', marginVertical: 2 },
   ofertaDiaSub: { color: '#FFF', fontSize: 11 },
-  
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   sectionTitle: { fontSize: 15, fontWeight: '600', color: '#333' },
-  
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
   tag: { backgroundColor: '#E0E0E0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   tagText: { color: '#333', fontSize: 12, fontWeight: '500' },
-  
-  historyContainer: { alignItems: 'center', gap: 10 },
-  historyTag: { backgroundColor: '#F0F0F0', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, alignSelf: 'center' },
-  historyTagText: { color: '#555', fontSize: 13 },
-  
-  sugestoesContainer: { flexDirection: 'row', gap: 12, marginTop: 30, paddingBottom: 20 },
-  sugestaoCard: { flex: 1, height: 140, borderRadius: 16, overflow: 'hidden' },
-  sugestaoImage: { width: '100%', height: '100%', justifyContent: 'flex-start', alignItems: 'flex-end', padding: 8 },
-  sugestaoBadge: { backgroundColor: '#387C59', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  sugestaoBadgeText: { color: '#FFF', fontSize: 11, fontWeight: 'bold' },
-
-  // Novos estilos para produtos
   searchResultTitle: { fontSize: 16, fontWeight: '600', color: '#333', marginVertical: 16, marginHorizontal: 6 },
   produtoCard: {
     backgroundColor: '#FFF',
@@ -426,6 +295,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
+    marginBottom: 10,
   },
   produtoImage: { width: '100%', height: 130, resizeMode: 'cover' },
   produtoInfo: { padding: 10 },

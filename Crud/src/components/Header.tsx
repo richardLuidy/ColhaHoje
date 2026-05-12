@@ -23,6 +23,7 @@ const headerConfig: Record<TabKey, { title: string; showBack?: boolean; showActi
     mapa: { title: 'ColhaHoje', showActions: true },
     ofertas: { title: 'ColhaHoje', showActions: true },
     pedidos: { title: 'ColhaHoje', showActions: true },
+    carrinho: { title: 'ColhaHoje', showBack: false, showActions: false },
     perfil: { title: 'ColhaHoje', showBack: false, showActions: false },
     login: { title: '' },
     cadastro: { title: '' },

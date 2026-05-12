@@ -12,6 +12,28 @@ async function main() {
 
   console.log('Iniciando inserção de dados fictícios...');
 
+  // 0. Criar usuário admin
+  const admin = await prisma.usuarios.create({
+    data: {
+      nome: 'Admin ColhaHoje',
+      email: 'admin@colhahoje.com',
+      senha: 'admin123',
+      tipo_usuario: 'admin',
+      whatsapp: '11987654321',
+    },
+  });
+
+  // Cliente padrão (João)
+  const cliente = await prisma.usuarios.create({
+    data: {
+      nome: 'João Cliente',
+      email: 'joao@cliente.com',
+      senha: '123',
+      tipo_usuario: 'cliente',
+      whatsapp: '11988888888',
+    },
+  });
+
   // 1. Criar produtor 1
   const produtor1 = await prisma.usuarios.create({
     data: {
@@ -70,7 +92,7 @@ async function main() {
       preco: 8.50,
       unidade: 'Caixa 500g',
       quantidade: 20,
-      imagem_url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -82,7 +104,7 @@ async function main() {
       preco: 3.00,
       unidade: 'Unidade',
       quantidade: 50,
-      imagem_url: 'https://images.unsplash.com/photo-1622206151226-18ca2c9e6a03?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1622206151226-18ca2c9e6a03?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -94,7 +116,7 @@ async function main() {
       preco: 5.00,
       unidade: 'Dúzia',
       quantidade: 30,
-      imagem_url: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -106,7 +128,7 @@ async function main() {
       preco: 9.90,
       unidade: 'Kg',
       quantidade: 15,
-      imagem_url: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6faa6?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6faa6?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -118,7 +140,7 @@ async function main() {
       preco: 12.00,
       unidade: 'Bandeja',
       quantidade: 10,
-      imagem_url: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -130,7 +152,7 @@ async function main() {
       preco: 6.50,
       unidade: 'Maço',
       quantidade: 25,
-      imagem_url: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -142,7 +164,7 @@ async function main() {
       preco: 15.00,
       unidade: 'Bandeja 250g',
       quantidade: 40,
-      imagem_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -154,7 +176,7 @@ async function main() {
       preco: 4.50,
       unidade: 'Kg',
       quantidade: 60,
-      imagem_url: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -166,7 +188,7 @@ async function main() {
       preco: 3.50,
       unidade: 'Kg',
       quantidade: 15,
-      imagem_url: 'https://images.unsplash.com/photo-1570586437263-ab629fccc818?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1570586437263-ab629fccc818?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -178,7 +200,7 @@ async function main() {
       preco: 7.00,
       unidade: 'Bandeja 300g',
       quantidade: 20,
-      imagem_url: 'https://images.unsplash.com/photo-1582281267438-e6b761005a8b?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -190,7 +212,7 @@ async function main() {
       preco: 2.99,
       unidade: 'Kg',
       quantidade: 100,
-      imagem_url: 'https://images.unsplash.com/photo-1590502593747-422e15fb6f1c?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1590502593747-422e15fb6f1c?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -202,7 +224,7 @@ async function main() {
       preco: 18.00,
       unidade: 'Dúzia',
       quantidade: 50,
-      imagem_url: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -214,7 +236,7 @@ async function main() {
       preco: 5.50,
       unidade: 'Kg',
       quantidade: 40,
-      imagem_url: 'https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -226,7 +248,7 @@ async function main() {
       preco: 4.80,
       unidade: 'Kg',
       quantidade: 80,
-      imagem_url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -238,7 +260,7 @@ async function main() {
       preco: 25.00,
       unidade: 'Pote 300g',
       quantidade: 30,
-      imagem_url: 'https://images.unsplash.com/photo-1628205461947-fde0f2694cd7?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     }
@@ -258,7 +280,7 @@ async function main() {
       preco: 10.00,
       unidade: 'Kg',
       quantidade: 15,
-      imagem_url: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -270,7 +292,7 @@ async function main() {
       preco: 12.50,
       unidade: 'Caixa 500g',
       quantidade: 40,
-      imagem_url: 'https://images.unsplash.com/photo-1596365548680-e374526017ad?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1596365548680-e374526017ad?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -282,7 +304,7 @@ async function main() {
       preco: 4.00,
       unidade: 'Kg',
       quantidade: 20,
-      imagem_url: 'https://images.unsplash.com/photo-1615486511484-9ec49b14f866?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1615486511484-9ec49b14f866?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -294,7 +316,7 @@ async function main() {
       preco: 3.50,
       unidade: 'Kg',
       quantidade: 50,
-      imagem_url: 'https://images.unsplash.com/photo-1593006232230-07e3a3528b8a?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -306,7 +328,7 @@ async function main() {
       preco: 2.50,
       unidade: 'Maço',
       quantidade: 30,
-      imagem_url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -318,7 +340,7 @@ async function main() {
       preco: 20.00,
       unidade: 'Unidade',
       quantidade: 10,
-      imagem_url: 'https://images.unsplash.com/photo-1585518419759-1b95cc6670e8?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1587049352846-4a222e784210?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -330,7 +352,7 @@ async function main() {
       preco: 4.50,
       unidade: 'Maço',
       quantidade: 35,
-      imagem_url: 'https://images.unsplash.com/photo-1585647322838-edd77d17f4ee?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -342,7 +364,7 @@ async function main() {
       preco: 7.00,
       unidade: 'Unidade',
       quantidade: 25,
-      imagem_url: 'https://images.unsplash.com/photo-1601618528167-23ace3c24733?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -354,7 +376,7 @@ async function main() {
       preco: 8.00,
       unidade: 'Kg',
       quantidade: 20,
-      imagem_url: 'https://images.unsplash.com/photo-1473093295203-786d92d87868?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -366,7 +388,7 @@ async function main() {
       preco: 16.00,
       unidade: 'Caixa 500g',
       quantidade: 15,
-      imagem_url: 'https://images.unsplash.com/photo-1596195694636-e1aa1a8a46f9?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1587049352846-4a222e784210?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -378,7 +400,7 @@ async function main() {
       preco: 3.50,
       unidade: 'Maço',
       quantidade: 40,
-      imagem_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1622206151226-18ca2c9e6a03?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -390,7 +412,7 @@ async function main() {
       preco: 5.00,
       unidade: 'Kg',
       quantidade: 50,
-      imagem_url: 'https://images.unsplash.com/photo-1585518419759-64dddb0e7b0f?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1590621239259-5c2c2c3e0f5e?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -402,7 +424,7 @@ async function main() {
       preco: 4.50,
       unidade: 'Unidade',
       quantidade: 30,
-      imagem_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -414,7 +436,7 @@ async function main() {
       preco: 9.00,
       unidade: 'Kg',
       quantidade: 18,
-      imagem_url: 'https://images.unsplash.com/photo-1585620674026-3742bae4f049?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1536511132770-e5058c7e8c46?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -426,7 +448,7 @@ async function main() {
       preco: 6.00,
       unidade: 'Maço',
       quantidade: 25,
-      imagem_url: 'https://images.unsplash.com/photo-1583034313398-5a94c41d5a45?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1583034313398-5a94c41d5a45?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -438,7 +460,7 @@ async function main() {
       preco: 4.00,
       unidade: 'Kg',
       quantidade: 40,
-      imagem_url: 'https://images.unsplash.com/photo-1609681865557-0c7e07a4ea5d?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -450,7 +472,7 @@ async function main() {
       preco: 7.50,
       unidade: 'Kg',
       quantidade: 35,
-      imagem_url: 'https://images.unsplash.com/photo-1592841657335-f3f122fa7f0f?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     },
@@ -462,7 +484,7 @@ async function main() {
       preco: 18.00,
       unidade: 'Unidade',
       quantidade: 12,
-      imagem_url: 'https://images.unsplash.com/photo-1599599810694-d3a6b53aab20?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50?w=400',
       produtor_id: produtor2.id,
       endereco_id: end2.id,
     },
@@ -474,7 +496,7 @@ async function main() {
       preco: 5.50,
       unidade: 'Maço',
       quantidade: 30,
-      imagem_url: 'https://images.unsplash.com/photo-1599904490221-9c0f7f13126c?q=80&w=400&auto=format&fit=crop',
+      imagem_url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
     }
@@ -610,14 +632,112 @@ async function main() {
     }
   }
 
-  // 6. Criar uma Oferta Relâmpago
-  const produtoOferta = await prisma.produtos.findFirst({ where: { nome_produto: 'Banana Prata' } });
-  if (produtoOferta) {
+  // 6. Criar múltiplas Ofertas Relâmpago
+  const produtoOferta1 = await prisma.produtos.findFirst({ where: { nome_produto: 'Banana Prata' } });
+  if (produtoOferta1) {
     await prisma.ofertas_relampago.create({
       data: {
-        produto_id: produtoOferta.id,
-        preco_original: produtoOferta.preco,
+        produto_id: produtoOferta1.id,
+        preco_original: produtoOferta1.preco,
         preco_promocional: 2.99,
+        duracao_minutos: 60,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 2 - Tomate Cereja
+  const produtoOferta2 = await prisma.produtos.findFirst({ where: { nome_produto: 'Tomate Cereja' } });
+  if (produtoOferta2) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta2.id,
+        preco_original: produtoOferta2.preco,
+        preco_promocional: 5.99,
+        duracao_minutos: 90,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 3 - Morangos Frescos
+  const produtoOferta3 = await prisma.produtos.findFirst({ where: { nome_produto: 'Morangos Frescos' } });
+  if (produtoOferta3) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta3.id,
+        preco_original: produtoOferta3.preco,
+        preco_promocional: 9.99,
+        duracao_minutos: 120,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 4 - Abacate Hass
+  const produtoOferta4 = await prisma.produtos.findFirst({ where: { nome_produto: 'Abacate Hass' } });
+  if (produtoOferta4) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta4.id,
+        preco_original: produtoOferta4.preco,
+        preco_promocional: 6.99,
+        duracao_minutos: 60,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 5 - Melancia Vermelha
+  const produtoOferta5 = await prisma.produtos.findFirst({ where: { nome_produto: 'Melancia Vermelha' } });
+  if (produtoOferta5) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta5.id,
+        preco_original: produtoOferta5.preco,
+        preco_promocional: 12.99,
+        duracao_minutos: 180,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 6 - Maçã Fuji
+  const produtoOferta6 = await prisma.produtos.findFirst({ where: { nome_produto: 'Maçã Fuji' } });
+  if (produtoOferta6) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta6.id,
+        preco_original: produtoOferta6.preco,
+        preco_promocional: 6.99,
+        duracao_minutos: 90,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 7 - Uva Niágara
+  const produtoOferta7 = await prisma.produtos.findFirst({ where: { nome_produto: 'Uva Niágara' } });
+  if (produtoOferta7) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta7.id,
+        preco_original: produtoOferta7.preco,
+        preco_promocional: 8.99,
+        duracao_minutos: 120,
+        status: 'ativa',
+      }
+    });
+  }
+
+  // Oferta 8 - Brócolis Orgânico
+  const produtoOferta8 = await prisma.produtos.findFirst({ where: { nome_produto: 'Brócolis Orgânico' } });
+  if (produtoOferta8) {
+    await prisma.ofertas_relampago.create({
+      data: {
+        produto_id: produtoOferta8.id,
+        preco_original: produtoOferta8.preco,
+        preco_promocional: 4.99,
         duracao_minutos: 60,
         status: 'ativa',
       }

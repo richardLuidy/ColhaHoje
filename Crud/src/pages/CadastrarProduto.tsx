@@ -12,7 +12,7 @@ import { colors } from '../../colors';
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
 const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
 
-const API_URL = 'http://10.0.2.2:3000'; 
+const API_URL = 'http://192.168.0.116:3000'; 
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;

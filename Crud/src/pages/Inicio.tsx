@@ -3,8 +3,10 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Ima
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import styles from '../../styles';
+import { useCart } from '../contexts/CartContext';
 
 export default function Inicio() {
+    const { addToCart } = useCart();
     const [ofertaDestaque, setOfertaDestaque] = useState<any>(null);
     const [produtos, setProdutos] = useState<any[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -146,7 +148,17 @@ export default function Inicio() {
                                         R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
                                     </Text>
 
-                                    <TouchableOpacity style={styles.btnAddCardNewSério}>
+                                    <TouchableOpacity 
+                                        style={styles.btnAddCardNewSério}
+                                        onPress={() => addToCart({
+                                            produto_id: produto.id,
+                                            nome_produto: produto.nome_produto,
+                                            nome_produtor: produto.nome_produtor,
+                                            preco: produto.preco,
+                                            imagem_url: produto.imagem_url,
+                                            quantidade: 1
+                                        })}
+                                    >
                                         <Ionicons name="add" size={20} color="#FFF" />
                                     </TouchableOpacity>
                                 </View>

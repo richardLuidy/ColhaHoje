@@ -4,7 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../contexts/CartContext';
 import { colors } from '../../colors';
 
-export default function Carrinho() {
+interface CarrinhoProps {
+  onNavigateToPedidos?: () => void;
+  onContinueShopping?: () => void;
+}
+
+export default function Carrinho({ onNavigateToPedidos, onContinueShopping }: CarrinhoProps) {
   const { items, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(3); // Cliente João (do seed)
@@ -19,7 +24,7 @@ export default function Carrinho() {
     try {
       // Criar um pedido para cada item do carrinho
       for (const item of items) {
-        const response = await fetch('http://10.0.2.2:3000/pedidos', {
+        const response = await fetch('http://192.168.0.116:3000/pedidos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -41,6 +46,9 @@ export default function Carrinho() {
           text: 'OK',
           onPress: () => {
             clearCart();
+            if (onNavigateToPedidos) {
+              onNavigateToPedidos();
+            }
           },
         },
       ]);
@@ -54,11 +62,6 @@ export default function Carrinho() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Carrinho</Text>
-      </View>
-
       {items.length === 0 ? (
         // CARRINHO VAZIO
         <View style={styles.emptyContainer}>
@@ -70,6 +73,7 @@ export default function Carrinho() {
         // CARRINHO COM ITENS
         <>
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.scrollContent}>
             {items.map((item) => (
               <View key={item.produto_id} style={styles.cartItem}>
                 <Image source={{ uri: item.imagem_url }} style={styles.itemImage} />
@@ -125,11 +129,15 @@ export default function Carrinho() {
                 <Text style={styles.totalValue}>R$ {(totalPrice + 5).toFixed(2).replace('.', ',')}</Text>
               </View>
             </View>
+            </View>
           </ScrollView>
 
           {/* BOTÕES AÇÃO */}
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.btnContinueShopping}>
+            <TouchableOpacity 
+              style={styles.btnContinueShopping}
+              onPress={() => onContinueShopping && onContinueShopping()}
+            >
               <Text style={styles.btnContinueShoppingText}>Continuar Comprando</Text>
             </TouchableOpacity>
 
@@ -159,17 +167,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-  header: {
-    backgroundColor: '#387C59',
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -190,21 +187,21 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  },
+  scrollContent: {
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   cartItem: {
     flexDirection: 'row',
     backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    borderRadius: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 1,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   itemImage: {
     width: 80,
@@ -259,15 +256,16 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   divider: {
-    height: 1,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 12,
+    height: 8,
+    backgroundColor: '#F5F5F5',
+    marginVertical: 0,
   },
   summary: {
     backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 0,
   },
   summaryRow: {
     flexDirection: 'row',

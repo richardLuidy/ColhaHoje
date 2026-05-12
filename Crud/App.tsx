@@ -18,7 +18,7 @@ import Carrinho from './src/pages/Carrinho';
 
 type TabKey = 'mapa' | 'ofertas' | 'inicio' | 'pedidos' | 'carrinho' | 'perfil' | 'login';
 
-const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive: any; iconActive: any }> = {
+const tabConfig: Record<Exclude<TabKey, 'login' | 'carrinho'>, { label: string; iconInactive: any; iconActive: any }> = {
   mapa: {
     label: 'Mapa',
     iconInactive: require('./src/assets/mapa_cinza.svg'),
@@ -36,11 +36,6 @@ const tabConfig: Record<Exclude<TabKey, 'login'>, { label: string; iconInactive:
   },
   pedidos: {
     label: 'Pedidos',
-    iconInactive: require('./src/assets/pedidos_cinza.svg'),
-    iconActive: require('./src/assets/pedidos_verde.svg'),
-  },
-  carrinho: {
-    label: 'Carrinho',
     iconInactive: require('./src/assets/pedidos_cinza.svg'),
     iconActive: require('./src/assets/pedidos_verde.svg'),
   },
@@ -63,7 +58,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabKey>('login');
   
   // 1. Definimos as abas do footer
-  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login'>[];
+  const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'carrinho'>[];
 
   // 🟢 NOVO ESTADO: Agora suporta 'menu', 'dados' e 'enderecos'
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender'>('menu');
@@ -118,6 +113,7 @@ function AppContent() {
           if (activeTab === 'perfil') setSubTelaPerfil('menu');
         }}
         onSearchPress={() => setIsSearching(true)}
+        onCartPress={() => setActiveTab('carrinho')}
       />
 
       <View style={styles.content}>
@@ -125,7 +121,12 @@ function AppContent() {
         {activeTab === 'ofertas' && <Ofertas />}
         {activeTab === 'inicio' && <Inicio />}
         {activeTab === 'pedidos' && <Pedidos />}
-        {activeTab === 'carrinho' && <Carrinho />}
+        {activeTab === 'carrinho' && (
+          <Carrinho 
+            onNavigateToPedidos={() => setActiveTab('pedidos')} 
+            onContinueShopping={() => setActiveTab('inicio')}
+          />
+        )}
         
         {/* 🟢 PERFIL ATUALIZADO: Recebe as novas props de controle */}
         {activeTab === 'perfil' && (

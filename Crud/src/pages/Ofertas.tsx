@@ -3,8 +3,10 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Sty
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../colors';
 import stylesGlobal from '../../styles'; // Reusing global styles where possible
+import { useCart } from '../contexts/CartContext';
 
 export default function Ofertas() {
+    const { addToCart } = useCart();
     const [produtos, setProdutos] = useState<any[]>([]);
     const [carregando, setCarregando] = useState(true);
 
@@ -14,10 +16,13 @@ export default function Ofertas() {
 
     const carregarProdutos = async () => {
         try {
-            const resProdutos = await fetch('http://192.168.0.116:3000/produtos');
-            if (resProdutos.ok) {
-                const listaProdutos = await resProdutos.json();
-                setProdutos(listaProdutos);
+            // Buscar ofertas relâmpago ativas
+            const resOfertas = await fetch('http://192.168.0.116:3000/ofertas');
+            if (resOfertas.ok) {
+                const listaOfertas = await resOfertas.json();
+                // Filtrar apenas ofertas ativas
+                const ofertasAtivas = listaOfertas.filter((oferta: any) => oferta.status === 'ativa');
+                setProdutos(ofertasAtivas);
             }
         } catch (error) {
             console.error("Erro ao carregar Ofertas:", error);
@@ -42,31 +47,47 @@ export default function Ofertas() {
             </View>
 
             <View style={styles.grid}>
-                {produtos.map((produto) => (
-                    <View key={produto.id} style={stylesGlobal.cardProdutoSério}>
+                {produtos.map((oferta) => (
+                    <View key={oferta.id} style={stylesGlobal.cardProdutoSério}>
                         <View style={stylesGlobal.cardCatalogueImageContainerSério}>
-                            {produto.imagem_url ? (
-                                <Image source={{ uri: produto.imagem_url }} style={stylesGlobal.cardCatalogueImageSério} />
+                            {oferta.produto?.imagem_url ? (
+                                <Image source={{ uri: oferta.produto.imagem_url }} style={stylesGlobal.cardCatalogueImageSério} />
                             ) : (
                                 <Ionicons name="leaf-outline" size={40} color={colors.placeholder} />
                             )}
-                            <View style={stylesGlobal.badgeOrganicoSério}>
+                            <View style={[stylesGlobal.badgeOrganicoSério, { backgroundColor: '#FFA000' }]}>
                                 <Text style={stylesGlobal.badgeOrganicoTextSério}>
-                                    {produto.categoria || "Produto"}
+                                    OFERTA
                                 </Text>
                             </View>
                         </View>
 
                         <View style={stylesGlobal.cardCatalogueInfoSério}>
-                            <Text style={stylesGlobal.cardCatalogueNameSério} numberOfLines={1}>{produto.nome_produto}</Text>
-                            <Text style={stylesGlobal.cardCatalogueVendorSério} numberOfLines={1}>{produto.nome_produtor}</Text>
+                            <Text style={stylesGlobal.cardCatalogueNameSério} numberOfLines={1}>{oferta.produto?.nome_produto}</Text>
+                            <Text style={stylesGlobal.cardCatalogueVendorSério} numberOfLines={1}>{oferta.produto?.nome_produtor}</Text>
+
+                            <View style={{ marginBottom: 4 }}>
+                                <Text style={{ fontSize: 12, color: '#999', textDecorationLine: 'line-through' }}>
+                                    R$ {parseFloat(oferta.preco_original).toFixed(2).replace('.', ',')}
+                                </Text>
+                            </View>
 
                             <View style={stylesGlobal.cardCataloguePriceRowSério}>
-                                <Text style={stylesGlobal.cardCataloguePriceSério}>
-                                    R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
+                                <Text style={[stylesGlobal.cardCataloguePriceSério, { color: '#FFA000' }]}>
+                                    R$ {parseFloat(oferta.preco_promocional).toFixed(2).replace('.', ',')}
                                 </Text>
 
-                                <TouchableOpacity style={stylesGlobal.btnAddCardNewSério}>
+                                <TouchableOpacity 
+                                    style={stylesGlobal.btnAddCardNewSério}
+                                    onPress={() => addToCart({
+                                        produto_id: oferta.produto.id,
+                                        nome_produto: oferta.produto.nome_produto,
+                                        nome_produtor: oferta.produto.nome_produtor,
+                                        preco: oferta.preco_promocional,
+                                        imagem_url: oferta.produto.imagem_url,
+                                        quantidade: 1
+                                    })}
+                                >
                                     <Ionicons name="add" size={20} color="#FFF" />
                                 </TouchableOpacity>
                             </View>
@@ -110,6 +131,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        gap: 15, // Using gap if supported, else rely on space-between
     }
 });

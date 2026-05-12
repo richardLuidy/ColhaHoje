@@ -19,8 +19,6 @@ const styles = StyleSheet.create({
     // Área de conteúdo central das telas
     content: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 
     // Título principal das telas

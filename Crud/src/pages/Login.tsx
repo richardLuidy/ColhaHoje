@@ -85,11 +85,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     } catch (error: any) {
       console.error("Erro no Auth:", error);
       const mensagemServidor = error.response?.data?.error;
-      if (mensagemServidor) {
-        Alert.alert("Erro no Servidor", mensagemServidor);
-      } else {
-        Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor. O IP está correto?");
-      }
+      setTimeout(() => {
+        if (mensagemServidor) {
+          Alert.alert("Erro no Servidor", mensagemServidor);
+        } else {
+          Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor. O IP está correto?");
+        }
+      }, 100);
     }
   }
 
