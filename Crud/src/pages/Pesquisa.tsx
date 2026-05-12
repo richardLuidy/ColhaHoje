@@ -1,11 +1,55 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageBackground, FlatList, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SvgUri } from 'react-native-svg';
 import { colors } from '../../colors';
 
 export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [filteredProdutos, setFilteredProdutos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoriaSelected, setCategoriaSelected] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Buscar todos os produtos da API
+    fetch('http://10.0.2.2:3000/produtos')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProdutos(data);
+          setFilteredProdutos(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Erro ao buscar produtos", err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Filtrar produtos quando a busca ou categoria mudar
+  useEffect(() => {
+    let resultado = produtos;
+
+    // Filtro por busca
+    if (searchQuery.trim()) {
+      resultado = resultado.filter(p => 
+        p.nome_produto.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filtro por categoria
+    if (categoriaSelected) {
+      resultado = resultado.filter(p => p.categoria === categoriaSelected);
+    }
+
+    setFilteredProdutos(resultado);
+  }, [searchQuery, categoriaSelected, produtos]);
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [filteredProdutos, setFilteredProdutos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoriaSelected, setCategoriaSelected] = useState<string | null>(null);
 
   const categorias = [
     { id: 1, nome: 'Ofertas Relâmpago', icone: 'flash', cor: '#FFA000' },
@@ -50,10 +94,21 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
         {/* Lado Esquerdo - Categorias */}
         <View style={styles.sidebar}>
           <ScrollView showsVerticalScrollIndicator={false}>
+            <TouchableOpacity 
+              style={[styles.categoriaItem, !categoriaSelected && styles.categoriaItemActive]}
+              onPress={() => setCategoriaSelected(null)}
+            >
+              <Ionicons name="grid-outline" size={20} color={!categoriaSelected ? '#387C59' : '#999'} />
+              <Text style={[styles.categoriaText, !categoriaSelected && styles.categoriaTextActive]}>Tudo</Text>
+            </TouchableOpacity>
             {categorias.map(cat => (
-              <TouchableOpacity key={cat.id} style={styles.categoriaItem}>
-                <Ionicons name={cat.icone as any} size={20} color={cat.cor} />
-                <Text style={styles.categoriaText}>{cat.nome}</Text>
+              <TouchableOpacity 
+                key={cat.id} 
+                style={[styles.categoriaItem, categoriaSelected === cat.nome && styles.categoriaItemActive]}
+                onPress={() => setCategoriaSelected(categoriaSelected === cat.nome ? null : cat.nome)}
+              >
+                <Ionicons name={cat.icone as any} size={20} color={categoriaSelected === cat.nome ? cat.cor : '#999'} />
+                <Text style={[styles.categoriaText, categoriaSelected === cat.nome && styles.categoriaTextActive]}>{cat.nome}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -61,79 +116,192 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
 
         {/* Lado Direito - Conteúdo da Pesquisa */}
         <View style={styles.mainContent}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            
-            {/* Oferta do Dia */}
-            <TouchableOpacity style={styles.ofertaDiaCard} activeOpacity={0.8}>
-              <ImageBackground 
-                source={{ uri: 'https://images.unsplash.com/photo-1590502593747-422e15fb6f1c?q=80&w=400&auto=format&fit=crop' }} 
-                style={styles.ofertaDiaImage}
-                imageStyle={{ borderRadius: 12 }}
-              >
-                <View style={styles.promoBadge}>
-                  <Text style={styles.promoBadgeText}>Promo</Text>
+          {loading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#387C59" />
+            </View>
+          ) : (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Se há busca, mostrar resultados de busca */}
+              {searchQuery.trim() && filteredProdutos.length > 0 && (
+                <View>
+                  <Text style={styles.searchResultTitle}>Resultados para "{searchQuery}"</Text>
+                  <FlatList
+                    data={filteredProdutos}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    scrollEnabled={false}
+                    columnWrapperStyle={{ gap: 10 }}
+                    renderItem={({ item }) => (
+                      <View style={{ flex: 1 }}>
+                        <TouchableOpacity style={styles.produtoCard}>
+                          <Image 
+                            source={{ uri: item.imagem_url }} 
+                            style={styles.produtoImage}
+                          />
+                          <View style={styles.produtoInfo}>
+                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
+                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
+                            <View style={styles.precoContainer}>
+                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
+                              <Text style={styles.unidade}>{item.unidade}</Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  />
                 </View>
-                <View style={styles.ofertaDiaInfo}>
-                  <Text style={styles.ofertaDiaLabel}>Oferta Do Dia:</Text>
-                  <Text style={styles.ofertaDiaTitle}>Caixa de Limão Taiti</Text>
-                  <Text style={styles.ofertaDiaSub}>Sítio Alvorada, R$2,99/Kg</Text>
+              )}
+
+              {/* Se não há busca, mostrar sugestões padrão */}
+              {!searchQuery.trim() && (
+                <>
+                  {/* Oferta do Dia */}
+                  {produtos.length > 0 && (
+                    <TouchableOpacity style={styles.ofertaDiaCard} activeOpacity={0.8}>
+                      <ImageBackground 
+                        source={{ uri: produtos[0]?.imagem_url || 'https://images.unsplash.com/photo-1590502593747-422e15fb6f1c?q=80&w=400&auto=format&fit=crop' }} 
+                        style={styles.ofertaDiaImage}
+                        imageStyle={{ borderRadius: 12 }}
+                      >
+                        <View style={styles.promoBadge}>
+                          <Text style={styles.promoBadgeText}>Promo</Text>
+                        </View>
+                        <View style={styles.ofertaDiaInfo}>
+                          <Text style={styles.ofertaDiaLabel}>Oferta Do Dia:</Text>
+                          <Text style={styles.ofertaDiaTitle}>{produtos[0]?.nome_produto}</Text>
+                          <Text style={styles.ofertaDiaSub}>{produtos[0]?.nome_produtor}, R${produtos[0]?.preco.toFixed(2).replace('.', ',')}/{produtos[0]?.unidade}</Text>
+                        </View>
+                      </ImageBackground>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Mais Buscados */}
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>🔥 Mais Buscados do Vale</Text>
+                  </View>
+                  <View style={styles.tagsContainer}>
+                    {maisBuscados.map((item, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={styles.tag}
+                        onPress={() => setSearchQuery(item)}
+                      >
+                        <Text style={styles.tagText}>{item}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Histórico */}
+                  <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+                    <Ionicons name="time-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                    <Text style={[styles.sectionTitle, { fontSize: 15 }]}>Histórico De Pesquisa</Text>
+                  </View>
+                  <View style={styles.historyContainer}>
+                    {historicoPesquisa.map((item, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={styles.historyTag}
+                        onPress={() => setSearchQuery(item)}
+                      >
+                        <Text style={styles.historyTagText}>{item}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Sugestões Orgânicas */}
+                  <View style={styles.sugestoesContainer}>
+                    {produtos.slice(0, 2).map((prod, index) => (
+                      <TouchableOpacity key={index} style={styles.sugestaoCard} activeOpacity={0.8}>
+                        <ImageBackground 
+                          source={{ uri: prod.imagem_url }} 
+                          style={styles.sugestaoImage}
+                          imageStyle={{ borderRadius: 16 }}
+                        >
+                          <View style={styles.sugestaoBadge}>
+                            <Text style={styles.sugestaoBadgeText}>{prod.categoria}</Text>
+                          </View>
+                        </ImageBackground>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              )}
+
+              {/* Mensagem quando não há resultados */}
+              {searchQuery.trim() && filteredProdutos.length === 0 && (
+                <View style={{ alignItems: 'center', marginTop: 40 }}>
+                  <Ionicons name="search-outline" size={48} color="#CCC" />
+                  <Text style={{ color: '#999', marginTop: 16, fontSize: 16 }}>Nenhum produto encontrado</Text>
                 </View>
-              </ImageBackground>
-            </TouchableOpacity>
+              )}
 
-            {/* Mais Buscados */}
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>🔥 Mais Buscados do Vale</Text>
-            </View>
-            <View style={styles.tagsContainer}>
-              {maisBuscados.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.tag}>
-                  <Text style={styles.tagText}>{item}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+              {/* Produtos por categoria (se categoria selecionada) */}
+              {categoriaSelected && filteredProdutos.length > 0 && (
+                <>
+                  <Text style={styles.searchResultTitle}>Produtos em {categoriaSelected}</Text>
+                  <FlatList
+                    data={filteredProdutos}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    scrollEnabled={false}
+                    columnWrapperStyle={{ gap: 10 }}
+                    renderItem={({ item }) => (
+                      <View style={{ flex: 1 }}>
+                        <TouchableOpacity style={styles.produtoCard}>
+                          <Image 
+                            source={{ uri: item.imagem_url }} 
+                            style={styles.produtoImage}
+                          />
+                          <View style={styles.produtoInfo}>
+                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
+                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
+                            <View style={styles.precoContainer}>
+                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
+                              <Text style={styles.unidade}>{item.unidade}</Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  />
+                </>
+              )}
 
-            {/* Histórico */}
-            <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-              <Ionicons name="time-outline" size={18} color="#666" style={{ marginRight: 6 }} />
-              <Text style={[styles.sectionTitle, { fontSize: 15 }]}>Histórico De Pesquisa</Text>
-            </View>
-            <View style={styles.historyContainer}>
-              {historicoPesquisa.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.historyTag}>
-                  <Text style={styles.historyTagText}>{item}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Sugestões Orgânicas */}
-            <View style={styles.sugestoesContainer}>
-              <TouchableOpacity style={styles.sugestaoCard} activeOpacity={0.8}>
-                <ImageBackground 
-                  source={{ uri: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=400&auto=format&fit=crop' }} 
-                  style={styles.sugestaoImage}
-                  imageStyle={{ borderRadius: 16 }}
-                >
-                  <View style={styles.sugestaoBadge}>
-                    <Text style={styles.sugestaoBadgeText}>Orgânico</Text>
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.sugestaoCard} activeOpacity={0.8}>
-                <ImageBackground 
-                  source={{ uri: 'https://images.unsplash.com/photo-1622206151226-18ca2c9e6a03?q=80&w=400&auto=format&fit=crop' }} 
-                  style={styles.sugestaoImage}
-                  imageStyle={{ borderRadius: 16 }}
-                >
-                  <View style={styles.sugestaoBadge}>
-                    <Text style={styles.sugestaoBadgeText}>Orgânico</Text>
-                  </View>
-                </ImageBackground>
-              </TouchableOpacity>
-            </View>
-
-          </ScrollView>
+              {/* Todos os produtos (sem filtro) */}
+              {!searchQuery.trim() && !categoriaSelected && (
+                <>
+                  <Text style={styles.searchResultTitle}>Produtos Disponíveis</Text>
+                  <FlatList
+                    data={produtos.slice(0, 10)}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    scrollEnabled={false}
+                    columnWrapperStyle={{ gap: 10 }}
+                    renderItem={({ item }) => (
+                      <View style={{ flex: 1 }}>
+                        <TouchableOpacity style={styles.produtoCard}>
+                          <Image 
+                            source={{ uri: item.imagem_url }} 
+                            style={styles.produtoImage}
+                          />
+                          <View style={styles.produtoInfo}>
+                            <Text style={styles.produtoNome} numberOfLines={2}>{item.nome_produto}</Text>
+                            <Text style={styles.produtoProdutor} numberOfLines={1}>{item.nome_produtor}</Text>
+                            <View style={styles.precoContainer}>
+                              <Text style={styles.preco}>R$ {item.preco.toFixed(2).replace('.', ',')}</Text>
+                              <Text style={styles.unidade}>{item.unidade}</Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  />
+                </>
+              )}
+            </ScrollView>
+          )}
         </View>
       </View>
     </View>
@@ -179,7 +347,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 10,
   },
+  categoriaItemActive: {
+    backgroundColor: '#F0F8F4',
+    borderLeftWidth: 3,
+    borderLeftColor: '#387C59',
+    paddingHorizontal: 7,
+  },
   categoriaText: { fontSize: 13, color: '#333', marginLeft: 8, fontWeight: '500' },
+  categoriaTextActive: { color: '#387C59', fontWeight: '600' },
   
   mainContent: { flex: 1, padding: 12 },
   
@@ -208,4 +383,26 @@ const styles = StyleSheet.create({
   sugestaoImage: { width: '100%', height: '100%', justifyContent: 'flex-start', alignItems: 'flex-end', padding: 8 },
   sugestaoBadge: { backgroundColor: '#387C59', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   sugestaoBadgeText: { color: '#FFF', fontSize: 11, fontWeight: 'bold' },
+
+  // Novos estilos para produtos
+  searchResultTitle: { fontSize: 16, fontWeight: '600', color: '#333', marginVertical: 16, marginHorizontal: 6 },
+  produtoCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  produtoImage: { width: '100%', height: 130, resizeMode: 'cover' },
+  produtoInfo: { padding: 10 },
+  produtoNome: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 4 },
+  produtoProdutor: { fontSize: 11, color: '#999', marginBottom: 8 },
+  precoContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  preco: { fontSize: 14, fontWeight: '700', color: '#387C59' },
+  unidade: { fontSize: 10, color: '#999', fontWeight: '500' },
 });

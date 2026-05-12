@@ -309,6 +309,174 @@ async function main() {
       imagem_url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=400&auto=format&fit=crop',
       produtor_id: produtor1.id,
       endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Melancia Vermelha',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 20.00,
+      unidade: 'Unidade',
+      quantidade: 10,
+      imagem_url: 'https://images.unsplash.com/photo-1585518419759-1b95cc6670e8?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Alho Francês',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Legumes',
+      preco: 4.50,
+      unidade: 'Maço',
+      quantidade: 35,
+      imagem_url: 'https://images.unsplash.com/photo-1585647322838-edd77d17f4ee?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Brócolis Orgânico',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Verduras',
+      preco: 7.00,
+      unidade: 'Unidade',
+      quantidade: 25,
+      imagem_url: 'https://images.unsplash.com/photo-1601618528167-23ace3c24733?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Maracujá Amarelo',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 8.00,
+      unidade: 'Kg',
+      quantidade: 20,
+      imagem_url: 'https://images.unsplash.com/photo-1473093295203-786d92d87868?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Acerola Vermelha',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 16.00,
+      unidade: 'Caixa 500g',
+      quantidade: 15,
+      imagem_url: 'https://images.unsplash.com/photo-1596195694636-e1aa1a8a46f9?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Rúcula Fresca',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Verduras',
+      preco: 3.50,
+      unidade: 'Maço',
+      quantidade: 40,
+      imagem_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Beterraba Roxa',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Raízes',
+      preco: 5.00,
+      unidade: 'Kg',
+      quantidade: 50,
+      imagem_url: 'https://images.unsplash.com/photo-1585518419759-64dddb0e7b0f?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Repolho Verde',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Verduras',
+      preco: 4.50,
+      unidade: 'Unidade',
+      quantidade: 30,
+      imagem_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Goiaba Branca',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 9.00,
+      unidade: 'Kg',
+      quantidade: 18,
+      imagem_url: 'https://images.unsplash.com/photo-1585620674026-3742bae4f049?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Pimenta Malagueta',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Legumes',
+      preco: 6.00,
+      unidade: 'Maço',
+      quantidade: 25,
+      imagem_url: 'https://images.unsplash.com/photo-1583034313398-5a94c41d5a45?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Abobrinha Verde',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Legumes',
+      preco: 4.00,
+      unidade: 'Kg',
+      quantidade: 40,
+      imagem_url: 'https://images.unsplash.com/photo-1609681865557-0c7e07a4ea5d?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Tomate Italiano',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Legumes',
+      preco: 7.50,
+      unidade: 'Kg',
+      quantidade: 35,
+      imagem_url: 'https://images.unsplash.com/photo-1592841657335-f3f122fa7f0f?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Melão Cantaloupe',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 18.00,
+      unidade: 'Unidade',
+      quantidade: 12,
+      imagem_url: 'https://images.unsplash.com/photo-1599599810694-d3a6b53aab20?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Espinafre Orgânico',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Verduras',
+      preco: 5.50,
+      unidade: 'Maço',
+      quantidade: 30,
+      imagem_url: 'https://images.unsplash.com/photo-1599904490221-9c0f7f13126c?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
     }
   ];
 
@@ -316,7 +484,7 @@ async function main() {
     await prisma.produtos.create({ data: prod });
   }
 
-  // 4. Criar comprador
+  // 5. Criar comprador
   const comprador1 = await prisma.usuarios.create({
     data: {
       nome: 'Cliente João',
@@ -326,12 +494,18 @@ async function main() {
     },
   });
 
-  // 5. Criar pedidos fictícios para o comprador
+  // 5. Criar pedidos fictícios para o comprador com múltiplos status
   const produtoParaPedido1 = await prisma.produtos.findFirst({ where: { nome_produto: 'Banana Prata' } });
   const produtoParaPedido2 = await prisma.produtos.findFirst({ where: { nome_produto: 'Morangos Frescos' } });
   const produtoParaPedido3 = await prisma.produtos.findFirst({ where: { nome_produto: 'Abacate Hass' } });
+  const produtoParaPedido4 = await prisma.produtos.findFirst({ where: { nome_produto: 'Melancia Vermelha' } });
+  const produtoParaPedido5 = await prisma.produtos.findFirst({ where: { nome_produto: 'Brócolis Orgânico' } });
+  const produtoParaPedido6 = await prisma.produtos.findFirst({ where: { nome_produto: 'Maracujá Amarelo' } });
+  const produtoParaPedido7 = await prisma.produtos.findFirst({ where: { nome_produto: 'Acerola Vermelha' } });
+  const produtoParaPedido8 = await prisma.produtos.findFirst({ where: { nome_produto: 'Tomate Cereja' } });
 
-  if (produtoParaPedido1 && produtoParaPedido2 && produtoParaPedido3) {
+  if (produtoParaPedido1 && produtoParaPedido2 && produtoParaPedido3 && produtoParaPedido4) {
+    // Pedido 1 - Em andamento
     await prisma.pedidos.create({
       data: {
         comprador_id: comprador1.id,
@@ -343,6 +517,7 @@ async function main() {
       }
     });
 
+    // Pedido 2 - Concluído/Entregue
     await prisma.pedidos.create({
       data: {
         comprador_id: comprador1.id,
@@ -354,6 +529,7 @@ async function main() {
       }
     });
 
+    // Pedido 3 - Cancelado
     await prisma.pedidos.create({
       data: {
         comprador_id: comprador1.id,
@@ -364,6 +540,74 @@ async function main() {
         data_pedido: new Date(new Date().setDate(new Date().getDate() - 10)), // 10 dias atrás
       }
     });
+
+    // Pedido 4 - Em andamento
+    await prisma.pedidos.create({
+      data: {
+        comprador_id: comprador1.id,
+        produto_id: produtoParaPedido4.id,
+        quantidade: 1,
+        preco_total: produtoParaPedido4.preco,
+        status: 'andamento',
+        data_pedido: new Date(new Date().setHours(new Date().getHours() - 2)),
+      }
+    });
+
+    // Pedido 5 - Concluído/Entregue
+    if (produtoParaPedido5) {
+      await prisma.pedidos.create({
+        data: {
+          comprador_id: comprador1.id,
+          produto_id: produtoParaPedido5.id,
+          quantidade: 2,
+          preco_total: produtoParaPedido5.preco * 2,
+          status: 'concluido',
+          data_pedido: new Date(new Date().setDate(new Date().getDate() - 15)), // 15 dias atrás
+        }
+      });
+    }
+
+    // Pedido 6 - Entregue
+    if (produtoParaPedido6) {
+      await prisma.pedidos.create({
+        data: {
+          comprador_id: comprador1.id,
+          produto_id: produtoParaPedido6.id,
+          quantidade: 4,
+          preco_total: produtoParaPedido6.preco * 4,
+          status: 'concluido',
+          data_pedido: new Date(new Date().setDate(new Date().getDate() - 20)), // 20 dias atrás
+        }
+      });
+    }
+
+    // Pedido 7 - Cancelado
+    if (produtoParaPedido7) {
+      await prisma.pedidos.create({
+        data: {
+          comprador_id: comprador1.id,
+          produto_id: produtoParaPedido7.id,
+          quantidade: 2,
+          preco_total: produtoParaPedido7.preco * 2,
+          status: 'cancelado',
+          data_pedido: new Date(new Date().setDate(new Date().getDate() - 25)), // 25 dias atrás
+        }
+      });
+    }
+
+    // Pedido 8 - Em andamento/Recente
+    if (produtoParaPedido8) {
+      await prisma.pedidos.create({
+        data: {
+          comprador_id: comprador1.id,
+          produto_id: produtoParaPedido8.id,
+          quantidade: 5,
+          preco_total: produtoParaPedido8.preco * 5,
+          status: 'andamento',
+          data_pedido: new Date(),
+        }
+      });
+    }
   }
 
   // 6. Criar uma Oferta Relâmpago
