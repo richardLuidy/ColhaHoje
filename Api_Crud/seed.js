@@ -248,7 +248,125 @@ async function main() {
     await prisma.produtos.create({ data: prod });
   }
 
-  // 4. Criar uma Oferta Relâmpago
+  // Novos Produtos Fictícios com Fotos
+  const produtosNovos = [
+    {
+      nome_produto: 'Abacate Hass',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Orgânico',
+      preco: 10.00,
+      unidade: 'Kg',
+      quantidade: 15,
+      imagem_url: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Uva Niágara',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Frutas',
+      preco: 12.50,
+      unidade: 'Caixa 500g',
+      quantidade: 40,
+      imagem_url: 'https://images.unsplash.com/photo-1596365548680-e374526017ad?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Beringela',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Legumes',
+      preco: 4.00,
+      unidade: 'Kg',
+      quantidade: 20,
+      imagem_url: 'https://images.unsplash.com/photo-1615486511484-9ec49b14f866?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    },
+    {
+      nome_produto: 'Mandioca',
+      nome_produtor: produtor2.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Raízes',
+      preco: 3.50,
+      unidade: 'Kg',
+      quantidade: 50,
+      imagem_url: 'https://images.unsplash.com/photo-1593006232230-07e3a3528b8a?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor2.id,
+      endereco_id: end2.id,
+    },
+    {
+      nome_produto: 'Couve Manteiga',
+      nome_produtor: produtor1.nome,
+      localizacao: 'Registro, SP',
+      categoria: 'Verduras',
+      preco: 2.50,
+      unidade: 'Maço',
+      quantidade: 30,
+      imagem_url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=400&auto=format&fit=crop',
+      produtor_id: produtor1.id,
+      endereco_id: end1.id,
+    }
+  ];
+
+  for (const prod of produtosNovos) {
+    await prisma.produtos.create({ data: prod });
+  }
+
+  // 4. Criar comprador
+  const comprador1 = await prisma.usuarios.create({
+    data: {
+      nome: 'Cliente João',
+      email: 'cliente@teste.com',
+      senha: '123',
+      tipo_usuario: 'cliente',
+    },
+  });
+
+  // 5. Criar pedidos fictícios para o comprador
+  const produtoParaPedido1 = await prisma.produtos.findFirst({ where: { nome_produto: 'Banana Prata' } });
+  const produtoParaPedido2 = await prisma.produtos.findFirst({ where: { nome_produto: 'Morangos Frescos' } });
+  const produtoParaPedido3 = await prisma.produtos.findFirst({ where: { nome_produto: 'Abacate Hass' } });
+
+  if (produtoParaPedido1 && produtoParaPedido2 && produtoParaPedido3) {
+    await prisma.pedidos.create({
+      data: {
+        comprador_id: comprador1.id,
+        produto_id: produtoParaPedido1.id,
+        quantidade: 2,
+        preco_total: produtoParaPedido1.preco * 2,
+        status: 'andamento',
+        data_pedido: new Date(),
+      }
+    });
+
+    await prisma.pedidos.create({
+      data: {
+        comprador_id: comprador1.id,
+        produto_id: produtoParaPedido2.id,
+        quantidade: 1,
+        preco_total: produtoParaPedido2.preco * 1,
+        status: 'concluido',
+        data_pedido: new Date(new Date().setDate(new Date().getDate() - 5)), // 5 dias atrás
+      }
+    });
+
+    await prisma.pedidos.create({
+      data: {
+        comprador_id: comprador1.id,
+        produto_id: produtoParaPedido3.id,
+        quantidade: 3,
+        preco_total: produtoParaPedido3.preco * 3,
+        status: 'cancelado',
+        data_pedido: new Date(new Date().setDate(new Date().getDate() - 10)), // 10 dias atrás
+      }
+    });
+  }
+
+  // 6. Criar uma Oferta Relâmpago
   const produtoOferta = await prisma.produtos.findFirst({ where: { nome_produto: 'Banana Prata' } });
   if (produtoOferta) {
     await prisma.ofertas_relampago.create({

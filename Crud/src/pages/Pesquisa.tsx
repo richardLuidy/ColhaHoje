@@ -106,6 +106,33 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
               ))}
             </View>
 
+            {/* Sugestões Orgânicas */}
+            <View style={styles.sugestoesContainer}>
+              <TouchableOpacity style={styles.sugestaoCard} activeOpacity={0.8}>
+                <ImageBackground 
+                  source={{ uri: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?q=80&w=400&auto=format&fit=crop' }} 
+                  style={styles.sugestaoImage}
+                  imageStyle={{ borderRadius: 16 }}
+                >
+                  <View style={styles.sugestaoBadge}>
+                    <Text style={styles.sugestaoBadgeText}>Orgânico</Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.sugestaoCard} activeOpacity={0.8}>
+                <ImageBackground 
+                  source={{ uri: 'https://images.unsplash.com/photo-1622206151226-18ca2c9e6a03?q=80&w=400&auto=format&fit=crop' }} 
+                  style={styles.sugestaoImage}
+                  imageStyle={{ borderRadius: 16 }}
+                >
+                  <View style={styles.sugestaoBadge}>
+                    <Text style={styles.sugestaoBadgeText}>Orgânico</Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
+            </View>
+
           </ScrollView>
         </View>
       </View>
@@ -175,4 +202,10 @@ const styles = StyleSheet.create({
   historyContainer: { alignItems: 'center', gap: 10 },
   historyTag: { backgroundColor: '#F0F0F0', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, alignSelf: 'center' },
   historyTagText: { color: '#555', fontSize: 13 },
+  
+  sugestoesContainer: { flexDirection: 'row', gap: 12, marginTop: 30, paddingBottom: 20 },
+  sugestaoCard: { flex: 1, height: 140, borderRadius: 16, overflow: 'hidden' },
+  sugestaoImage: { width: '100%', height: '100%', justifyContent: 'flex-start', alignItems: 'flex-end', padding: 8 },
+  sugestaoBadge: { backgroundColor: '#387C59', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  sugestaoBadgeText: { color: '#FFF', fontSize: 11, fontWeight: 'bold' },
 });

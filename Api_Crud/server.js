@@ -245,6 +245,58 @@ app.delete('/produtos/:id', async (req, res) => {
 });
 
 // ==========================================
+// 🛒 ROTAS DE PEDIDOS
+// ==========================================
+
+app.post('/pedidos', async (req, res) => {
+    try {
+        const { comprador_id, produto_id, quantidade, preco_total } = req.body;
+        const novoPedido = await prisma.pedidos.create({
+            data: {
+                comprador_id: parseInt(comprador_id),
+                produto_id: parseInt(produto_id),
+                quantidade: parseInt(quantidade),
+                preco_total: parseFloat(preco_total),
+                status: 'andamento'
+            }
+        });
+        res.status(201).json(novoPedido);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao criar pedido" });
+    }
+});
+
+app.get('/pedidos/comprador/:id', async (req, res) => {
+    try {
+        const pedidos = await prisma.pedidos.findMany({
+            where: { comprador_id: parseInt(req.params.id) },
+            include: {
+                produto: {
+                    include: { usuario: true } // para pegar nome do produtor
+                }
+            },
+            orderBy: { data_pedido: 'desc' }
+        });
+        res.status(200).json(pedidos);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar pedidos" });
+    }
+});
+
+app.put('/pedidos/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const pedido = await prisma.pedidos.update({
+            where: { id: parseInt(req.params.id) },
+            data: { status }
+        });
+        res.status(200).json(pedido);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao atualizar status do pedido" });
+    }
+});
+
+// ==========================================
 // ⚡ ROTAS DE OFERTA RELÂMPAGO
 // ==========================================
 
