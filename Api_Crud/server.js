@@ -333,6 +333,6 @@ app.get('/ofertas/destaque', async (req, res) => {
 
 console.log('📝 Endpoints registrados')
 
-app.listen(3000, () => {
-    console.log('🚀 Servidor pronto em http://localhost:3000')
+app.listen(3000, '0.0.0.0', () => {
+    console.log('🚀 Servidor pronto e aceitando conexões na porta 3000!')
 })
