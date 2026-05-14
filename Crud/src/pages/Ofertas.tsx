@@ -17,7 +17,7 @@ export default function Ofertas() {
     const carregarProdutos = async () => {
         try {
             // Buscar ofertas relâmpago ativas
-            const resOfertas = await fetch('http://192.168.0.116:3000/ofertas');
+            const resOfertas = await fetch('http://10.0.2.2:3000/ofertas');
             if (resOfertas.ok) {
                 const listaOfertas = await resOfertas.json();
                 // Filtrar apenas ofertas ativas

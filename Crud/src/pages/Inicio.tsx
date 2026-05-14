@@ -47,13 +47,13 @@ export default function Inicio() {
 
     const carregarDadosHome = async () => {
         try {
-            const resOferta = await fetch('http://192.168.0.116:3000/ofertas/destaque');
+            const resOferta = await fetch('http://10.0.2.2:3000/ofertas/destaque');
             if (resOferta.ok) {
                 const oferta = await resOferta.json();
                 setOfertaDestaque(oferta);
             }
 
-            const resProdutos = await fetch('http://192.168.0.116:3000/produtos');
+            const resProdutos = await fetch('http://10.0.2.2:3000/produtos');
             if (resProdutos.ok) {
                 const listaProdutos = await resProdutos.json();
                 setProdutos(listaProdutos);

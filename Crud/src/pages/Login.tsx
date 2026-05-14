@@ -11,8 +11,8 @@ const iconLogo = Image.resolveAssetSource(require('../assets/logo.svg')).uri;
 const iconEmail = Image.resolveAssetSource(require('../assets/icon-email.svg')).uri;
 const iconSenha = Image.resolveAssetSource(require('../assets/icon-senha.svg')).uri;
 
-// ⚠️ ATENÇÃO: Use 'http://localhost:3000' para web, ou '192.168.0.116:3000' para emulador Android
-const API_URL = 'http://192.168.0.116:3000'; 
+// ⚠️ ATENÇÃO: Use 'http://localhost:3000' para web, ou '10.0.2.2:3000' para emulador Android
+const API_URL = 'http://10.0.2.2:3000'; 
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -22,7 +22,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [modo, setModo] = useState<'login' | 'cadastro'>('login');
 
   const [email, setEmail] = useState('');
-  const [codigo, setCodigo] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
@@ -33,12 +32,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
   async function handleAuth() {
     if (modo === 'cadastro') {
-      if (!email || !codigo || !senha || !confirmarSenha) {
+      // 🔴 Validação atualizada: Sem pedir o código
+      if (!email || !senha || !confirmarSenha) {
         Alert.alert("Erro", "Preencha todos os campos!");
-        return;
-      }
-      if (codigo !== '1234') {
-        Alert.alert("Código Inválido", "O código enviado ao seu e-mail é 1234 (Simulação).");
         return;
       }
       if (senha !== confirmarSenha) {
@@ -61,7 +57,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
       if (response.status === 200 || response.status === 201) {
         
-        // 🟢 MUDANÇA 1: Salvando o ID único do usuário (Obrigatório para o Cadastro de Produto!)
+        // 🟢 MUDANÇA 1: Salvando o ID único do usuário
         if (response.data && response.data.id) {
           await AsyncStorage.setItem('user_id', String(response.data.id));
           console.log("✅ ID do usuário salvo:", response.data.id);
@@ -126,21 +122,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           keyboardType="email-address"
         />
       </View>
-
-      {modo === 'cadastro' && (
-        <View style={styles.inputContainer}>
-          <SvgUri width={24} height={24} uri={iconEmail} />
-          <Text style={styles.inputLabel}>Cód. Confirmação:</Text>
-          <TextInput
-            style={styles.inputField}
-            placeholder="1234"
-            placeholderTextColor={colors.placeholder}
-            value={codigo}
-            onChangeText={setCodigo}
-            keyboardType="numeric"
-          />
-        </View>
-      )}
 
       <View style={styles.inputContainer}>
         <SvgUri width={24} height={24} uri={iconSenha} />

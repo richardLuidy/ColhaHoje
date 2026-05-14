@@ -29,7 +29,7 @@ export default function OfertaRelampago({ visivel, onClose }: OfertaRelampagoPro
   useEffect(() => {
     if (visivel) {
       setCarregando(true);
-      fetch('http://192.168.0.116:3000/produtos')
+      fetch('http://10.0.2.2:3000/produtos')
         .then(res => res.json())
         .then(dados => {
           setProdutosBD(dados);

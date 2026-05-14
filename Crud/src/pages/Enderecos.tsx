@@ -5,7 +5,7 @@ import axios from 'axios';
 import styles from '../../styles';
 import { colors } from '../../colors';
 
-const API_URL = 'http://192.168.0.116:3000'; 
+const API_URL = 'http://10.0.2.2:3000'; 
 
 interface EnderecosProps {
   onVoltar: () => void;

@@ -24,7 +24,7 @@ export default function Carrinho({ onNavigateToPedidos, onContinueShopping }: Ca
     try {
       // Criar um pedido para cada item do carrinho
       for (const item of items) {
-        const response = await fetch('http://192.168.0.116:3000/pedidos', {
+        const response = await fetch('http://10.0.2.2:3000/pedidos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

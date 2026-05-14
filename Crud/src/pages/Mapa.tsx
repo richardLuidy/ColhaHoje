@@ -45,7 +45,7 @@ export default function Mapa() {
 
     const carregarProdutos = async () => {
         try {
-            const resProdutos = await fetch('http://192.168.0.116:3000/produtos');
+            const resProdutos = await fetch('http://10.0.2.2:3000/produtos');
             if (resProdutos.ok) {
                 const listaProdutos = await resProdutos.json();
                 setProdutos(listaProdutos);

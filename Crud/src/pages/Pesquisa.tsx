@@ -14,7 +14,7 @@ export default function Pesquisa({ onBack }: { onBack: () => void }) {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    fetch('http://192.168.0.116:3000/produtos')
+    fetch('http://10.0.2.2:3000/produtos')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

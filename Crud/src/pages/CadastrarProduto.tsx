@@ -12,7 +12,7 @@ import { colors } from '../../colors';
 const categoriasAtivas = ['Frutas', 'Legumes', 'Verduras', 'Raízes', 'Orgânicos'];
 const unidadesAgricolas = ['Caixa', 'Saco', 'Maço', 'Kg', 'Unidade', 'Bandeja', 'Dúzia'];
 
-const API_URL = 'http://192.168.0.116:3000'; 
+const API_URL = 'http://10.0.2.2:3000';
 
 interface CadastrarProdutoProps {
   onVoltar: () => void;
@@ -76,13 +76,14 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       Alert.alert("Permissão negada", "Precisamos de acesso à sua galeria.");
       return;
     }
+    // ✅ COMO DEVE FICAR (Certo)
     const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
-      allowsEditing: true, 
-      aspect: [4, 3], 
-      quality: 0.7, 
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
     });
-    if (!resultado.canceled) setImagemUri(resultado.assets[0].uri); 
+    if (!resultado.canceled) setImagemUri(resultado.assets[0].uri);
   };
 
   const aumentarQuantidade = () => setQuantidade(quantidade + 1);
@@ -113,7 +114,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
         const filename = imagemUri.split('/').pop() || 'foto.jpg';
         const match = /\.(\w+)$/.exec(filename);
         const type = match ? `image/${match[1]}` : `image/jpeg`;
-        formData.append('imagem', { uri: imagemUri, name: filename, type } as any); 
+        formData.append('imagem', { uri: imagemUri, name: filename, type } as any);
       }
 
       // 🟢 O PULO DO GATO: Decide se usa POST (novo) ou PUT (editar)
@@ -128,7 +129,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert(
-          "Sucesso!", 
+          "Sucesso!",
           produtoEditando ? "Produto atualizado com sucesso!" : "Produto cadastrado com sucesso!",
           [{ text: "OK", onPress: () => onVoltar() }]
         );
@@ -146,7 +147,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       <ScrollView style={styles.containerScrollCadastrar} showsVerticalScrollIndicator={false}>
         {/* Título Dinâmico */}
         <Text style={styles.tituloPaginaCadastrar}>
-            {produtoEditando ? "Editar Produto" : "Cadastrar Produto"}
+          {produtoEditando ? "Editar Produto" : "Cadastrar Produto"}
         </Text>
 
         <View style={styles.areaFotosCadastrar}>
@@ -214,7 +215,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
             <ActivityIndicator color={colors.branco} />
           ) : (
             <Text style={styles.textoBtnCadastrarFinal}>
-                {produtoEditando ? "Salvar Alterações" : "Cadastrar Produto"}
+              {produtoEditando ? "Salvar Alterações" : "Cadastrar Produto"}
             </Text>
           )}
         </TouchableOpacity>

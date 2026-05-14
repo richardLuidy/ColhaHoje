@@ -35,18 +35,7 @@ export default function Pedidos() {
 
   return (
     <View style={styles.container}>
-      {/* 🟢 HEADER CUSTOMIZADO */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>ColhaHoje</Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="search" size={24} color="#FFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="bag-outline" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      
 
       {/* Sistema de Abas (Tabs) */}
       <View style={styles.tabsContainer}>
