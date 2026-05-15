@@ -20,17 +20,18 @@ const formatarDataCurta = (dataString: string) => {
     return `${dia}/${mes}/${ano}`;
 };
 
-// 🕒 GERA O HORÁRIO DINÂMICO DE ENTREGA (Hora atual + 45 min)
+// 🕒 GERA O HORÁRIO DINÂMICO BASEADO NA DATA DO PEDIDO
 const gerarPrevisaoEntrega = (dataPedido: string) => {
-    const agora = new Date();
-    agora.setMinutes(agora.getMinutes() + 45);
+    // 🟢 CORREÇÃO: Agora usa a hora em que a compra foi feita no banco, e não a hora atual!
+    const dataBase = dataPedido ? new Date(dataPedido) : new Date();
+    dataBase.setMinutes(dataBase.getMinutes() + 45); // Adiciona 45 min para entrega
 
-    const dia = String(agora.getDate()).padStart(2, '0');
-    const mes = String(agora.getMonth() + 1).padStart(2, '0');
-    const ano = String(agora.getFullYear()).slice(-2);
+    const dia = String(dataBase.getDate()).padStart(2, '0');
+    const mes = String(dataBase.getMonth() + 1).padStart(2, '0');
+    const ano = String(dataBase.getFullYear()).slice(-2);
 
-    const horas = String(agora.getHours()).padStart(2, '0');
-    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    const horas = String(dataBase.getHours()).padStart(2, '0');
+    const minutos = String(dataBase.getMinutes()).padStart(2, '0');
 
     return `Hoje (${dia}/${mes}/${ano}), até as ${horas}:${minutos}`;
 };
@@ -41,10 +42,9 @@ export default function Pedidos() {
     const [refreshing, setRefreshing] = useState(false);
     const [pedidos, setPedidos] = useState<any[]>([]);
 
-    const carregarPedidos = async () => {
+   const carregarPedidos = async () => {
         try {
-            const userId = await AsyncStorage.getItem('user_id');
-            const response = await api.get(`/pedidos/usuario/${userId || '1'}`);
+            const response = await api.get(`/pedidos/usuario/7`);
             setPedidos(response.data);
         } catch (error) {
             console.log("Erro ao buscar pedidos:", error);
@@ -71,7 +71,7 @@ export default function Pedidos() {
 
     // 🟢 RENDERIZAÇÃO DO HISTÓRICO
     const renderHistorico = (item: any) => {
-        const primeiroItem = item.itens && item.itens.length > 0 ? item.itens[0] : null;
+        const produtoObj = item.produto; // 🟢 CORREÇÃO: Pegando o produto direto do banco
         const isCancelado = item.status === 'cancelado';
 
         return (
@@ -91,9 +91,9 @@ export default function Pedidos() {
 
                 <View style={styles.historicoConteudo}>
                     <View style={styles.historicoImage}> 
-                        {primeiroItem?.produto?.imagem_url ? (
+                        {produtoObj?.imagem_url ? (
                             <Image 
-                                source={{ uri: `${API_URL}${primeiroItem.produto.imagem_url}` }} 
+                                source={{ uri: `${API_URL}${produtoObj.imagem_url}` }} 
                                 style={{ width: '100%', height: '100%', borderRadius: 12 }} 
                             />
                         ) : (
@@ -103,13 +103,13 @@ export default function Pedidos() {
                     
                     <View style={styles.historicoInfoText}>
                         <Text style={styles.historicoTituloProduto} numberOfLines={1}>
-                            {primeiroItem?.quantidade}x {primeiroItem?.produto?.nome_produto || 'Produto'}
+                            {item.quantidade}x {produtoObj?.nome_produto || 'Produto'}
                         </Text>
                         <Text style={styles.historicoFornecedor}>
-                            Fornecedor: {primeiroItem?.produto?.produtor?.nome || 'Produtor Local'}
+                            Fornecedor: {produtoObj?.usuario?.nome || 'Produtor Local'}
                         </Text>
                         <Text style={styles.historicoTotal}>
-                            Total: R$ {parseFloat(item.total).toFixed(2).replace('.', ',')}
+                            Total: R$ {parseFloat(item.preco_total || 0).toFixed(2).replace('.', ',')}
                         </Text>
                     </View>
                 </View>
@@ -132,9 +132,9 @@ export default function Pedidos() {
     const renderCardPedido = ({ item }: { item: any }) => {
         if (abaAtiva === 'historico') return renderHistorico(item);
 
-        const primeiroItem = item.itens && item.itens.length > 0 ? item.itens[0] : null;
+        // 🟢 CORREÇÃO: Simplificando para pegar o produto diretamente!
+        const produtoObj = item.produto;
 
-        // 🛠️ AJUSTE NA LÓGICA DE STATUS: Aceitando com ou sem acentuação
         const statusAtual = item.status?.toLowerCase() || 'pendente';
         const isConfirmado = true;
         const isPreparacao = statusAtual.includes('prepara') || statusAtual.includes('rota') || statusAtual.includes('entregue');
@@ -205,44 +205,42 @@ export default function Pedidos() {
 
                 <View style={styles.pedidoSecaoHeader}>
                     <Ionicons name="cart-outline" size={16} color="#4B5563" />
-                    <Text style={styles.pedidoSecaoTitulo}>Itens do Pedido ({item.itens?.length || 0})</Text>
+                    <Text style={styles.pedidoSecaoTitulo}>Itens do Pedido (1)</Text>
                 </View>
 
                 <View style={styles.pedidoListaItens}>
-                    {item.itens?.map((subItem: any, index: number) => (
-                        <View key={index} style={styles.pedidoItemRow}>
-                            <View style={styles.pedidoItemIconContainer}>
-                                {subItem.produto?.imagem_url ? (
-                                    <Image
-                                        source={{ uri: `${API_URL}${subItem.produto.imagem_url}` }}
-                                        style={styles.pedidoProdutoImagem}
-                                    />
-                                ) : (
-                                    <Ionicons name="leaf-outline" size={24} color="#9CA3AF" />
-                                )}
-                            </View>
-
-                            <View style={styles.pedidoItemInfoCenter}>
-                                <Text style={styles.pedidoProdutoTitulo}>
-                                    {subItem.produto?.nome_produto || "Produto"}
-                                </Text>
-                                <Text style={styles.pedidoProdutoSub}>
-                                    R$ {parseFloat(subItem.preco_unit).toFixed(2).replace('.', ',')} / {subItem.produto?.unidade || 'unid'}
-                                </Text>
-                            </View>
-
-                            <View style={styles.pedidoItemInfoRight}>
-                                <View style={styles.pedidoItemQtdBadge}>
-                                    <Text style={styles.pedidoItemQtdText}>
-                                        {subItem.quantidade} {subItem.produto?.unidade === 'Kg' ? 'kg' : 'unid.'}
-                                    </Text>
-                                </View>
-                                <Text style={styles.pedidoItemTotalText}>
-                                    R$ {(subItem.quantidade * subItem.preco_unit).toFixed(2).replace('.', ',')}
-                                </Text>
-                            </View>
+                    <View style={styles.pedidoItemRow}>
+                        <View style={styles.pedidoItemIconContainer}>
+                            {produtoObj?.imagem_url ? (
+                                <Image
+                                    source={{ uri: `${API_URL}${produtoObj.imagem_url}` }}
+                                    style={styles.pedidoProdutoImagem}
+                                />
+                            ) : (
+                                <Ionicons name="leaf-outline" size={24} color="#9CA3AF" />
+                            )}
                         </View>
-                    ))}
+
+                        <View style={styles.pedidoItemInfoCenter}>
+                            <Text style={styles.pedidoProdutoTitulo}>
+                                {produtoObj?.nome_produto || "Produto"}
+                            </Text>
+                            <Text style={styles.pedidoProdutoSub}>
+                                R$ {parseFloat(produtoObj?.preco || 0).toFixed(2).replace('.', ',')} / {produtoObj?.unidade || 'unid'}
+                            </Text>
+                        </View>
+
+                        <View style={styles.pedidoItemInfoRight}>
+                            <View style={styles.pedidoItemQtdBadge}>
+                                <Text style={styles.pedidoItemQtdText}>
+                                    {item.quantidade} {produtoObj?.unidade === 'Kg' ? 'kg' : 'unid.'}
+                                </Text>
+                            </View>
+                            <Text style={styles.pedidoItemTotalText}>
+                                R$ {parseFloat(item.preco_total || 0).toFixed(2).replace('.', ',')}
+                            </Text>
+                        </View>
+                    </View>
                 </View>
 
                 <View style={styles.pedidoDivisor} />
@@ -253,8 +251,9 @@ export default function Pedidos() {
                 </View>
 
                 {(() => {
-                    const nomeProdutor = primeiroItem?.produto?.produtor?.nome || 'Produtor Local';
-                    const endereco = primeiroItem?.produto?.endereco || item.cliente?.enderecos?.[0];
+                    const nomeProdutor = produtoObj?.usuario?.nome || 'Produtor Local';
+                    const endereco = produtoObj?.endereco || item.comprador?.enderecos?.[0];
+                    
                     const rua = endereco?.rua || 'Endereço não cadastrado';
                     const numero = endereco?.numero ? `, ${endereco.numero}` : '';
                     const bairro = endereco?.bairro ? `- ${endereco.bairro}` : '';

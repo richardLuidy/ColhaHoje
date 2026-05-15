@@ -29,7 +29,6 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [produtoParaEditar, setProdutoParaEditar] = useState<any>(null);
 
-  // Removido o totalProdutos do state para usar o calculado via useMemo (mais preciso)
   const [filtroAtivo, setFiltroAtivo] = useState<'Todos' | 'Catálogo' | 'Ofertas'>('Todos');
   const [ofertasBrutas, setOfertasBrutas] = useState<any[]>([]);
   const [agora, setAgora] = useState(new Date().getTime());
@@ -73,7 +72,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       const idSalvo = await AsyncStorage.getItem('user_id');
       if (!idSalvo) return;
 
-      // 1. Busca Produtos (Pegamos a lista completa e tratamos o total aqui)
+      // 1. Busca Produtos
       const responseLista = await axios.get(`${API_URL}/produtos?produtor_id=${idSalvo}`, { params: { _cache: Date.now() } });
       if (responseLista.status === 200) setListaProdutosEstoque(responseLista.data);
 
@@ -85,7 +84,8 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       try {
         const responsePedidos = await axios.get(`${API_URL}/pedidos/produtor/${idSalvo}`);
         setPedidosRecebidos(responsePedidos.data);
-        const faturamento = responsePedidos.data.reduce((acc: number, p: any) => acc + (parseFloat(p.total) || 0), 0);
+        // 🟢 CORREÇÃO 1: Faturamento atualizado para usar 'preco_total'
+        const faturamento = responsePedidos.data.reduce((acc: number, p: any) => acc + (parseFloat(p.preco_total) || 0), 0);
         setFaturamentoDia(faturamento);
       } catch (err) {
         console.error("Erro ao buscar pedidos do backend:", err);
@@ -171,20 +171,23 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
                       return (
                           <View key={pedido.id} style={{ backgroundColor: '#FFF', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 2 }}>
                               <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#EEE', paddingBottom: 10, marginBottom: 10 }}>
-                                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>👤 {pedido.cliente?.nome || 'Cliente ColhaHoje'}</Text>
+                                  {/* 🟢 CORREÇÃO 2: Mudamos de 'cliente' para 'comprador' */}
+                                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>👤 {pedido.comprador?.nome || 'Cliente ColhaHoje'}</Text>
                                   <Text style={{ fontSize: 14, color: '#999', fontWeight: 'bold' }}>#{pedido.id}</Text>
                               </View>
                               
                               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                                  {/* 🟢 CORREÇÃO 3: Pegando o produto direto em vez de varrer a lista velha */}
                                   <Text style={{ fontSize: 15, color: '#555', flex: 1 }}>
-                                      {pedido.itens?.map((i: any) => `${i.quantidade}x ${i.produto?.nome_produto || 'Item'}`).join('\n')}
+                                      {pedido.quantidade}x {pedido.produto?.nome_produto || 'Produto Local'}
                                   </Text>
-                                  <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.verdeColheita }}>R$ {parseFloat(pedido.total || 0).toFixed(2).replace('.', ',')}</Text>
+                                  {/* 🟢 CORREÇÃO 4: Exibindo o preco_total */}
+                                  <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.verdeColheita }}>R$ {parseFloat(pedido.preco_total || 0).toFixed(2).replace('.', ',')}</Text>
                               </View>
 
                               <Text style={{ fontSize: 14, color: '#666', marginBottom: 10, fontStyle: 'italic', textAlign: 'center' }}>Status: {pedido.status}</Text>
                               
-                              {status.includes('pendente') && (
+                              {(status.includes('pendente') || status.includes('andamento')) && (
                                   <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#FFC107' }]} onPress={() => atualizarStatusPedido(pedido.id, 'preparação')}>
                                       <Text style={stylesLocal.btnTextoEscuro}>Aceitar e Preparar</Text>
                                   </TouchableOpacity>
@@ -224,12 +227,10 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         </View>
         <View style={styles.cardPequenoSério}>
           <Text style={styles.cardLabelSério}>Produtos Ativos</Text>
-          {/* 🟢 AGORA MOSTRA APENAS O TOTAL DE PRODUTOS REAIS */}
           <Text style={styles.cardValorSério}>{produtosValidos.length}</Text>
         </View>
       </View>
 
-      {/* O RESTANTE DO CÓDIGO CONTINUA IGUAL... */}
       <Text style={[styles.tituloSessaoSério, { marginTop: 15, marginBottom: 10 }]}>Logística</Text>
       <TouchableOpacity 
         style={[styles.cardCadastrarNovoSério, { borderColor: '#FFC107', borderWidth: 1 }]} 
@@ -239,7 +240,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
         <View style={styles.infoEstoqueSério}>
           <Text style={styles.tituloEstoqueSério}>Gerenciar Pedidos</Text>
           <Text style={styles.descEstoqueSério}>
-              Você tem {pedidosRecebidos.filter(p => p.status.toLowerCase().includes('pendente')).length} pedidos aguardando.
+              Você tem {pedidosRecebidos.filter(p => p.status.toLowerCase().includes('pendente') || p.status.toLowerCase().includes('andamento')).length} pedidos aguardando.
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color={colors.placeholder} />
