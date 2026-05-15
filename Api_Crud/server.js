@@ -141,14 +141,17 @@ app.post('/login', async (req, res) => {
 
 app.post('/enderecos', async (req, res) => {
     try {
-        const { cep, rua, numero, bairro, cidade, estado, latitude, longitude, usuario_id } = req.body;
+        const { cep, rua, numero, bairro, cidade, estado, usuario_id } = req.body;
         if (!usuario_id) return res.status(400).json({ error: "ID do usuário é obrigatório!" });
 
         const novoEndereco = await prisma.enderecos.create({
             data: {
-                cep, rua, numero: String(numero), bairro, cidade, estado,
-                latitude: latitude ? parseFloat(latitude) : null,
-                longitude: longitude ? parseFloat(longitude) : null,
+                cep, 
+                rua, 
+                numero: String(numero), 
+                bairro, 
+                cidade, 
+                estado,
                 usuario_id: parseInt(usuario_id)
             }
         })
