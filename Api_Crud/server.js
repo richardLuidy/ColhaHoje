@@ -202,14 +202,15 @@ app.get('/produtor/dados/:id', async (req, res) => {
 
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
-        // 🟢 CORREÇÃO: Pegando o nome_produtor do req.body!
+        // 1. Pegamos todos os dados que vêm do aplicativo (incluindo o nome_produtor)
         const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
 
+        // 2. Criamos o registro no banco garantindo que o nome_produtor seja enviado
         const novoProduto = await prisma.produtos.create({
             data: {
                 nome_produto,
-                nome_produtor, // 🟢 Adicionado para satisfazer o banco!
+                nome_produtor: nome_produtor || "Produtor Local", // 👈 O segredo está aqui!
                 categoria,
                 preco: parseFloat(preco) || 0,
                 unidade,
