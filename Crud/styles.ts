@@ -222,10 +222,10 @@ const styles = StyleSheet.create({
     },
 
     // =======================================================
-    // 🔑 ESTILOS DA TELA DE LOGIN (Login.tsx) - LIMPO E CENTRALIZADO
+    // 🔑 ESTILOS DAS TELAS DE LOGIN E DADOS PESSOAIS (Login.tsx, DadosPessoais.tsx)
     // =======================================================
 
-    // Container principal da tela de Login
+    // Container principal da tela de Login / Dados Pessoais
     containerLogin: {
         flexGrow: 1, // Permite centralizar o conteúdo no meio da tela
         backgroundColor: colors.branco,
@@ -1179,7 +1179,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-   // =======================================================
+    // =======================================================
     // 🏠 ESTILOS DA TELA INÍCIO.tsx
     // =======================================================
 
@@ -1298,9 +1298,8 @@ const styles = StyleSheet.create({
         marginTop: 5, // 🟢 Margem menor para caber bonito
     },
     // =======================================================
-    // 🛒CARD CATÁLOGO DE PRODUTOS Inicio.tsx 
+    // 🛒 ESTILOS DO CATÁLOGO DE PRODUTOS (Inicio.tsx)
     // =======================================================
-
 
     gridProdutosSério: {
         flexDirection: 'row',
@@ -2158,8 +2157,8 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 
-   // =======================================================
-    // 📦 TELA DE HISTÓRICO DE PEDIDOS (VISUAL PREMIUM)
+    // =======================================================
+    // 📦 ESTILOS DA TELA DE HISTÓRICO DE PEDIDOS (HistoricoPedidos.tsx)
     // =======================================================
     historicoHeader: {
         paddingHorizontal: 20,
