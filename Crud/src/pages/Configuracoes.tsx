@@ -24,9 +24,7 @@ export default function Configuracoes({ onVoltar }: { onVoltar: () => void }) {
                         <Text style={styles.headerConfigTitle}>Configurações</Text>
                         <Text style={styles.headerConfigSubtitle}>Personalize sua experiência no ColhaHoje</Text>
                     </View>
-                    <View style={styles.headerConfigIcon}>
-                        <Ionicons name="settings" size={26} color={colors.verdeColheita} />
-                    </View>
+                    
                 </View>
 
                 {/* SESSÃO: PREFERÊNCIAS */}

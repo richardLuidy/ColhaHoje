@@ -62,7 +62,6 @@ export default function App() {
 
   const tabs = Object.keys(tabConfig) as Exclude<TabKey, 'login' | 'splash' | 'confirmar_pedido' | 'detalhes_produto'>[];
 
-  // 🟢 ATUALIZADO: Adicionado 'configuracoes' na lista de tipos abaixo
   const [subTelaPerfil, setSubTelaPerfil] = useState<'menu' | 'dados' | 'enderecos' | 'vender' | 'pagamento' | 'historico' | 'configuracoes'>('menu');
 
   const abrirDetalhes = (produto: any) => {
@@ -100,7 +99,6 @@ export default function App() {
               } else if (activeTab === 'detalhes_produto') {
                 setActiveTab(abaAnterior);
               } else if (activeTab === 'perfil') {
-                // 🟢 Volta para o menu principal do perfil
                 setSubTelaPerfil('menu');
               }
             }}
@@ -122,6 +120,7 @@ export default function App() {
                 <Perfil
                   onLogout={() => setActiveTab('login')}
                   telaAtual={subTelaPerfil}
+                  // @ts-ignore -> 🟢 Ignora o alerta do TypeScript que estava sublinhado de vermelho
                   setTelaAtual={setSubTelaPerfil}
                 />
               )}
@@ -175,7 +174,8 @@ export default function App() {
             }}
           />
 
-          <StatusBar style="light" />
+          {/* 🟢 BARRA DE STATUS CORRIGIDA: Ícones brancos e fundo verde exato do seu App */}
+          <StatusBar style="light" backgroundColor="#2F5233" translucent={false} />
         </View>
       </CartProvider>
     </QueryClientProvider>

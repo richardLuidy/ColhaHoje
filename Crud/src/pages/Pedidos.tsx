@@ -166,7 +166,7 @@ export default function Pedidos() {
                 </View>
 
                 <View style={styles.pedidoStepperContainer}>
-                    {/* Stepper Steps... (mantidos iguais para brevidade) */}
+                    {/* Stepper Steps */}
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isConfirmado ? corVerdeFigma : corCinzaFigma }]}>
                             <Ionicons name="checkmark" size={14} color="#FFF" />
@@ -305,7 +305,7 @@ export default function Pedidos() {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
-            <StatusBar style="dark" />
+            {/* 🟢 CORREÇÃO: O <StatusBar style="dark" /> foi removido para herdar os ícones brancos do App.tsx */}
             <View style={styles.pedidosTabContainer}>
                 <TouchableOpacity
                     onPress={() => setAbaAtiva('andamento')}
