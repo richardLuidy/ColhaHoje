@@ -20,11 +20,11 @@ const formatarDataCurta = (dataString: string) => {
     return `${dia}/${mes}/${ano}`;
 };
 
-// 🕒 GERA O HORÁRIO DINÂMICO BASEADO NA DATA DO PEDIDO
+// 🕒 GERA O HORÁRIO DINÂMICO BASEADO NA DATA REAL DO PEDIDO NO BANCO
 const gerarPrevisaoEntrega = (dataPedido: string) => {
-    // 🟢 CORREÇÃO: Agora usa a hora em que a compra foi feita no banco, e não a hora atual!
+    // 🟢 CORREÇÃO: Usa a data da criação do pedido para fixar o horário
     const dataBase = dataPedido ? new Date(dataPedido) : new Date();
-    dataBase.setMinutes(dataBase.getMinutes() + 45); // Adiciona 45 min para entrega
+    dataBase.setMinutes(dataBase.getMinutes() + 45); 
 
     const dia = String(dataBase.getDate()).padStart(2, '0');
     const mes = String(dataBase.getMonth() + 1).padStart(2, '0');
@@ -71,7 +71,7 @@ export default function Pedidos() {
 
     // 🟢 RENDERIZAÇÃO DO HISTÓRICO
     const renderHistorico = (item: any) => {
-        const produtoObj = item.produto; // 🟢 CORREÇÃO: Pegando o produto direto do banco
+        const produtoObj = item.produto; 
         const isCancelado = item.status === 'cancelado';
 
         return (
@@ -106,6 +106,7 @@ export default function Pedidos() {
                             {item.quantidade}x {produtoObj?.nome_produto || 'Produto'}
                         </Text>
                         <Text style={styles.historicoFornecedor}>
+                            {/* 🟢 Mostra o nome do produtor no histórico */}
                             Fornecedor: {produtoObj?.usuario?.nome || 'Produtor Local'}
                         </Text>
                         <Text style={styles.historicoTotal}>
@@ -132,7 +133,6 @@ export default function Pedidos() {
     const renderCardPedido = ({ item }: { item: any }) => {
         if (abaAtiva === 'historico') return renderHistorico(item);
 
-        // 🟢 CORREÇÃO: Simplificando para pegar o produto diretamente!
         const produtoObj = item.produto;
 
         const statusAtual = item.status?.toLowerCase() || 'pendente';
@@ -166,33 +166,28 @@ export default function Pedidos() {
                 </View>
 
                 <View style={styles.pedidoStepperContainer}>
+                    {/* Stepper Steps... (mantidos iguais para brevidade) */}
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isConfirmado ? corVerdeFigma : corCinzaFigma }]}>
                             <Ionicons name="checkmark" size={14} color="#FFF" />
                         </View>
                         <Text style={[styles.pedidoStepLabel, { color: isConfirmado ? corVerdeFigma : '#9CA3AF', fontWeight: isConfirmado ? '600' : 'normal' }]}>Confirmado</Text>
                     </View>
-
                     <View style={[styles.pedidoStepLine, { backgroundColor: isPreparacao ? corVerdeFigma : corCinzaFigma }]} />
-
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isPreparacao ? corVerdeFigma : corCinzaFigma }]}>
                             <Ionicons name="checkmark" size={14} color="#FFF" />
                         </View>
                         <Text style={[styles.pedidoStepLabel, { color: isPreparacao ? corVerdeFigma : '#9CA3AF', fontWeight: isPreparacao ? '600' : 'normal' }]}>Preparação</Text>
                     </View>
-
                     <View style={[styles.pedidoStepLine, { backgroundColor: isEmRota ? corVerdeFigma : corCinzaFigma }]} />
-
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isEmRota ? corVerdeFigma : corCinzaFigma }]}>
                             <Ionicons name="bus-outline" size={14} color="#FFF" />
                         </View>
                         <Text style={[styles.pedidoStepLabel, { color: isEmRota ? corVerdeFigma : '#9CA3AF', fontWeight: isEmRota ? '600' : 'normal' }]}>Em Rota</Text>
                     </View>
-
                     <View style={[styles.pedidoStepLine, { backgroundColor: isEntregue ? corVerdeFigma : corCinzaFigma }]} />
-
                     <View style={styles.pedidoStep}>
                         <View style={[styles.pedidoStepCircle, { backgroundColor: isEntregue ? corVerdeFigma : corCinzaFigma }]}>
                             {isEntregue && <Ionicons name="checkmark-done" size={14} color="#FFF" />}
@@ -233,7 +228,8 @@ export default function Pedidos() {
                         <View style={styles.pedidoItemInfoRight}>
                             <View style={styles.pedidoItemQtdBadge}>
                                 <Text style={styles.pedidoItemQtdText}>
-                                    {item.quantidade} {produtoObj?.unidade === 'Kg' ? 'kg' : 'unid.'}
+                                    {/* 🟢 CORREÇÃO: Unidade de medida dinâmica (Caixa, Kg, etc) */}
+                                    {item.quantidade} {produtoObj?.unidade?.toLowerCase() || 'unid.'}
                                 </Text>
                             </View>
                             <Text style={styles.pedidoItemTotalText}>
@@ -251,6 +247,7 @@ export default function Pedidos() {
                 </View>
 
                 {(() => {
+                    {/* 🟢 CORREÇÃO: Puxa o nome do Produtor (usuario) corretamente */}
                     const nomeProdutor = produtoObj?.usuario?.nome || 'Produtor Local';
                     const endereco = produtoObj?.endereco || item.comprador?.enderecos?.[0];
                     
@@ -286,6 +283,7 @@ export default function Pedidos() {
                         <Text style={[styles.pedidoPrevisaoLabel, { marginLeft: 6 }]}>Previsão de Entrega:</Text>
                     </View>
                     <Text style={styles.pedidoPrevisaoData}>
+                        {/* 🟢 CORREÇÃO: Horário fixado na hora da compra */}
                         {gerarPrevisaoEntrega(item.data_pedido)}
                     </Text>
                 </View>
