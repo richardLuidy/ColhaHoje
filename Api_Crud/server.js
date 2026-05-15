@@ -100,7 +100,7 @@ app.put('/usuarios/:id', async (req, res) => {
                 whatsapp,
                 url_foto,
                 cpf_cnpj,
-                data_atual_izacao: new Date()
+                data_atualizacao: new Date()
             }
         })
         res.status(200).json(updatedUser)
@@ -146,12 +146,7 @@ app.post('/enderecos', async (req, res) => {
 
         const novoEndereco = await prisma.enderecos.create({
             data: {
-                cep,
-                rua,
-                numero: String(numero),
-                bairro,
-                cidade,
-                estado,
+                cep, rua, numero: String(numero), bairro, cidade, estado,
                 latitude: latitude ? parseFloat(latitude) : null,
                 longitude: longitude ? parseFloat(longitude) : null,
                 usuario_id: parseInt(usuario_id)
@@ -202,10 +197,6 @@ app.get('/produtor/dados/:id', async (req, res) => {
 // 🍏 ROTAS DE PRODUTOS
 // ==========================================
 
-// ==========================================
-// 🍏 ROTAS DE PRODUTOS
-// ==========================================
-
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
         const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
@@ -220,8 +211,8 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
                 quantidade: parseInt(quantidade) || 0,
                 produtor_id: parseInt(produtor_id) || 0,
                 endereco_id: parseInt(endereco_id) || 0,
-                imagem_url,
-                status: 'ativo'
+                imagem_url
+                // Removido status: 'ativo' pois a tabela não tem essa coluna
             }
         });
         res.status(201).json(novoProduto);
@@ -231,22 +222,20 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
     }
 });
 
-// 🟢 ESSA É A ROTA QUE ESTAVA FALTANDO PARA A TELA DE INÍCIO:
 app.get('/produtos', async (req, res) => {
     try {
         const listaProdutos = await prisma.produtos.findMany({
-            where: { status: 'ativo' }, // Só mostra o que não foi "deletado"
             orderBy: { id: 'desc' },
             include: {
-                produtor: { select: { nome: true } },
+                usuario: { select: { nome: true } }, // Trocado produtor por usuario
                 endereco: { select: { cidade: true, estado: true } }
             }
         });
 
         const produtosMapeados = listaProdutos.map(produto => ({
             ...produto,
-            nome_produtor: produto.produtor?.nome || "Produtor Local",
-            localizacao: produto.endereco ? `${produto.endereco.cidade}, ${produto.endereco.estado}` : null
+            nome_produtor: produto.usuario?.nome || produto.nome_produtor || "Produtor Local",
+            localizacao: produto.endereco ? `${produto.endereco.cidade}, ${produto.endereco.estado}` : produto.localizacao
         }));
         res.status(200).json(produtosMapeados);
     } catch (error) {
@@ -259,10 +248,7 @@ app.get('/produtos/contar/:produtor_id', async (req, res) => {
     try {
         const produtor_id = parseInt(req.params.produtor_id);
         const total = await prisma.produtos.count({
-            where: {
-                produtor_id: produtor_id,
-                status: 'ativo'
-            }
+            where: { produtor_id: produtor_id }
         });
         res.status(200).json({ total });
     } catch (error) {
@@ -270,8 +256,6 @@ app.get('/produtos/contar/:produtor_id', async (req, res) => {
         res.status(500).json({ error: "Erro ao contar produtos" });
     }
 });
-
-
 
 app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
     try {
@@ -312,13 +296,12 @@ app.delete('/produtos/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        // 🟢 Em vez de deletar, apenas mudamos o status para 'inativo'
-        await prisma.produtos.update({
-            where: { id: id },
-            data: { status: 'inativo' }
+        // Como não temos coluna status, voltamos para o delete padrão do banco
+        await prisma.produtos.delete({
+            where: { id: id }
         });
 
-        res.status(200).json({ message: "Produto removido do catálogo (Soft Delete)!" });
+        res.status(200).json({ message: "Produto removido do catálogo com sucesso!" });
     } catch (error) {
         console.error("❌ Erro ao desativar produto:", error);
         res.status(500).json({ error: "Erro ao excluir produto" });
@@ -351,9 +334,7 @@ app.post('/ofertas', async (req, res) => {
 app.get('/ofertas', async (req, res) => {
     try {
         const listaOfertas = await prisma.ofertas_relampago.findMany({
-            include: {
-                produto: true
-            },
+            include: { produto: true },
             orderBy: { criado_em: 'desc' }
         });
         res.status(200).json(listaOfertas);
@@ -368,9 +349,7 @@ app.delete('/ofertas/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        await prisma.ofertas_relampago.delete({
-            where: { id: id }
-        });
+        await prisma.ofertas_relampago.delete({ where: { id: id } });
         res.status(200).json({ message: "Oferta removida com sucesso!" });
     } catch (error) {
         console.error("❌ Erro DELETE /ofertas/:id:", error);
@@ -380,7 +359,6 @@ app.delete('/ofertas/:id', async (req, res) => {
 
 app.get('/ofertas/destaque', async (req, res) => {
     try {
-        // 1. Puxa todas as ofertas que constam como 'ativa' no banco
         const ofertasAtivas = await prisma.ofertas_relampago.findMany({
             where: { status: 'ativa' },
             orderBy: { criado_em: 'desc' },
@@ -390,24 +368,20 @@ app.get('/ofertas/destaque', async (req, res) => {
         const agora = new Date().getTime();
         let ofertaValida = null;
 
-        // 2. Passa um "pente fino" para achar a primeira que realmente é válida
         for (const oferta of ofertasAtivas) {
             const limite = new Date(oferta.criado_em).getTime() + (oferta.duracao_minutos * 60 * 1000);
-            const estoque = oferta.produto.quantidade_estoque || oferta.produto.quantidade;
+            const estoque = oferta.produto.quantidade;
 
             if (limite > agora && estoque > 0) {
-                // Achou! O tempo não acabou e ainda tem estoque.
                 ofertaValida = oferta;
-                break; // Para a busca, já achamos o destaque.
+                break; 
             } else {
-                // 3. O PULO DO GATO: Se passou do tempo ou zerou, o servidor já "mata" a oferta no banco!
                 await prisma.ofertas_relampago.update({
                     where: { id: oferta.id },
                     data: { status: 'inativa' }
                 });
             }
         }
-
         res.status(200).json(ofertaValida);
     } catch (error) {
         console.error("❌ Erro GET /ofertas/destaque:", error);
@@ -471,75 +445,64 @@ app.delete('/cartoes/:id', async (req, res) => {
 });
 
 // =======================================================
-// 🛒 ROTAS DE PEDIDOS (TOTALMENTE ATUALIZADO)
+// 🛒 ROTAS DE PEDIDOS 
 // =======================================================
 
 app.post('/pedidos', async (req, res) => {
     try {
-        // 🟢 MUDANÇA AQUI: Recebendo cliente_id do frontend
-        const { cliente_id, total, metodo_pagamento, itens } = req.body;
+        // Suporta tanto formato antigo como formato novo do carrinho para não quebrar
+        const comprador_id = req.body.comprador_id || req.body.cliente_id;
+        const itens = req.body.itens || [{
+            produto_id: req.body.produto_id,
+            quantidade: req.body.quantidade,
+            preco_unitario: req.body.preco_total || req.body.total
+        }];
 
-        if (!cliente_id || !itens || itens.length === 0) {
-            return res.status(400).json({ error: "Dados do pedido incompletos" });
-        }
-
-        const resultado = await prisma.$transaction(async (tx) => {
-            const pedido = await tx.pedidos.create({
+        const resultados = [];
+        
+        for (const item of itens) {
+            const pedido = await prisma.pedidos.create({
                 data: {
-                    cliente_id: parseInt(cliente_id), // 🟢 MUDANÇA AQUI: usando cliente_id
-                    total: parseFloat(total),
-                    metodo_pagamento,
-                    status: 'pendente',
-                    itens: {
-                        create: itens.map(item => ({
-                            produto_id: parseInt(item.produto_id),
-                            quantidade: parseInt(item.quantidade),
-                            preco_unit: parseFloat(item.preco_unitario) // 🟢 MUDANÇA AQUI: usando preco_unit
-                        }))
-                    }
+                    comprador_id: parseInt(comprador_id),
+                    produto_id: parseInt(item.produto_id),
+                    quantidade: parseInt(item.quantidade),
+                    preco_total: parseFloat(item.preco_unitario || item.preco_unit || req.body.total || 0),
+                    status: 'andamento'
                 }
             });
+            resultados.push(pedido);
 
-            for (const item of itens) {
-                await tx.produtos.update({
+            // Tenta baixar o estoque
+            try {
+                await prisma.produtos.update({
                     where: { id: parseInt(item.produto_id) },
-                    data: {
-                        quantidade: {
-                            decrement: parseInt(item.quantidade)
-                        }
-                    }
+                    data: { quantidade: { decrement: parseInt(item.quantidade) } }
                 });
+            } catch (e) {
+                console.log("Erro ao baixar estoque do produto", item.produto_id);
             }
-            return pedido;
-        });
+        }
 
-        res.status(201).json(resultado);
+        res.status(201).json(resultados.length === 1 ? resultados[0] : resultados);
     } catch (error) {
         console.error("❌ Erro ao processar pedido:", error);
         res.status(500).json({ error: "Erro interno ao processar pedido" });
     }
 });
 
-// 🟢 MUDANÇA AQUI: Rota usando cliente_id
-app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
+app.get('/pedidos/comprador/:id', async (req, res) => {
     try {
-        const cliente_id = parseInt(req.params.cliente_id);
+        const comprador_id = parseInt(req.params.id);
         const listaPedidos = await prisma.pedidos.findMany({
-            where: { cliente_id: cliente_id },
+            where: { comprador_id: comprador_id },
             include: {
-                // 🟢 1. Traz os dados do Cliente e o endereço de entrega dele
-                cliente: {
+                comprador: {
                     include: { enderecos: true }
                 },
-                // 🟢 2. Entra nos itens do pedido para buscar os dados do Produto
-                itens: {
+                produto: {
                     include: {
-                        produto: {
-                            include: {
-                                produtor: true,
-                                endereco: true
-                            }
-                        }
+                        usuario: true, // Trocado produtor por usuario
+                        endereco: true
                     }
                 }
             },
@@ -552,32 +515,46 @@ app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
     }
 });
 
+// Retrocompatibilidade caso o App chame o endpoint pela URL nova
+app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
+    try {
+        const comprador_id = parseInt(req.params.cliente_id);
+        const listaPedidos = await prisma.pedidos.findMany({
+            where: { comprador_id: comprador_id },
+            include: {
+                comprador: {
+                    include: { enderecos: true }
+                },
+                produto: {
+                    include: {
+                        usuario: true, 
+                        endereco: true
+                    }
+                }
+            },
+            orderBy: { data_pedido: 'desc' }
+        });
+        res.json(listaPedidos);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar histórico" });
+    }
+});
+
 
 // =======================================================
 // 📦 ROTAS EXCLUSIVAS DO PRODUTOR (GERENCIAR VENDAS)
 // =======================================================
 
-// 1. Busca todos os pedidos que têm produtos desse produtor
 app.get('/pedidos/produtor/:produtor_id', async (req, res) => {
     try {
         const produtor_id = parseInt(req.params.produtor_id);
         const listaVendas = await prisma.pedidos.findMany({
             where: {
-                itens: {
-                    some: {
-                        produto: {
-                            produtor_id: produtor_id
-                        }
-                    }
-                }
+                produto: { produtor_id: produtor_id }
             },
             include: {
-                cliente: { select: { nome: true, whatsapp: true } }, // Traz os dados do cliente
-                itens: {
-                    include: {
-                        produto: { select: { nome_produto: true, preco: true } }
-                    }
-                }
+                comprador: { select: { nome: true, whatsapp: true } }, 
+                produto: { select: { nome_produto: true, preco: true } }
             },
             orderBy: { data_pedido: 'desc' }
         });
@@ -588,7 +565,6 @@ app.get('/pedidos/produtor/:produtor_id', async (req, res) => {
     }
 });
 
-// 2. Atualiza o status do pedido (Pendente -> Preparação -> Entregue)
 app.put('/pedidos/:id/status', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -607,7 +583,7 @@ app.put('/pedidos/:id/status', async (req, res) => {
 });
 
 // ==========================================
-// 👑 ROTA DO PAINEL ADMIN (COMPLETA)
+// 👑 ROTA DO PAINEL ADMIN
 // ==========================================
 app.get('/admin/dashboard', async (req, res) => {
     try {
@@ -615,51 +591,34 @@ app.get('/admin/dashboard', async (req, res) => {
         const totalProdutos = await prisma.produtos.count();
         const totalPedidos = await prisma.pedidos.count();
 
-        // 1. Puxando os últimos Usuários (para ver os emails)
         const ultimosUsuarios = await prisma.usuarios.findMany({
-            take: 5,
-            orderBy: { id: 'desc' },
+            take: 5, orderBy: { id: 'desc' },
             select: { id: true, nome: true, email: true, tipo_usuario: true }
         });
 
-        // 2. Puxando os Produtos Normais (Catálogo)
         const ultimosProdutos = await prisma.produtos.findMany({
-            take: 5,
-            orderBy: { id: 'desc' },
-            include: { produtor: { select: { nome: true } } }
+            take: 5, orderBy: { id: 'desc' },
+            include: { usuario: { select: { nome: true } } }
         });
 
-        // 3. Puxando as Ofertas Relâmpago
         const ofertasAtivas = await prisma.ofertas_relampago.findMany({
-            take: 5,
-            orderBy: { id: 'desc' },
+            take: 5, orderBy: { id: 'desc' },
             include: {
-                produto: {
-                    include: { produtor: { select: { nome: true } } }
-                }
+                produto: { include: { usuario: { select: { nome: true } } } }
             }
         });
 
-        // 4. Puxando os Pedidos (Transações)
         const ultimosPedidos = await prisma.pedidos.findMany({
-            take: 5,
-            orderBy: { id: 'desc' },
+            take: 5, orderBy: { id: 'desc' },
             include: {
-                cliente: { select: { nome: true } },
-                itens: {
-                    include: {
-                        produto: { include: { produtor: { select: { nome: true } } } }
-                    }
-                }
+                comprador: { select: { nome: true } },
+                produto: { include: { usuario: { select: { nome: true } } } }
             }
         });
 
         res.json({
             totais: { usuarios: totalUsuarios, produtos: totalProdutos, pedidos: totalPedidos },
-            ultimosUsuarios,
-            ultimosProdutos,
-            ofertasAtivas,
-            ultimosPedidos 
+            ultimosUsuarios, ultimosProdutos, ofertasAtivas, ultimosPedidos 
         });
 
     } catch (error) {
@@ -670,6 +629,7 @@ app.get('/admin/dashboard', async (req, res) => {
 
 console.log('📝 Endpoints registrados')
 
-app.listen(3000, () => {
-    console.log('🚀 Servidor pronto em http://localhost:3000')
+// 🔴 IP CORRIGIDO AQUI EMBAIXO PARA FUNCIONAR NO CELULAR
+app.listen(3000, '0.0.0.0', () => {
+    console.log('🚀 Servidor pronto e aceitando conexões na porta 3000!')
 })
