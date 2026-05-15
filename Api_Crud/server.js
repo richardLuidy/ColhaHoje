@@ -202,12 +202,14 @@ app.get('/produtor/dados/:id', async (req, res) => {
 
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
-        const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
+        // 🟢 CORREÇÃO: Pegando o nome_produtor do req.body!
+        const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
 
         const novoProduto = await prisma.produtos.create({
             data: {
                 nome_produto,
+                nome_produtor, // 🟢 Adicionado para satisfazer o banco!
                 categoria,
                 preco: parseFloat(preco) || 0,
                 unidade,
@@ -215,7 +217,6 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
                 produtor_id: parseInt(produtor_id) || 0,
                 endereco_id: parseInt(endereco_id) || 0,
                 imagem_url
-                // Removido status: 'ativo' pois a tabela não tem essa coluna
             }
         });
         res.status(201).json(novoProduto);
@@ -230,7 +231,7 @@ app.get('/produtos', async (req, res) => {
         const listaProdutos = await prisma.produtos.findMany({
             orderBy: { id: 'desc' },
             include: {
-                usuario: { select: { nome: true } }, // Trocado produtor por usuario
+                usuario: { select: { nome: true } }, 
                 endereco: { select: { cidade: true, estado: true } }
             }
         });
@@ -265,7 +266,8 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        const { nome_produto, categoria, preco, unidade, quantidade } = req.body;
+        // 🟢 CORREÇÃO: Atualizando também o nome do produtor se for editado
+        const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade } = req.body;
         const produtoAtual = await prisma.produtos.findUnique({ where: { id: id } });
         if (!produtoAtual) return res.status(404).json({ error: "Produto não encontrado" });
 
@@ -276,6 +278,7 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
 
         const dadosParaAtualizar = {
             nome_produto,
+            nome_produtor, // 🟢 Atualizando aqui também!
             categoria,
             preco: parseFloat(preco) || 0,
             unidade,
@@ -299,7 +302,6 @@ app.delete('/produtos/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        // Como não temos coluna status, voltamos para o delete padrão do banco
         await prisma.produtos.delete({
             where: { id: id }
         });
@@ -453,7 +455,6 @@ app.delete('/cartoes/:id', async (req, res) => {
 
 app.post('/pedidos', async (req, res) => {
     try {
-        // Suporta tanto formato antigo como formato novo do carrinho para não quebrar
         const comprador_id = req.body.comprador_id || req.body.cliente_id;
         const itens = req.body.itens || [{
             produto_id: req.body.produto_id,
@@ -475,7 +476,6 @@ app.post('/pedidos', async (req, res) => {
             });
             resultados.push(pedido);
 
-            // Tenta baixar o estoque
             try {
                 await prisma.produtos.update({
                     where: { id: parseInt(item.produto_id) },
@@ -504,7 +504,7 @@ app.get('/pedidos/comprador/:id', async (req, res) => {
                 },
                 produto: {
                     include: {
-                        usuario: true, // Trocado produtor por usuario
+                        usuario: true, 
                         endereco: true
                     }
                 }
@@ -518,7 +518,6 @@ app.get('/pedidos/comprador/:id', async (req, res) => {
     }
 });
 
-// Retrocompatibilidade caso o App chame o endpoint pela URL nova
 app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
     try {
         const comprador_id = parseInt(req.params.cliente_id);
