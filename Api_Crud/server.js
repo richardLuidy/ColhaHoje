@@ -93,13 +93,7 @@ app.put('/usuarios/:id', async (req, res) => {
         const updatedUser = await prisma.usuarios.update({
             where: { id: id },
             data: {
-                nome,
-                email,
-                senha,
-                tipo_usuario,
-                whatsapp,
-                url_foto,
-                cpf_cnpj,
+                nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj,
                 data_atualizacao: new Date()
             }
         })
@@ -146,12 +140,7 @@ app.post('/enderecos', async (req, res) => {
 
         const novoEndereco = await prisma.enderecos.create({
             data: {
-                cep, 
-                rua, 
-                numero: String(numero), 
-                bairro, 
-                cidade, 
-                estado,
+                cep, rua, numero: String(numero), bairro, cidade, estado,
                 usuario_id: parseInt(usuario_id)
             }
         })
@@ -202,15 +191,13 @@ app.get('/produtor/dados/:id', async (req, res) => {
 
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
-        // 1. Pegamos todos os dados que vêm do aplicativo (incluindo o nome_produtor)
         const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
 
-        // 2. Criamos o registro no banco garantindo que o nome_produtor seja enviado
         const novoProduto = await prisma.produtos.create({
             data: {
                 nome_produto,
-                nome_produtor: nome_produtor || "Produtor Local", // 👈 O segredo está aqui!
+                nome_produtor: nome_produtor || "Produtor Local",
                 categoria,
                 preco: parseFloat(preco) || 0,
                 unidade,
@@ -267,7 +254,6 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        // 🟢 CORREÇÃO: Atualizando também o nome do produtor se for editado
         const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade } = req.body;
         const produtoAtual = await prisma.produtos.findUnique({ where: { id: id } });
         if (!produtoAtual) return res.status(404).json({ error: "Produto não encontrado" });
@@ -279,7 +265,7 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
 
         const dadosParaAtualizar = {
             nome_produto,
-            nome_produtor, // 🟢 Atualizando aqui também!
+            nome_produtor,
             categoria,
             preco: parseFloat(preco) || 0,
             unidade,
@@ -303,10 +289,7 @@ app.delete('/produtos/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        await prisma.produtos.delete({
-            where: { id: id }
-        });
-
+        await prisma.produtos.delete({ where: { id: id } });
         res.status(200).json({ message: "Produto removido do catálogo com sucesso!" });
     } catch (error) {
         console.error("❌ Erro ao desativar produto:", error);
@@ -376,7 +359,7 @@ app.get('/ofertas/destaque', async (req, res) => {
 
         for (const oferta of ofertasAtivas) {
             const limite = new Date(oferta.criado_em).getTime() + (oferta.duracao_minutos * 60 * 1000);
-            const estoque = oferta.produto.quantidade;
+            const estoque = oferta.produto?.quantidade || 0;
 
             if (limite > agora && estoque > 0) {
                 ofertaValida = oferta;
@@ -396,7 +379,7 @@ app.get('/ofertas/destaque', async (req, res) => {
 });
 
 // =======================================================
-// 💳 ROTAS DE MÉTODOS DE PAGAMENTO (CARTÕES)
+// 💳 ROTAS DE MÉTODOS DE PAGAMENTO (CARTÕES) - BLINDADO
 // =======================================================
 
 app.get('/cartoes/:usuario_id', async (req, res) => {
@@ -415,11 +398,21 @@ app.get('/cartoes/:usuario_id', async (req, res) => {
 
 app.post('/cartoes', async (req, res) => {
     try {
+        console.log("💳 Dados recebidos para criar cartão:", req.body);
         const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
+        
         if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
-            return res.status(400).json({ error: "Dados incompletos" });
+            return res.status(400).json({ error: "Dados incompletos do cartão" });
         }
-        const numero_final = numero_cartao.slice(-4);
+
+        // 🛡️ Verifica se o usuário realmente existe antes de salvar o cartão
+        const usuarioExiste = await prisma.usuarios.findUnique({ where: { id: parseInt(usuario_id) } });
+        if (!usuarioExiste) {
+            console.log(`❌ Usuário ID ${usuario_id} não encontrado no banco!`);
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        const numero_final = String(numero_cartao).slice(-4);
         const token_pagamento = `tok_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
 
         const novoCartao = await prisma.cartoes.create({
@@ -434,7 +427,7 @@ app.post('/cartoes', async (req, res) => {
         });
         res.status(201).json(novoCartao);
     } catch (error) {
-        console.error("Erro ao guardar cartão:", error);
+        console.error("❌ Erro ao guardar cartão:", error);
         res.status(500).json({ error: "Erro ao guardar o cartão" });
     }
 });
@@ -451,7 +444,7 @@ app.delete('/cartoes/:id', async (req, res) => {
 });
 
 // =======================================================
-// 🛒 ROTAS DE PEDIDOS 
+// 🛒 ROTAS DE PEDIDOS - BLINDADO CONTRA P2003
 // =======================================================
 
 app.post('/pedidos', async (req, res) => {
@@ -463,28 +456,56 @@ app.post('/pedidos', async (req, res) => {
             preco_unitario: req.body.preco_total || req.body.total
         }];
 
+        console.log("🛒 Iniciando Pedido | Comprador ID:", comprador_id);
+
+        if (!comprador_id) {
+            return res.status(400).json({ error: "ID do comprador não foi enviado pelo aplicativo." });
+        }
+
+        // 🛡️ Verifica se o Comprador existe antes de comprar
+        const compradorExiste = await prisma.usuarios.findUnique({ where: { id: parseInt(comprador_id) } });
+        if (!compradorExiste) {
+            console.log(`❌ ERRO: Comprador ID ${comprador_id} foi apagado ou não existe!`);
+            return res.status(404).json({ error: "Usuário comprador não encontrado no banco de dados." });
+        }
+
         const resultados = [];
         
         for (const item of itens) {
+            if (!item.produto_id) continue;
+
+            // 🛡️ Verifica se o Produto ainda existe no banco antes de comprar
+            const produtoExiste = await prisma.produtos.findUnique({ where: { id: parseInt(item.produto_id) } });
+            if (!produtoExiste) {
+                console.log(`❌ ERRO: Produto ID ${item.produto_id} não existe mais (talvez tenha sido apagado).`);
+                continue; // Pula este item fantasma para não dar erro 500
+            }
+
             const pedido = await prisma.pedidos.create({
                 data: {
                     comprador_id: parseInt(comprador_id),
                     produto_id: parseInt(item.produto_id),
-                    quantidade: parseInt(item.quantidade),
+                    quantidade: parseInt(item.quantidade) || 1,
                     preco_total: parseFloat(item.preco_unitario || item.preco_unit || req.body.total || 0),
                     status: 'andamento'
                 }
             });
             resultados.push(pedido);
 
+            // Tenta baixar o estoque
             try {
                 await prisma.produtos.update({
                     where: { id: parseInt(item.produto_id) },
-                    data: { quantidade: { decrement: parseInt(item.quantidade) } }
+                    data: { quantidade: { decrement: parseInt(item.quantidade) || 1 } }
                 });
             } catch (e) {
-                console.log("Erro ao baixar estoque do produto", item.produto_id);
+                console.log("Aviso: Não foi possível baixar estoque do produto", item.produto_id);
             }
+        }
+
+        // Se o carrinho só tinha itens fantasmas, avisa o app
+        if (resultados.length === 0) {
+            return res.status(400).json({ error: "Nenhum produto válido encontrado no pedido." });
         }
 
         res.status(201).json(resultados.length === 1 ? resultados[0] : resultados);
@@ -632,7 +653,6 @@ app.get('/admin/dashboard', async (req, res) => {
 
 console.log('📝 Endpoints registrados')
 
-// 🔴 IP CORRIGIDO AQUI EMBAIXO PARA FUNCIONAR NO CELULAR
 app.listen(3000, '0.0.0.0', () => {
     console.log('🚀 Servidor pronto e aceitando conexões na porta 3000!')
 })
