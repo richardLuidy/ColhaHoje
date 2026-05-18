@@ -92,10 +92,7 @@ export default function Ofertas({ onVerDetalhes }: { onVerDetalhes: (produto: an
                                         </Text>
                                     </View>
                                     
-                                    {/* FAVORITO */}
-                                    <TouchableOpacity style={styles.btnFavoritoOfertaFigma}>
-                                        <Ionicons name="heart-outline" size={16} color="#333" />
-                                    </TouchableOpacity>
+                                    
                                     
                                     {/* ESTOQUE */}
                                     <View style={styles.badgeEstoqueOfertaFigma}>

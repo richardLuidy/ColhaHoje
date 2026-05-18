@@ -93,15 +93,15 @@ app.put('/usuarios/:id', async (req, res) => {
         const updatedUser = await prisma.usuarios.update({
             where: { id: id },
             data: {
-                nome, 
-                email, 
-                senha, 
-                tipo_usuario, 
-                whatsapp, 
-                url_foto, 
+                nome,
+                email,
+                senha,
+                tipo_usuario,
+                whatsapp,
+                url_foto,
                 cpf_cnpj,
                 // 🟢 CORRIGIDO: Mudado de data_atualizacao para data_atual_izacao conforme o seu schema mapeado
-                data_atual_izacao: new Date() 
+                data_atual_izacao: new Date()
             }
         })
         res.status(200).json(updatedUser)
@@ -227,7 +227,7 @@ app.get('/produtos', async (req, res) => {
             orderBy: { id: 'desc' },
             include: {
                 // 🟢 CORREÇÃO: Mudado de 'usuario' para 'produtor' conforme seu schema
-                produtor: { select: { nome: true } }, 
+                produtor: { select: { nome: true } },
                 endereco: { select: { cidade: true, estado: true } }
             }
         });
@@ -372,7 +372,7 @@ app.get('/ofertas/destaque', async (req, res) => {
 
             if (limite > agora && estoque > 0) {
                 ofertaValida = oferta;
-                break; 
+                break;
             } else {
                 await prisma.ofertas_relampago.update({
                     where: { id: oferta.id },
@@ -409,7 +409,7 @@ app.post('/cartoes', async (req, res) => {
     try {
         console.log("💳 Dados recebidos para criar cartão:", req.body);
         const { usuario_id, numero_cartao, bandeira, nome_titular, validade } = req.body;
-        
+
         if (!usuario_id || !numero_cartao || !bandeira || !nome_titular || !validade) {
             return res.status(400).json({ error: "Dados incompletos do cartão" });
         }
@@ -476,20 +476,29 @@ app.post('/pedidos', async (req, res) => {
         }
 
         const resultados = [];
-        
+
         for (const item of itens) {
             if (!item.produto_id) continue;
 
             const produtoExiste = await prisma.produtos.findUnique({ where: { id: parseInt(item.produto_id) } });
             if (!produtoExiste) continue;
 
-            const pedido = await prisma.pedidos.create({
+         const pedido = await prisma.pedidos.create({
                 data: {
-                    comprador_id: parseInt(comprador_id),
-                    produto_id: parseInt(item.produto_id),
-                    quantidade: parseInt(item.quantidade) || 1,
-                    preco_total: parseFloat(item.preco_unitario || req.body.total || 0),
-                    status: 'andamento'
+                    status: 'andamento',
+                    total: parseFloat(item.preco_unitario || req.body.total || 0),
+                    metodo_pagamento: req.body.metodo_pagamento || 'Pix',
+                    
+                    cliente: { connect: { id: parseInt(comprador_id) } },
+                    
+                    itens: {
+                        create: {
+                            produto_id: parseInt(item.produto_id),
+                            quantidade: parseInt(item.quantidade) || 1,
+                            // 🟢 A ÚLTIMA PEÇA DO QUEBRA-CABEÇA:
+                            preco_unit: parseFloat(item.preco_unitario || req.body.total || 0)
+                        }
+                    }
                 }
             });
             resultados.push(pedido);
@@ -499,7 +508,7 @@ app.post('/pedidos', async (req, res) => {
                     where: { id: parseInt(item.produto_id) },
                     data: { quantidade: { decrement: parseInt(item.quantidade) || 1 } }
                 });
-            } catch (e) {}
+            } catch (e) { }
         }
 
         res.status(201).json(resultados.length === 1 ? resultados[0] : resultados);
@@ -540,16 +549,27 @@ app.get('/pedidos/usuario/:cliente_id', async (req, res) => {
 app.get('/pedidos/produtor/:produtor_id', async (req, res) => {
     try {
         const produtor_id = parseInt(req.params.produtor_id);
+        
+        // 🟢 BUSCA ATUALIZADA: Olha dentro da tabela filha 'itens'
         const listaVendas = await prisma.pedidos.findMany({
             where: {
-                produto: { produtor_id: produtor_id }
+                itens: {
+                    some: {
+                        produto: { produtor_id: produtor_id }
+                    }
+                }
             },
             include: {
-                comprador: { select: { nome: true, whatsapp: true } }, 
-                produto: { select: { nome_produto: true, preco: true } }
+                cliente: { select: { nome: true, whatsapp: true } },
+                itens: { 
+                    include: { 
+                        produto: { select: { nome_produto: true } } 
+                    } 
+                }
             },
             orderBy: { data_pedido: 'desc' }
         });
+        
         res.json(listaVendas);
     } catch (error) {
         console.error("❌ Erro ao buscar vendas do produtor:", error);
@@ -579,7 +599,7 @@ app.put('/pedidos/:id/status', async (req, res) => {
 // ==========================================
 app.get('/admin/dashboard', async (req, res) => {
     try {
-        const totalUsuarios = await prisma.usuarios.count(); 
+        const totalUsuarios = await prisma.usuarios.count();
         const totalProdutos = await prisma.produtos.count();
         const totalPedidos = await prisma.pedidos.count();
 
@@ -613,7 +633,7 @@ app.get('/admin/dashboard', async (req, res) => {
 
         res.json({
             totais: { usuarios: totalUsuarios, produtos: totalProdutos, pedidos: totalPedidos },
-            ultimosUsuarios, ultimosProdutos, ofertasAtivas, ultimosPedidos 
+            ultimosUsuarios, ultimosProdutos, ofertasAtivas, ultimosPedidos
         });
 
     } catch (error) {

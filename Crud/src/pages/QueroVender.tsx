@@ -84,8 +84,7 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
       try {
         const responsePedidos = await axios.get(`${API_URL}/pedidos/produtor/${idSalvo}`);
         setPedidosRecebidos(responsePedidos.data);
-        // 🟢 CORREÇÃO 1: Faturamento atualizado para usar 'preco_total'
-        const faturamento = responsePedidos.data.reduce((acc: number, p: any) => acc + (parseFloat(p.preco_total) || 0), 0);
+        const faturamento = responsePedidos.data.reduce((acc: number, p: any) => acc + (parseFloat(p.preco_total || p.total) || 0), 0);
         setFaturamentoDia(faturamento);
       } catch (err) {
         console.error("Erro ao buscar pedidos do backend:", err);
@@ -168,37 +167,48 @@ export default function QueroVender({ onVoltar }: QueroVenderProps) {
               ) : (
                   pedidosRecebidos.map((pedido) => {
                       const status = pedido.status?.toLowerCase() || '';
+                      
+                      // 🟢 MAPEMANETO CORRETO DA NOVA ESTRUTURA DO BANCO
+                      const nomeCliente = pedido.cliente?.nome || 'Cliente ColhaHoje';
+                      const primeiroItem = pedido.itens && pedido.itens.length > 0 ? pedido.itens[0] : null;
+                      const nomeProduto = primeiroItem?.produto?.nome_produto || 'Produtos Selecionados';
+                      const quantidade = primeiroItem?.quantidade || 1;
+                      const valorFinal = parseFloat(pedido.preco_total || pedido.total || 0).toFixed(2).replace('.', ',');
+
                       return (
                           <View key={pedido.id} style={{ backgroundColor: '#FFF', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 2 }}>
                               <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#EEE', paddingBottom: 10, marginBottom: 10 }}>
-                                  {/* 🟢 CORREÇÃO 2: Mudamos de 'cliente' para 'comprador' */}
-                                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>👤 {pedido.comprador?.nome || 'Cliente ColhaHoje'}</Text>
+                                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>👤 {nomeCliente}</Text>
                                   <Text style={{ fontSize: 14, color: '#999', fontWeight: 'bold' }}>#{pedido.id}</Text>
                               </View>
                               
-                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
-                                  {/* 🟢 CORREÇÃO 3: Pegando o produto direto em vez de varrer a lista velha */}
+                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
                                   <Text style={{ fontSize: 15, color: '#555', flex: 1 }}>
-                                      {pedido.quantidade}x {pedido.produto?.nome_produto || 'Produto Local'}
+                                      {quantidade}x {nomeProduto}
                                   </Text>
-                                  {/* 🟢 CORREÇÃO 4: Exibindo o preco_total */}
-                                  <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.verdeColheita }}>R$ {parseFloat(pedido.preco_total || 0).toFixed(2).replace('.', ',')}</Text>
+                                  <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.verdeColheita }}>R$ {valorFinal}</Text>
                               </View>
 
-                              <Text style={{ fontSize: 14, color: '#666', marginBottom: 10, fontStyle: 'italic', textAlign: 'center' }}>Status: {pedido.status}</Text>
+                              {/* 🟢 ADICIONADO: Linha com ícone de Localização da Entrega */}
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                                  <Ionicons name="location-outline" size={16} color="#666" style={{ marginRight: 5 }} />
+                                  <Text style={{ fontSize: 13, color: '#666' }}>Entrega: Endereço do Cliente (Registro-SP)</Text>
+                              </View>
+
+                              <Text style={{ fontSize: 14, color: '#666', marginBottom: 10, fontStyle: 'italic', textAlign: 'center' }}>Status atual: <Text style={{fontWeight: 'bold', color: '#333'}}>{pedido.status}</Text></Text>
                               
                               {(status.includes('pendente') || status.includes('andamento')) && (
-                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#FFC107' }]} onPress={() => atualizarStatusPedido(pedido.id, 'preparação')}>
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#FFC107' }]} onPress={() => atualizarStatusPedido(pedido.id, 'Preparação')}>
                                       <Text style={stylesLocal.btnTextoEscuro}>Aceitar e Preparar</Text>
                                   </TouchableOpacity>
                               )}
                               {status.includes('prepar') && (
-                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#17A2B8' }]} onPress={() => atualizarStatusPedido(pedido.id, 'em rota')}>
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: '#17A2B8' }]} onPress={() => atualizarStatusPedido(pedido.id, 'Em rota')}>
                                       <Text style={stylesLocal.btnTextoBranco}>Saiu para Entrega</Text>
                                   </TouchableOpacity>
                               )}
                               {(status.includes('rota') || status.includes('caminho')) && (
-                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: colors.verdeColheita }]} onPress={() => atualizarStatusPedido(pedido.id, 'entregue')}>
+                                  <TouchableOpacity style={[stylesLocal.btnAcao, { backgroundColor: colors.verdeColheita }]} onPress={() => atualizarStatusPedido(pedido.id, 'Entregue')}>
                                       <Text style={stylesLocal.btnTextoBranco}>Marcar como Entregue</Text>
                                   </TouchableOpacity>
                               )}

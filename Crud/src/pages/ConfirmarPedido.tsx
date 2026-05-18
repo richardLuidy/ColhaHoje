@@ -16,7 +16,7 @@ export default function ConfirmarPedido({ onFinalizado }: { onFinalizado: () => 
         try {
             const dadosPedido = {
                 // 👇 A MÁGICA ACONTECE AQUI. Trocamos o fantasma 1 pelo seu ID 7 real!
-                cliente_id: 7, 
+                cliente_id: 1, 
                 total: valorTotal,
                 metodo_pagamento: metodoPagamento,
                 itens: items.map(item => ({

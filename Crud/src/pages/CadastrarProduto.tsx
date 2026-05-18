@@ -28,6 +28,10 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
   const [quantidade, setQuantidade] = useState(1);
   const [imagemUri, setImagemUri] = useState<string | null>(null);
 
+  // 🟢 ADICIONADO: Estados para receber as informações automáticas da nuvem
+  const [nomeProdutor, setNomeProdutor] = useState('Carregando...');
+  const [localizacao, setLocalizacao] = useState('Carregando...');
+
   useEffect(() => {
     if (produtoEditando) {
       setNomeProduto(produtoEditando.nome_produto);
@@ -48,9 +52,15 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
           const response = await axios.get(`${API_URL}/produtor/dados/${idSalvo}`);
           const dadosDaNuvem = response.data;
           if (dadosDaNuvem.endereco_id) setEnderecoId(dadosDaNuvem.endereco_id);
+          
+          // 🟢 ADICIONADO: Preenche os dados automáticos sem mexer nas outras variáveis
+          setNomeProdutor(dadosDaNuvem.nome || "Produtor Local");
+          setLocalizacao(dadosDaNuvem.localizacao || "Endereço não cadastrado");
         }
       } catch (error) {
         console.error("❌ ERRO AO BUSCAR DADOS!", error);
+        setNomeProdutor("Produtor Local");
+        setLocalizacao("Endereço não cadastrado");
       }
     };
     carregarDadosDaNuvem();
@@ -105,7 +115,7 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
       formData.append('categoria', categoriaSelecionada);
       formData.append('preco', parseFloat(preco.replace(',', '.')).toString());
       formData.append('unidade', unidade);
-      formData.append('quantidade', quantidade.toString());
+      formData.append('quantidade', quantity.toString());
       formData.append('produtor_id', produtorId.toString());
       formData.append('endereco_id', enderecoId.toString());
 
@@ -175,9 +185,26 @@ export default function CadastrarProduto({ onVoltar, produtoEditando }: Cadastra
             )}
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.labelGeralCadastrar}>Nome do Produto:</Text>
+         <Text style={styles.labelGeralCadastrar}>Nome do Produto:</Text>
         <TextInput style={styles.inputGeralCadastrar} value={nomeProduto} onChangeText={setNomeProduto} />
+
+        {/* 🟢 ADICIONADO: Nome do Produtor (Preenchido automaticamente e travado para edição) */}
+        <Text style={styles.labelGeralCadastrar}>Nome do Produtor:</Text>
+        <TextInput 
+          style={[styles.inputGeralCadastrar, { backgroundColor: '#f0f0f0', color: '#666' }]} 
+          value={nomeProdutor} 
+          editable={false} 
+        />
+
+        {/* 🟢 ADICIONADO: Localização / Rua (Preenchido automaticamente e travado para edição) */}
+        <Text style={styles.labelGeralCadastrar}>Localização (Origem da Colheita):</Text>
+        <TextInput 
+          style={[styles.inputGeralCadastrar, { backgroundColor: '#f0f0f0', color: '#666' }]} 
+          value={localizacao} 
+          editable={false} 
+        />
+
+       
 
         <Text style={styles.labelCategoriaCadastrar}>Categoria</Text>
         <View style={styles.categoriaContainerCadastrar}>
