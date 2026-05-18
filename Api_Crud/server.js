@@ -93,8 +93,15 @@ app.put('/usuarios/:id', async (req, res) => {
         const updatedUser = await prisma.usuarios.update({
             where: { id: id },
             data: {
-                nome, email, senha, tipo_usuario, whatsapp, url_foto, cpf_cnpj,
-                data_atualizacao: new Date()
+                nome, 
+                email, 
+                senha, 
+                tipo_usuario, 
+                whatsapp, 
+                url_foto, 
+                cpf_cnpj,
+                // 🟢 CORRIGIDO: Mudado de data_atualizacao para data_atual_izacao conforme o seu schema mapeado
+                data_atual_izacao: new Date() 
             }
         })
         res.status(200).json(updatedUser)
@@ -191,13 +198,12 @@ app.get('/produtor/dados/:id', async (req, res) => {
 
 app.post('/produtos', upload.single('imagem'), async (req, res) => {
     try {
-        const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
+        const { nome_produto, categoria, preco, unidade, quantidade, produtor_id, endereco_id } = req.body;
         const imagem_url = req.file ? `/uploads/${req.file.filename}` : '';
 
         const novoProduto = await prisma.produtos.create({
             data: {
                 nome_produto,
-                nome_produtor: nome_produtor || "Produtor Local",
                 categoria,
                 preco: parseFloat(preco) || 0,
                 unidade,
@@ -205,6 +211,7 @@ app.post('/produtos', upload.single('imagem'), async (req, res) => {
                 produtor_id: parseInt(produtor_id) || 0,
                 endereco_id: parseInt(endereco_id) || 0,
                 imagem_url
+                // 🟢 REMOVIDO: nome_produtor foi tirado daqui pois não existe essa coluna no seu schema.prisma!
             }
         });
         res.status(201).json(novoProduto);
@@ -256,7 +263,7 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
-        const { nome_produto, nome_produtor, categoria, preco, unidade, quantidade } = req.body;
+        const { nome_produto, categoria, preco, unidade, quantidade } = req.body;
         const produtoAtual = await prisma.produtos.findUnique({ where: { id: id } });
         if (!produtoAtual) return res.status(404).json({ error: "Produto não encontrado" });
 
@@ -267,11 +274,11 @@ app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
 
         const dadosParaAtualizar = {
             nome_produto,
-            nome_produtor,
             categoria,
             preco: parseFloat(preco) || 0,
             unidade,
             quantidade: parseInt(quantidade) || 0,
+            // 🟢 REMOVIDO: nome_produtor tirado daqui para manter a consistência do banco
         };
         if (req.file) dadosParaAtualizar.imagem_url = `/uploads/${req.file.filename}`;
 
